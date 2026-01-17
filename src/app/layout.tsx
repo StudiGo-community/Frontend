@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
-import { Footer, Toaster, Header } from '@/shared/ui'
+import { Footer, Toaster } from '@/shared/ui'
+import { Header } from '@/shared/ui/header'
 
 export const metadata: Metadata = {
   title: 'StudiGo',
