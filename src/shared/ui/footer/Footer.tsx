@@ -1,8 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
 
-import FooterIcon from '@/shared/ui/footer/FooterIcon.png'
-
 const Footer = () => {
   return (
     <footer className="text-brand-white w-full bg-[#1E1919] px-5 pt-16 md:px-12 lg:px-60">
@@ -34,11 +32,12 @@ const Footer = () => {
         <div className="bg-brand-white mt-16 h-px w-full" />
 
         <section className="mt-12 max-w-3xl text-left">
-          <div className="h-6 w-24">
+          <div className="relative h-6 w-24">
             <Image
-              src={FooterIcon}
+              src="/images/footer-logo.png"
               alt="LINKVERSE"
-              className="h-full w-full object-contain object-left"
+              className="object-contain object-left"
+              fill={true}
               priority
             />
           </div>
