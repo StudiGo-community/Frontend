@@ -1,35 +1,25 @@
 'use client'
 
-// import React from 'react'
+import Image from 'next/image'
 import { Eye, Heart, MessageSquare } from 'lucide-react'
-// import { cn } from '@/shared/lib/cn'
+import { Post } from '@/features/mockData'
 
-interface PropCardProps {
-  post: {
-    author: {
-      nickname: string
-      profileImage?: string
-    }
-    title: string
-    createdAt: string
-    views: number
-    likes: number
-    comments: number
-    thumbnail?: string
-  }
+interface PostCardProps {
+  post: Post
 }
 
-export default function PostCard({ post }: PropCardProps) {
+export default function PostCard({ post }: PostCardProps) {
   return (
     <article className="group hover:bg-brand-gray-50 flex cursor-pointer items-center justify-between px-2 py-6 transition-all">
       <div className="flex min-w-0 flex-1 flex-col gap-2.5">
         <div className="text-brand-gray-400 flex items-center gap-2 text-sm">
-          <div className="bg-brand-gray-200 h-6 w-6 shrink-0 overflow-hidden rounded-full">
+          <div className="bg-brand-gray-200 relative h-6 w-6 shrink-0 overflow-hidden rounded-full">
             {post.author.profileImage ? (
-              <img
+              <Image
                 src={post.author.profileImage}
                 alt={post.author.nickname}
-                className="h-full w-full object-cover"
+                fill
+                className="object-cover"
               />
             ) : (
               <div className="bg-brand-gray-300 h-full w-full" />
@@ -41,7 +31,7 @@ export default function PostCard({ post }: PropCardProps) {
           <span className="text-brand-gray-300">{post.createdAt}</span>
         </div>
 
-        <h3 className="text-brand-black group-hover:text-brand-main line-clamp-1 text-xl leading-snug font-bold transition-colors">
+        <h3 className="text-brand-black group-hover:text-brand-main line-clamp-1 text-lg leading-snug font-bold transition-colors">
           {post.title}
         </h3>
 
@@ -62,11 +52,12 @@ export default function PostCard({ post }: PropCardProps) {
       </div>
 
       {post.thumbnail && (
-        <div className="bg-brand-gray-100 border-brand-gray-50 ml-6 h-24 w-24 shrink-0 overflow-hidden rounded-xl border">
-          <img
+        <div className="bg-brand-gray-100 border-brand-gray-50 relative ml-6 h-24 w-24 shrink-0 overflow-hidden rounded-xl border">
+          <Image
             src={post.thumbnail}
             alt="post thumbnail"
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
         </div>
       )}

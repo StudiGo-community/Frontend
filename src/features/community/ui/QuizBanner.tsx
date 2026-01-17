@@ -30,17 +30,29 @@ export function QuizBanner({
 
   const isCorrect =
     quizInput.trim().toLowerCase() === data.correctAnswer?.toLowerCase()
-  const quizTextColor = isSubmitted
-    ? isCorrect
-      ? 'text-green-400'
-      : 'text-red-400'
-    : 'text-white'
+
+  let quizTextColor = 'text-white'
+  if (isSubmitted) {
+    quizTextColor = isCorrect ? 'text-green-400' : 'text-red-400'
+  }
+
+  let inputBgClass = 'bg-[#FFF5F5]'
+  if (isSubmitted && !isCorrect) {
+    inputBgClass = 'bg-red-50 ring-2 ring-red-400'
+  }
+
+  let buttonClass =
+    'border-white bg-transparent text-white hover:bg-white hover:text-[#B50000]'
+  if (isSubmitted && isCorrect) {
+    buttonClass = 'cursor-default border-white bg-transparent text-white'
+  }
+
   const handleQuizSubmit = () => {
     if (!quizInput) return
 
     setIsSubmitted(true)
 
-    if (quizInput.trim().toLowerCase() !== data.correctAnswer?.toLowerCase()) {
+    if (!isCorrect) {
       setShouldShake(true)
       setTimeout(() => setShouldShake(false), 500)
     }
@@ -90,7 +102,7 @@ export function QuizBanner({
         </div>
 
         {isActive && (
-          <div className="animate-in fade-in slide-in-from-right-4 mt-5 mr-28 flex flex-col items-center text-center duration-500">
+          <div className="animate-in fade-in slide-in-from-right-4 mt-4 mr-28 flex flex-col items-center text-center duration-500">
             <div className="mb-4 flex items-center gap-3">
               <h2 className="text-2xl font-black italic">
                 {renderQuizContent()}

@@ -1,7 +1,7 @@
 // src/features/community/model/mockData.ts
 
 export interface BannerData {
-  id: string
+  id: number
   type: 'quote' | 'quiz'
   title: string
   content: string
@@ -12,7 +12,7 @@ export interface BannerData {
 
 export const MOCK_BANNER_DATA: BannerData[] = [
   {
-    id: 'banner_1',
+    id: 1,
     type: 'quote',
     title: '오늘의 문장',
     content: '"Intenta y falla, pero no dejes de intentar"',
@@ -20,7 +20,7 @@ export const MOCK_BANNER_DATA: BannerData[] = [
     audioUrl: '/path/to/audio1.mp3',
   },
   {
-    id: 'banner_2',
+    id: 2,
     type: 'quiz',
     title: '오늘의 문제',
     content: '"Intenta y (____), pero no dejes de intentar"',
