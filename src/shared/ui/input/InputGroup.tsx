@@ -4,7 +4,7 @@ import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/shared/lib/cn'
 
-function InputGroup({ className, ...props }: React.ComponentProps<'div'>) {
+function InputGroupRoot({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="input-group"
@@ -109,3 +109,9 @@ function InputGroupIconButton({
 }
 
 export { InputGroup, InputGroupAddon, InputGroupInput, InputGroupIconButton }
+
+const InputGroup = Object.assign(InputGroupRoot, {
+  Addon: InputGroupAddon,
+  Input: InputGroupInput,
+  IconButton: InputGroupIconButton,
+})
