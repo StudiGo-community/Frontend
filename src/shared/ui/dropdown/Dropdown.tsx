@@ -9,11 +9,11 @@ import ArrowDownIcon from '@/shared/ui/assets/arrow-down-icon.svg'
 import {
   CONTENT_BASE_CLASS,
   ITEM_BASE_CLASS,
-  SelectSize,
+  DropdownSize,
   TRIGGER_BASE_CLASS,
   TRIGGER_SIZE_CLASS,
   VIEWPORT_CLASS,
-} from '@/shared/ui/select/SelectStyle'
+} from '@/shared/ui/dropdown/dropdown-style'
 
 function Select(props: React.ComponentProps<typeof SelectPrimitive.Root>) {
   return <SelectPrimitive.Root {...props} />
@@ -51,7 +51,7 @@ function SelectTrigger({
   children,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Trigger> & {
-  size?: SelectSize
+  size?: DropdownSize
 }) {
   return (
     <SelectPrimitive.Trigger
@@ -149,13 +149,14 @@ function SelectSeparator({
   )
 }
 
-export {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
-}
+const Dropdown = Object.assign(Select, {
+  Content: SelectContent,
+  Group: SelectGroup,
+  Item: SelectItem,
+  Label: SelectLabel,
+  Separator: SelectSeparator,
+  Trigger: SelectTrigger,
+  Value: SelectValue,
+})
+
+export { Dropdown }
