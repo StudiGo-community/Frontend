@@ -13,12 +13,7 @@ import {
 } from 'lucide-react'
 import { DropdownMenu } from '@/shared/ui/DropdownMenu'
 import { Avatar } from '@/shared/ui/Avatar'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/shared/ui/Accordion'
+import { Accordion } from '@/shared/ui/Accordion'
 
 export const HeaderDropdownMenu = () => (
   <div className="flex items-center">
@@ -67,14 +62,14 @@ export const HeaderDropdownMenu = () => (
           </DropdownMenu.Item>
 
           <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="my-activity" className="border-none">
-              <AccordionTrigger className="hover:bg-brand-gray-100 rounded-brand-sm text-brand-gray-500 px-2 py-2 hover:no-underline">
+            <Accordion.Item value="my-activity" className="border-none">
+              <Accordion.Trigger className="hover:bg-brand-gray-100 rounded-brand-sm text-brand-gray-500 px-2 py-2 hover:no-underline">
                 <div className="flex items-center gap-3">
                   <HistoryIcon className="h-4 w-4" />
                   <span>내 활동 보기</span>
                 </div>
-              </AccordionTrigger>
-              <AccordionContent className="bg-brand-gray-100/50 rounded-brand-sm mt-1 pb-1">
+              </Accordion.Trigger>
+              <Accordion.Content className="bg-brand-gray-100/50 rounded-brand-sm mt-1 pb-1">
                 <DropdownMenu.Item className="text-brand-gray-500 flex cursor-pointer items-center gap-3 px-8 py-2 text-sm focus:bg-transparent">
                   <LayoutGridIcon className="h-4 w-4" /> 내 게시글
                 </DropdownMenu.Item>
@@ -84,8 +79,8 @@ export const HeaderDropdownMenu = () => (
                 <DropdownMenu.Item className="text-brand-gray-500 flex cursor-pointer items-center gap-3 px-8 py-2 text-sm focus:bg-transparent">
                   <HeartIcon className="h-4 w-4" /> 좋아요
                 </DropdownMenu.Item>
-              </AccordionContent>
-            </AccordionItem>
+              </Accordion.Content>
+            </Accordion.Item>
           </Accordion>
         </div>
         <DropdownMenu.Separator className="bg-brand-gray-100" />
