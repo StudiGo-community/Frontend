@@ -5,7 +5,7 @@ import { cva } from 'class-variance-authority'
 import { InputGroup } from '@/shared/ui/input/InputGroup'
 import { cn } from '@/shared/lib/cn'
 import { CalendarIcon, EyeIcon, EyeOffIcon } from 'lucide-react'
-import { default as SearchIcon } from '@/shared/ui/input/search-icon.svg'
+import SearchIcon from '@/shared/ui/assets/search-icon.svg'
 
 interface InputProps extends Omit<React.ComponentProps<'input'>, 'size'> {
   variant?: 'default' | 'warn' | 'disabled'
