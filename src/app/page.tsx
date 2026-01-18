@@ -7,7 +7,9 @@ import {
   PostCard,
 } from '@/features/community/ui'
 import { MOCK_POSTS, Post } from '@/features/mockData'
-import { PaginationBar } from '@/shared/ui/index'
+import { Pagination } from '@/shared/ui/index'
+
+const POSTS_PER_PAGE = 10
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<string>('전체')
@@ -16,7 +18,6 @@ export default function Home() {
   const [sortBy, setSortBy] = useState<'popular' | 'latest'>('latest')
 
   const [currentPage, setCurrentPage] = useState(1)
-  const postsPerPage = 10
 
   const filteredAndSortedPosts = useMemo(() => {
     let filtered: Post[] = [...MOCK_POSTS]
@@ -38,17 +39,20 @@ export default function Home() {
       if (sortBy === 'popular') {
         return sortOrder === 'desc' ? b.likes - a.likes : a.likes - b.likes
       }
+      const dateA = new Date(a.createdAt).getTime()
+      const dateB = new Date(b.createdAt).getTime()
+
       return sortOrder === 'desc' ? b.id - a.id : a.id - b.id
     })
   }, [activeTab, searchQuery, sortOrder, sortBy])
 
   const currentPosts = useMemo(() => {
-    const indexOfLastPost = currentPage * postsPerPage
-    const indexOfFirstPost = indexOfLastPost - postsPerPage
+    const indexOfLastPost = currentPage * POSTS_PER_PAGE
+    const indexOfFirstPost = indexOfLastPost - POSTS_PER_PAGE
     return filteredAndSortedPosts.slice(indexOfFirstPost, indexOfLastPost)
   }, [filteredAndSortedPosts, currentPage])
 
-  const totalPages = Math.ceil(filteredAndSortedPosts.length / postsPerPage)
+  const totalPages = Math.ceil(filteredAndSortedPosts.length / POSTS_PER_PAGE)
 
   return (
     <main className="mx-auto max-w-300 space-y-6 px-4 py-10">
@@ -92,7 +96,7 @@ export default function Home() {
       </div>
 
       <section className="flex justify-center py-6">
-        <PaginationBar
+        <Pagination
           page={currentPage}
           totalPages={totalPages > 0 ? totalPages : 1}
           onChangePage={setCurrentPage}
