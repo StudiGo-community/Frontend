@@ -4,7 +4,7 @@ import * as React from 'react'
 import * as SelectPrimitive from '@radix-ui/react-select'
 
 import { cn } from '@/shared/lib/cn'
-import DropdownIcon from '@/shared/ui/select/DropdownIcon.svg'
+import ArrowDownIcon from '@/shared/ui/assets/arrow-down-icon.svg'
 
 import {
   CONTENT_BASE_CLASS,
@@ -68,7 +68,7 @@ function SelectTrigger({
 
       <SelectPrimitive.Icon asChild>
         <span className="ml-2 flex size-6 shrink-0 items-center justify-center">
-          <DropdownIcon className="text-brand-gray-300 size-6 shrink-0" />
+          <ArrowDownIcon className="text-brand-gray-300 size-6 shrink-0" />
         </span>
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
