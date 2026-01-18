@@ -12,7 +12,7 @@ import {
   UserIcon,
 } from 'lucide-react'
 import { DropdownMenu } from '@/shared/ui/DropdownMenu'
-import { Avatar, AvatarImage, AvatarFallback } from '@/shared/ui/Avatar'
+import { Avatar } from '@/shared/ui/Avatar'
 import {
   Accordion,
   AccordionContent,
@@ -35,8 +35,8 @@ export const HeaderDropdownMenu = () => (
       >
         <div className="flex items-center gap-3 p-3">
           <Avatar className="border-brand-green h-10 w-10 border">
-            <AvatarImage src="/images/profile-dog.png" alt="Fortes42" />
-            <AvatarFallback>F42</AvatarFallback>
+            <Avatar.Image src="/images/profile-dog.png" alt="Fortes42" />
+            <Avatar.Fallback>F42</Avatar.Fallback>
           </Avatar>
           <div className="flex flex-col">
             <span className="text-brand-black text-sm font-bold">Fortes42</span>
