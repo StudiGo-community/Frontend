@@ -16,7 +16,7 @@ interface PaginationBarProps {
 }
 
 // 페이지 효시 범위 계산(최대 7개, '...' 포함)
-export const PaginationBar = ({
+const Pagination = ({
   page,
   totalPages,
   onChangePage,
@@ -141,3 +141,5 @@ export const PaginationBar = ({
     </nav>
   )
 }
+
+export { Pagination }
