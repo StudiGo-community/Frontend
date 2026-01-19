@@ -8,8 +8,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input'
 
-import KakaoIcon from '@/features/auth/login/assets/kakao-icon.svg'
-import GoogleIcon from '@/features/auth/login/assets/google-icon.svg'
+import KakaoIcon from '@/features/auth/assets/kakao-icon.svg'
+import GoogleIcon from '@/features/auth/assets/google-icon.svg'
 
 const loginSchema = z.object({
   email: z

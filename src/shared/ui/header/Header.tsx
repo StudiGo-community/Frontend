@@ -56,7 +56,7 @@ const Header = ({ isLoggedIn = false }: HeaderProps) => {
       {isLoggedIn ? (
         <HeaderDropdownMenu />
       ) : (
-        <Link href="/login" className="shrink-0">
+        <Link href="/auth/login" className="shrink-0">
           <Button size="sm" className="cursor-pointer">
             로그인하기
           </Button>
