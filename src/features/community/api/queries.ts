@@ -1,8 +1,19 @@
-import { useQuery, UseQueryOptions } from '@tanstack/react-query'
+import {
+  useMutation,
+  UseMutationOptions,
+  useQuery,
+  UseQueryOptions,
+} from '@tanstack/react-query'
 import { queryKeys } from '@/features/community/api/query-keys'
-import { getQuiz } from '@/features/community/api/api'
-import { QuizResponse } from '@/features/community/model/schema'
+import { getQuiz, submitQuiz } from '@/features/community/api/api'
+import {
+  QuizResponse,
+  QuizSubmissionRequest,
+  QuizSubmissionResponse,
+} from '@/features/community/model/schema'
+import { AxiosError } from 'axios'
 
+// ---------- 퀴즈 조회 ----------
 type QuizQueryOptions = Omit<
   UseQueryOptions<QuizResponse>,
   'queryKey' | 'queryFn' | 'staleTime'
@@ -25,4 +36,17 @@ const useQuiz = (options?: QuizQueryOptions) => {
   })
 }
 
-export { useQuiz }
+// ---------- 퀴즈 제출 ----------
+type SubmitQuizOptions = Omit<
+  UseMutationOptions<QuizSubmissionResponse, AxiosError, QuizSubmissionRequest>,
+  'mutationFn'
+>
+
+const useSubmitQuiz = (options?: SubmitQuizOptions) => {
+  return useMutation({
+    mutationFn: submitQuiz,
+    ...options,
+  })
+}
+
+export { useQuiz, useSubmitQuiz }
