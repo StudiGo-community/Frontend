@@ -1,7 +1,8 @@
 'use client'
 
 import { cn } from '@/shared/lib/cn'
-import { Button, Input } from '@/shared/ui'
+import { Button } from '@/shared/ui/Button'
+import { Input } from '@/shared/ui/input'
 import { Plus, ArrowUpNarrowWide, ArrowDownWideNarrow } from 'lucide-react'
 
 const COMMUNITY_TABS = ['전체', '자유', '모집', '학습'] as const

@@ -90,12 +90,12 @@ export function QuizBanner({
 
       {/* 콘텐츠 섹션 */}
       <div className="relative z-10 flex h-full flex-col justify-start p-6 text-white">
-        <div className="mb-2 flex items-center text-xl leading-none font-bold">
+        <div className="mb-2 flex items-center text-2xl leading-none font-bold">
           {isActive ? '' : '〈 '}오늘의 문제
         </div>
 
         {isActive && (
-          <div className="animate-in fade-in slide-in-from-right-4 mt-5 mr-28 flex flex-col items-center text-center duration-500">
+          <div className="animate-in fade-in slide-in-from-right-4 mt-4 mr-28 flex flex-col items-center text-center duration-500">
             <div className="mb-4 flex items-center gap-3">
               <h2 className="text-2xl font-black italic">
                 {renderQuizContent()}

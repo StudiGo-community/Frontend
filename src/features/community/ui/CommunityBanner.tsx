@@ -4,8 +4,8 @@ import { useState } from 'react'
 import { MOCK_BANNER_DATA } from '@/features/bannerMockData'
 import { QuizBanner } from '@/features/community/ui/QuizBanner'
 import { QuoteBanner } from '@/features/community/ui/QuoteBanner'
-import QuoteImage from '@/assets/quote-image.png'
-import QuizImage from '@/assets/quiz-image.png'
+import QuoteImage from '@/features/community/assets/quote-image.png'
+import QuizImage from '@/features/community/assets/quiz-image.png'
 
 export default function CommunityBanner() {
   const [activeType, setActiveType] = useState<'quote' | 'quiz'>('quote')
