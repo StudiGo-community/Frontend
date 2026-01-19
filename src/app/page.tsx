@@ -7,7 +7,7 @@ import {
   PostCard,
 } from '@/features/community/ui'
 import { MOCK_POSTS, Post } from '@/features/mockData'
-import { Pagination } from '@/shared/ui/index'
+import { Pagination } from '@/shared/ui/Pagination'
 
 const POSTS_PER_PAGE = 10
 

@@ -7,7 +7,7 @@ import {
   thumbnail2,
   thumbnail3,
   thumbnail4,
-} from '@/assets/index'
+} from '@/features/community/assets/index'
 import { StaticImageData } from 'next/image'
 
 export interface Author {
