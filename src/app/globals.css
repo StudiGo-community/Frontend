@@ -78,6 +78,21 @@
   --shadow-brand-sm: 0 0 6px rgba(0, 0, 0, 0.25);
   --shadow-brand-md: 0 0 10px rgba(0, 0, 0, 0.25);
   --shadow-brand-lg: 0 0 14px rgba(0, 0, 0, 0.25);
+
+  --animate-shake: shake 0.2s ease-in-out 0s 2;
+
+  @keyframes shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-4px);
+    }
+    75% {
+      transform: translateX(4px);
+    }
+  }
 }
 
 :root {
