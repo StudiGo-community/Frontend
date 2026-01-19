@@ -156,7 +156,9 @@ const LoginPage = () => {
             size="reg"
             variant="secondary"
             disabled={isDisabled}
-            className="w-full cursor-pointer font-normal hover:opacity-90"
+            className={`w-full font-normal hover:opacity-90 ${
+              !isDisabled ? 'cursor-pointer' : ''
+            }`}
           >
             이메일로 로그인
           </Button>
