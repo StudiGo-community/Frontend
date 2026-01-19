@@ -2,15 +2,10 @@
 
 import React, { useImperativeHandle, useRef, useState } from 'react'
 import { cva } from 'class-variance-authority'
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupIconButton,
-  InputGroupInput,
-} from '@/shared/ui/input/InputGroup'
+import { InputGroup } from '@/shared/ui/input/InputGroup'
 import { cn } from '@/shared/lib/cn'
 import { CalendarIcon, EyeIcon, EyeOffIcon } from 'lucide-react'
-import { default as SearchIcon } from '@/shared/ui/input/search-icon.svg'
+import SearchIcon from '@/shared/ui/assets/search-icon.svg'
 
 interface InputProps extends Omit<React.ComponentProps<'input'>, 'size'> {
   variant?: 'default' | 'warn' | 'disabled'
@@ -96,7 +91,7 @@ function Input({
         className
       )}
     >
-      <InputGroupInput
+      <InputGroup.Input
         type={internalType}
         className={cn(
           'placeholder:text-brand-gray-300 p-0 placeholder:text-base',
@@ -112,14 +107,14 @@ function Input({
         {...props}
       />
       {IconComponent && (
-        <InputGroupAddon align={'inline-end'} className="p-0">
-          <InputGroupIconButton
+        <InputGroup.Addon align={'inline-end'} className="p-0">
+          <InputGroup.IconButton
             className="text-brand-gray-300"
             onClick={handleIconButtonClick}
           >
             <IconComponent strokeWidth={2.5} className="size-4.5" />
-          </InputGroupIconButton>
-        </InputGroupAddon>
+          </InputGroup.IconButton>
+        </InputGroup.Addon>
       )}
     </InputGroup>
   )

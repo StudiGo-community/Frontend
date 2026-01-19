@@ -1,6 +1,6 @@
-export type SelectSize = 'md' | 'lg'
+export type DropdownSize = 'md' | 'lg'
 
-export const TRIGGER_SIZE_CLASS: Record<SelectSize, string> = {
+export const TRIGGER_SIZE_CLASS: Record<DropdownSize, string> = {
   md: 'w-full max-w-96 h-12',
   lg: 'w-full max-w-lg h-12',
 }

@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
-import { Footer, Toaster, Header } from '@/shared/ui'
+import { Header } from '@/shared/ui/header'
+import Footer from '@/shared/ui/Footer'
+import { Toaster } from '@/shared/ui/Toaster'
 
 export const metadata: Metadata = {
   title: 'StudiGo',
@@ -9,7 +11,7 @@ export const metadata: Metadata = {
 }
 
 const pretendard = localFont({
-  src: './PretendardVariable.woff2',
+  src: '../../public/fonts/PretendardVariable.woff2',
   display: 'swap',
   variable: '--font-pretendard',
 })

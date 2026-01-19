@@ -11,38 +11,27 @@ import {
   SettingsIcon,
   UserIcon,
 } from 'lucide-react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/shared/ui/DropdownMenu'
-import { Avatar, AvatarImage, AvatarFallback } from '@/shared/ui/Avatar'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/shared/ui/Accordion'
+import { DropdownMenu } from '@/shared/ui/DropdownMenu'
+import { Avatar } from '@/shared/ui/Avatar'
+import { Accordion } from '@/shared/ui/Accordion'
 
 export const HeaderDropdownMenu = () => (
   <div className="flex items-center">
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenu.Trigger asChild>
         <button className="hover:bg-brand-gray-100 cursor-pointer rounded-full p-1 transition-colors outline-none">
           <UserIcon className="text-brand-black h-6 w-6" />
         </button>
-      </DropdownMenuTrigger>
+      </DropdownMenu.Trigger>
 
-      <DropdownMenuContent
+      <DropdownMenu.Content
         align="end"
         className="rounded-brand-base border-brand-gray-100 shadow-brand-md w-64 p-2"
       >
         <div className="flex items-center gap-3 p-3">
           <Avatar className="border-brand-green h-10 w-10 border">
-            <AvatarImage src="/images/profile-dog.png" alt="Fortes42" />
-            <AvatarFallback>F42</AvatarFallback>
+            <Avatar.Image src="/images/profile-dog.png" alt="Fortes42" />
+            <Avatar.Fallback>F42</Avatar.Fallback>
           </Avatar>
           <div className="flex flex-col">
             <span className="text-brand-black text-sm font-bold">Fortes42</span>
@@ -52,10 +41,10 @@ export const HeaderDropdownMenu = () => (
           </div>
         </div>
 
-        <DropdownMenuSeparator className="bg-brand-gray-100" />
+        <DropdownMenu.Separator className="bg-brand-gray-100" />
 
         <div className="py-1">
-          <DropdownMenuItem
+          <DropdownMenu.Item
             asChild
             className="rounded-brand-sm focus:bg-brand-gray-100"
           >
@@ -66,41 +55,41 @@ export const HeaderDropdownMenu = () => (
               <HomeIcon className="h-4 w-4" />
               <span className="text-sm">마이페이지로 이동</span>
             </Link>
-          </DropdownMenuItem>
+          </DropdownMenu.Item>
 
-          <DropdownMenuItem className="rounded-brand-sm focus:bg-brand-gray-100 text-brand-gray-500 flex items-center gap-3 py-2 text-sm">
+          <DropdownMenu.Item className="rounded-brand-sm focus:bg-brand-gray-100 text-brand-gray-500 flex items-center gap-3 py-2 text-sm">
             <SettingsIcon className="h-4 w-4" />내 정보 수정
-          </DropdownMenuItem>
+          </DropdownMenu.Item>
 
           <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="my-activity" className="border-none">
-              <AccordionTrigger className="hover:bg-brand-gray-100 rounded-brand-sm text-brand-gray-500 px-2 py-2 hover:no-underline">
+            <Accordion.Item value="my-activity" className="border-none">
+              <Accordion.Trigger className="hover:bg-brand-gray-100 rounded-brand-sm text-brand-gray-500 px-2 py-2 hover:no-underline">
                 <div className="flex items-center gap-3">
                   <HistoryIcon className="h-4 w-4" />
                   <span>내 활동 보기</span>
                 </div>
-              </AccordionTrigger>
-              <AccordionContent className="bg-brand-gray-100/50 rounded-brand-sm mt-1 pb-1">
-                <DropdownMenuItem className="text-brand-gray-500 flex cursor-pointer items-center gap-3 px-8 py-2 text-sm focus:bg-transparent">
+              </Accordion.Trigger>
+              <Accordion.Content className="bg-brand-gray-100/50 rounded-brand-sm mt-1 pb-1">
+                <DropdownMenu.Item className="text-brand-gray-500 flex cursor-pointer items-center gap-3 px-8 py-2 text-sm focus:bg-transparent">
                   <LayoutGridIcon className="h-4 w-4" /> 내 게시글
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-brand-gray-500 flex cursor-pointer items-center gap-3 px-8 py-2 text-sm focus:bg-transparent">
+                </DropdownMenu.Item>
+                <DropdownMenu.Item className="text-brand-gray-500 flex cursor-pointer items-center gap-3 px-8 py-2 text-sm focus:bg-transparent">
                   <MessageSquareTextIcon className="h-4 w-4" /> 내 댓글
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-brand-gray-500 flex cursor-pointer items-center gap-3 px-8 py-2 text-sm focus:bg-transparent">
+                </DropdownMenu.Item>
+                <DropdownMenu.Item className="text-brand-gray-500 flex cursor-pointer items-center gap-3 px-8 py-2 text-sm focus:bg-transparent">
                   <HeartIcon className="h-4 w-4" /> 좋아요
-                </DropdownMenuItem>
-              </AccordionContent>
-            </AccordionItem>
+                </DropdownMenu.Item>
+              </Accordion.Content>
+            </Accordion.Item>
           </Accordion>
         </div>
-        <DropdownMenuSeparator className="bg-brand-gray-100" />
+        <DropdownMenu.Separator className="bg-brand-gray-100" />
 
-        <DropdownMenuItem className="rounded-brand-sm focus:bg-brand-gray-100 text-brand-black flex items-center gap-3 py-2 text-sm font-medium">
+        <DropdownMenu.Item className="rounded-brand-sm focus:bg-brand-gray-100 text-brand-black flex items-center gap-3 py-2 text-sm font-medium">
           <LogOutIcon className="h-4 w-4" />
           로그아웃
-        </DropdownMenuItem>
-      </DropdownMenuContent>
+        </DropdownMenu.Item>
+      </DropdownMenu.Content>
     </DropdownMenu>
   </div>
 )

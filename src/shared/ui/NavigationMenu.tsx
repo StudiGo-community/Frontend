@@ -4,7 +4,7 @@ import { cva } from 'class-variance-authority'
 import { ChevronDownIcon } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 
-function NavigationMenu({
+function NavigationMenuRoot({
   className,
   children,
   viewport = true,
@@ -154,14 +154,15 @@ function NavigationMenuIndicator({
   )
 }
 
-export {
-  NavigationMenu,
-  NavigationMenuList,
-  NavigationMenuItem,
-  NavigationMenuContent,
-  NavigationMenuTrigger,
-  NavigationMenuLink,
-  NavigationMenuIndicator,
-  NavigationMenuViewport,
-  navigationMenuTriggerStyle,
-}
+const NavigationMenu = Object.assign(NavigationMenuRoot, {
+  List: NavigationMenuList,
+  Item: NavigationMenuItem,
+  Content: NavigationMenuContent,
+  Trigger: NavigationMenuTrigger,
+  Indicator: NavigationMenuIndicator,
+  Link: NavigationMenuLink,
+  Viewport: NavigationMenuViewport,
+  TriggerStyle: navigationMenuTriggerStyle,
+})
+
+export { NavigationMenu }
