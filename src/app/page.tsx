@@ -6,7 +6,7 @@ import {
   CommunityFilters,
   PostCard,
 } from '@/features/community/ui'
-import { MOCK_POSTS, Post } from '@/features/mockData'
+import { MOCK_POSTS, Post } from '@/features/community/mockData'
 import { Pagination } from '@/shared/ui/Pagination'
 
 const POSTS_PER_PAGE = 10

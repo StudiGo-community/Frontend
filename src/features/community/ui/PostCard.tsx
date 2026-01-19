@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { Eye, Heart, MessageSquare } from 'lucide-react'
-import { Post } from '@/features/mockData'
+import { Post } from '@/features/community/mockData'
 
 interface PostCardProps {
   post: Post
