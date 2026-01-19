@@ -33,7 +33,7 @@ const RootLayout = ({
   return (
     <html lang="ko" className={`${pretendard.variable} antialiased`}>
       <body className="font-pretendard flex min-h-screen flex-col">
-        <Header />
+        <Header isLoggedIn={false} />
         <main className="flex-1">{children}</main>
         <Footer />
         <Toaster position="top-right" duration={1500} />

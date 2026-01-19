@@ -4,13 +4,18 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/shared/lib/cn'
 import HeaderDropdownMenu from '@/shared/ui/header/HeaderDropdownMenu'
+import { Button } from '@/shared/ui/Button'
 
 const navItems = [
   { name: '커뮤니티', href: '/' },
   { name: '실시간 채팅', href: '/chat' },
 ]
 
-const Header = () => {
+interface HeaderProps {
+  isLoggedIn?: boolean
+}
+
+const Header = ({ isLoggedIn = false }: HeaderProps) => {
   const pathname = usePathname()
 
   return (
@@ -47,7 +52,16 @@ const Header = () => {
           })}
         </nav>
       </div>
-      <HeaderDropdownMenu />
+
+      {isLoggedIn ? (
+        <HeaderDropdownMenu />
+      ) : (
+        <Link href="/login" className="shrink-0">
+          <Button size="sm" className="cursor-pointer">
+            로그인하기
+          </Button>
+        </Link>
+      )}
     </header>
   )
 }
