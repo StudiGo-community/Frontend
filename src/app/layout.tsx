@@ -4,6 +4,7 @@ import './globals.css'
 import { Header } from '@/shared/ui/header'
 import Footer from '@/shared/ui/Footer'
 import { Toaster } from '@/shared/ui/Toaster'
+import { MswComponent } from '@/shared/api/mocks'
 
 export const metadata: Metadata = {
   title: 'StudiGo',
@@ -15,6 +16,14 @@ const pretendard = localFont({
   display: 'swap',
   variable: '--font-pretendard',
 })
+
+if (
+  process.env.NEXT_RUNTIME === 'nodejs' &&
+  process.env.NODE_ENV === 'development'
+) {
+  const { server } = await import('@/shared/api/mocks')
+  server.listen({ onUnhandledRequest: 'bypass' })
+}
 
 const RootLayout = ({
   children,
@@ -28,6 +37,7 @@ const RootLayout = ({
         <main className="flex-1">{children}</main>
         <Footer />
         <Toaster position="top-right" duration={1500} />
+        <MswComponent />
       </body>
     </html>
   )
