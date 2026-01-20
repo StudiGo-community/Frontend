@@ -1,18 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { Volume2 } from 'lucide-react'
+import { CheckCircle2Icon, Volume2 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
-
-interface BannerData {
-  id: number
-  type: 'quote' | 'quiz'
-  content: string
-  correctAnswer?: string
-}
+import { QuizResponse } from '@/features/community/model/schema'
+import { useQuizResult, useSubmitQuiz } from '@/features/community/api/queries'
+import QuizInputForm from '@/features/community/ui/QuizInputForm'
 
 interface QuizBannerProps {
-  data: BannerData
+  data: QuizResponse
   isActive: boolean
   onClick: () => void
   imageSrc: string
@@ -25,26 +21,26 @@ export function QuizBanner({
   imageSrc,
 }: QuizBannerProps) {
   const [quizInput, setQuizInput] = useState('')
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  const [shouldShake, setShouldShake] = useState(false)
-
+  const { data: quizResult } = useQuizResult()
+  const { mutate: submitQuiz, data: quizSubmitResult } = useSubmitQuiz()
+  const isSubmitted = quizResult?.status === 'COMPLETED' || !!quizSubmitResult
   const isCorrect =
-    quizInput.trim().toLowerCase() === data.correctAnswer?.toLowerCase()
+    quizResult?.submission.isCorrect ?? quizSubmitResult?.submission.isCorrect
 
-  const handleQuizSubmit = () => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setQuizInput(event.target.value)
+  }
+  const handleQuizSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
     if (!quizInput) return
-
-    setIsSubmitted(true)
-
-    if (!isCorrect) {
-      setShouldShake(true)
-      setTimeout(() => setShouldShake(false), 500)
-    }
+    submitQuiz({ submittedAnswerText: quizInput })
   }
 
   const renderQuizContent = () => {
-    if (!data.content.includes('(____)')) return data.content
-    const parts = data.content.split('(____)')
+    if (quizResult) return quizResult.question.prompt
+    if (!data.question.prompt.includes('______')) return data.question.prompt
+    const parts = data.question.prompt.split('______')
 
     return (
       <>
@@ -53,10 +49,10 @@ export function QuizBanner({
           className={cn('transition-colors', {
             'text-white': !isSubmitted,
             'text-green-400': isSubmitted && isCorrect,
-            'text-brand-error': isSubmitted && !isCorrect,
+            'text-brand-gray-300': isSubmitted && !isCorrect,
           })}
         >
-          {isSubmitted ? quizInput : '____'}
+          {isSubmitted ? quizInput : '______'}
         </span>{' '}
         ){parts[1]}
       </>
@@ -92,6 +88,12 @@ export function QuizBanner({
       <div className="relative z-10 flex h-full flex-col justify-start p-6 text-white">
         <div className="mb-2 flex items-center text-2xl leading-none font-bold">
           {isActive ? '' : '〈 '}오늘의 문제
+          {isActive && isSubmitted && (
+            <div className="ml-2 flex items-center gap-2 rounded-xl border-2 border-white bg-transparent px-2 py-1 text-sm font-bold text-white">
+              <CheckCircle2Icon size={16} />
+              <span>풀이 완료</span>
+            </div>
+          )}
         </div>
 
         {isActive && (
@@ -102,45 +104,25 @@ export function QuizBanner({
               </h2>
               <Volume2 size={28} className="cursor-pointer hover:opacity-80" />
             </div>
-
             <div
-              className={cn(
-                'flex w-full max-w-md gap-2',
-                shouldShake && 'animate-shake'
-              )}
+              className={cn('flex w-full max-w-md gap-2')}
               onClick={(e) => e.stopPropagation()}
             >
-              <input
-                type="text"
-                value={quizInput}
-                onChange={(e) => {
-                  setQuizInput(e.target.value)
-                  if (isSubmitted) setIsSubmitted(false)
-                }}
-                placeholder="빈칸에 들어갈 단어를 입력해주세요"
-                className={cn(
-                  'bg-brand-light flex-1 rounded-xl px-6 py-2.5 text-center text-sm text-black transition-colors outline-none',
-                  {
-                    'ring-brand-error bg-red-50 ring-2':
-                      isSubmitted && !isCorrect,
-                  }
-                )}
-                disabled={isSubmitted && isCorrect}
-              />
-              <button
-                onClick={handleQuizSubmit}
-                className={cn(
-                  'rounded-xl border-2 border-white bg-transparent px-8 py-2.5 font-bold text-white transition-all',
-                  {
-                    'cursor-default': isSubmitted && isCorrect,
-                    'hover:text-brand-main hover:bg-white': !(
-                      isSubmitted && isCorrect
-                    ),
-                  }
-                )}
-              >
-                {isSubmitted && isCorrect ? '정답입니다!' : '정답 제출'}
-              </button>
+              {isSubmitted ? (
+                <div className="flex">
+                  <span className="text-xl font-bold opacity-90">
+                    {quizResult?.explanation ?? quizSubmitResult?.explanation}
+                  </span>
+                </div>
+              ) : (
+                <QuizInputForm
+                  value={quizInput}
+                  isSubmitted={isSubmitted}
+                  isCorrect={isCorrect}
+                  onChange={handleInputChange}
+                  onSubmit={handleQuizSubmit}
+                />
+              )}
             </div>
           </div>
         )}

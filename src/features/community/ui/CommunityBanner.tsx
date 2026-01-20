@@ -6,12 +6,13 @@ import { QuizBanner } from '@/features/community/ui/QuizBanner'
 import { QuoteBanner } from '@/features/community/ui/QuoteBanner'
 import QuoteImage from '@/features/community/assets/quote-image.png'
 import QuizImage from '@/features/community/assets/quiz-image.png'
+import { useQuiz } from '@/features/community/api/queries'
 
 export default function CommunityBanner() {
   const [activeType, setActiveType] = useState<'quote' | 'quiz'>('quote')
 
   const quoteData = MOCK_BANNER_DATA.find((b) => b.type === 'quote')
-  const quizData = MOCK_BANNER_DATA.find((b) => b.type === 'quiz')
+  const { data: quizData } = useQuiz()
 
   return (
     <div className="flex h-50 w-full gap-4 transition-all duration-500 ease-in-out">
