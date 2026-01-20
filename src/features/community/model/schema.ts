@@ -77,3 +77,33 @@ export const QuizSubmissionResponseSchema = z
 export type QuizSubmissionResponse = z.infer<
   typeof QuizSubmissionResponseSchema
 >
+
+// ---------- 퀴즈 결과 조회 ----------
+export const QuizResultResponseSchema = z
+  .object({
+    question_date: z.string(),
+    status: z.enum(['COMPLETED', 'PENDING']),
+    daily_question_id: z.number(),
+    question: QuizSchema,
+    submission: QuizSubmissionSchema,
+    explanation: z.string(),
+  })
+  .transform((data) => ({
+    questionDate: data.question_date,
+    status: data.status,
+    dailyQuestionId: data.daily_question_id,
+    question: {
+      id: data.question.id,
+      title: data.question.title,
+      description: data.question.description,
+      prompt: data.question.prompt,
+    },
+    submission: {
+      id: data.submission.id,
+      submittedAt: data.submission.submitted_at,
+      isCorrect: data.submission.is_correct,
+    },
+    explanation: data.explanation,
+  }))
+
+export type QuizResultResponse = z.infer<typeof QuizResultResponseSchema>
