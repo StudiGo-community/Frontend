@@ -58,7 +58,11 @@ export default function Page() {
           <Button
             type="button"
             size="reg"
-            className="bg-brand-kakao text-brand-login-text w-full cursor-pointer hover:opacity-90"
+            style={{
+              backgroundColor: '#FEE500',
+              color: '#1E1919',
+            }}
+            className="w-full cursor-pointer hover:opacity-90"
           >
             <KakaoIcon className="mr-2 size-5 shrink-0 overflow-visible" />
             카카오로 시작하기
@@ -138,8 +142,10 @@ export default function Page() {
         </form>
 
         <div className="mt-6 space-y-2 text-center text-sm">
-          <div className="text-brand-gray-300 flex flex-wrap items-center justify-center gap-2">
-            <span>이메일 or 비밀번호가 생각 안나세요?</span>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <span className="text-brand-gray-300">
+              이메일 or 비밀번호가 생각 안나세요?
+            </span>
             <Link
               href="/find-email"
               className="text-brand-login-text font-bold underline underline-offset-2"
@@ -155,10 +161,12 @@ export default function Page() {
             </Link>
           </div>
 
-          <div className="text-brand-gray-300">
-            <span>아직 회원가입을 안하셨나요? </span>
+          <div>
+            <span className="text-brand-gray-300">
+              아직 회원가입을 안하셨나요?
+            </span>
             <Link
-              href="/signup"
+              href="/auth/join"
               className="text-brand-login-text font-bold underline underline-offset-2"
             >
               회원가입
