@@ -5,11 +5,16 @@ import {
   UseQueryOptions,
 } from '@tanstack/react-query'
 import { queryKeys } from '@/features/community/api/query-keys'
-import { getQuiz, submitQuiz } from '@/features/community/api/api'
 import {
-  QuizResponse,
-  QuizSubmissionRequest,
-  QuizSubmissionResponse,
+  getQuiz,
+  getQuizResult,
+  submitQuiz,
+} from '@/features/community/api/api'
+import {
+  type QuizResponse,
+  type QuizResultResponse,
+  type QuizSubmissionRequest,
+  type QuizSubmissionResponse,
 } from '@/features/community/model/schema'
 import { AxiosError } from 'axios'
 
@@ -49,4 +54,18 @@ const useSubmitQuiz = (options?: SubmitQuizOptions) => {
   })
 }
 
-export { useQuiz, useSubmitQuiz }
+// ---------- 퀴즈 결과 조회 ----------
+type QuizResultQueryOptions = Omit<
+  UseQueryOptions<QuizResultResponse>,
+  'queryKey' | 'queryFn'
+>
+
+const useQuizResult = (options?: QuizResultQueryOptions) => {
+  return useQuery({
+    queryKey: queryKeys.quizResult(),
+    queryFn: getQuizResult,
+    ...options,
+  })
+}
+
+export { useQuiz, useSubmitQuiz, useQuizResult }

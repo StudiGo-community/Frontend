@@ -1,9 +1,11 @@
 import {
   QuizResponseSchema,
   QuizSubmissionResponseSchema,
+  QuizResultResponseSchema,
   type QuizResponse,
   type QuizSubmissionRequest,
   type QuizSubmissionResponse,
+  type QuizResultResponse,
 } from '@/features/community/model/schema'
 import { api } from '@/shared/api/client'
 
@@ -21,4 +23,10 @@ export const submitQuiz = async ({
     submitted_answer_text: submittedAnswerText,
   })
   return QuizSubmissionResponseSchema.parse(response.data)
+}
+
+// ---------- 퀴즈 결과 조회 ----------
+export const getQuizResult = async (): Promise<QuizResultResponse> => {
+  const response = await api.get('/daily-questions/today/result')
+  return QuizResultResponseSchema.parse(response.data)
 }
