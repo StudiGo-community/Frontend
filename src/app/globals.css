@@ -66,6 +66,9 @@
   --color-brand-error: #ff383c; /* 토스트 에러 아이콘, 오답 텍스트 */
   --color-brand-warning: oklch(0.769 0.188 70.08); /* 토스트 경고 아이콘 */
 
+  --color-brand-kakao: #fee500; /* 카카오톡 버튼 배경 */
+  --color-brand-login-text: #1e1919; /* 로그인 링크 텍스트 */
+
   --radius-brand-sm: 8px;
   --radius-brand-md: 10px;
   --radius-brand-base: 12px; /* 기본 Radius */
