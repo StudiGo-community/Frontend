@@ -4,18 +4,19 @@ import * as React from 'react'
 import { useFunnel } from '@/features/auth/join/hooks/useFunnel'
 import { Button } from '@/shared/ui/Button'
 
-import { StartStep } from './StartStep'
-import { EmailPasswordStep } from './EmailPasswordStep'
-import { ProfileTermsStep } from './ProfileTermsStep'
-import { ExtraInfoStep } from './ExtraInfoStep'
-import { DoneStep } from './DoneStep'
+import { StartStep } from '@/features/auth/join/ui/StartStep'
+import { EmailPasswordStep } from '@/features/auth/join/ui/EmailPasswordStep'
+import { ProfileTermsStep } from '@/features/auth/join/ui/ProfileTermsStep'
+import { ExtraInfoStep } from '@/features/auth/join/ui/ExtraInfoStep'
+import { DoneStep } from '@/features/auth/join/ui/DoneStep'
 
 export type StepName =
   | 'start'
-  | 'emailPw'
+  | 'emailPassword'
   | 'profileTerms'
   | 'extraInfo'
   | 'done'
+
 export type AgreeKey = 'all' | 'terms' | 'marketing'
 
 export interface JoinFormState {
@@ -32,15 +33,15 @@ export interface JoinFormState {
   gender: string
 }
 
-const STEPS: StepName[] = [
+const STEP_ORDER: StepName[] = [
   'start',
-  'emailPw',
+  'emailPassword',
   'profileTerms',
   'extraInfo',
   'done',
 ]
 
-const INITIAL: JoinFormState = {
+const INITIAL_JOIN_FORM_STATE: JoinFormState = {
   email: '',
   password: '',
   passwordConfirm: '',
@@ -54,12 +55,12 @@ const INITIAL: JoinFormState = {
 
 export function JoinFunnel() {
   const { Funnel, Step, setStep, currentStep } = useFunnel('start')
-  const [form, setForm] = React.useState<JoinFormState>(INITIAL)
+  const [form, setForm] = React.useState<JoinFormState>(INITIAL_JOIN_FORM_STATE)
 
-  const patch = (p: Partial<JoinFormState>) =>
-    setForm((prev) => ({ ...prev, ...p }))
+  const updateJoinForm = (next: Partial<JoinFormState>) =>
+    setForm((prev) => ({ ...prev, ...next }))
 
-  const setAgree = (key: AgreeKey, value: boolean) => {
+  const updateAgreement = (key: AgreeKey, value: boolean) => {
     setForm((prev) => {
       if (key === 'all') {
         return {
@@ -67,23 +68,35 @@ export function JoinFunnel() {
           agree: { all: value, terms: value, marketing: value },
         }
       }
-      const next = { ...prev.agree, [key]: value }
-      return { ...prev, agree: { ...next, all: next.terms && next.marketing } }
+
+      const nextAgree = { ...prev.agree, [key]: value }
+      return {
+        ...prev,
+        agree: {
+          ...nextAgree,
+          all: nextAgree.terms && nextAgree.marketing,
+        },
+      }
     })
   }
 
-  const goNext = () => {
-    const idx = STEPS.indexOf(currentStep as StepName)
-    setStep(STEPS[Math.min(idx + 1, STEPS.length - 1)])
+  const resetFormAndGoStart = () => {
+    setForm(INITIAL_JOIN_FORM_STATE)
+    setStep('start')
   }
 
-  const goPrev = () => {
-    const idx = STEPS.indexOf(currentStep as StepName)
-    setStep(STEPS[Math.max(idx - 1, 0)])
+  const goNextStep = () => {
+    const index = STEP_ORDER.indexOf(currentStep as StepName)
+    setStep(STEP_ORDER[Math.min(index + 1, STEP_ORDER.length - 1)])
   }
 
-  const canNext = React.useMemo(() => {
-    if (currentStep === 'emailPw') {
+  const goPrevStep = () => {
+    const index = STEP_ORDER.indexOf(currentStep as StepName)
+    setStep(STEP_ORDER[Math.max(index - 1, 0)])
+  }
+
+  const canProceedNext = React.useMemo(() => {
+    if (currentStep === 'emailPassword') {
       return Boolean(form.email && form.password && form.passwordConfirm)
     }
     if (currentStep === 'profileTerms') {
@@ -102,24 +115,27 @@ export function JoinFunnel() {
           <StartStep
             onKakao={() => {}}
             onGoogle={() => {}}
-            onStartEmail={() => setStep('emailPw')}
+            onStartEmail={() => {
+              setForm(INITIAL_JOIN_FORM_STATE)
+              setStep('emailPassword')
+            }}
           />
         </Step>
 
-        <Step name="emailPw">
-          <EmailPasswordStep value={form} onChange={patch} />
+        <Step name="emailPassword">
+          <EmailPasswordStep value={form} onChange={updateJoinForm} />
         </Step>
 
         <Step name="profileTerms">
           <ProfileTermsStep
             value={form}
-            onChange={patch}
-            onToggleAgree={setAgree}
+            onChange={updateJoinForm}
+            onToggleAgree={updateAgreement}
           />
         </Step>
 
         <Step name="extraInfo">
-          <ExtraInfoStep value={form} onChange={patch} />
+          <ExtraInfoStep value={form} onChange={updateJoinForm} />
         </Step>
 
         <Step name="done">
@@ -129,15 +145,22 @@ export function JoinFunnel() {
 
       {currentStep !== 'start' && currentStep !== 'done' && (
         <div className="mt-10 flex gap-3">
-          <Button variant="outline" className="h-12 w-30" onClick={goPrev}>
+          <Button
+            variant="outline"
+            className="h-12 w-30"
+            onClick={() => {
+              if (currentStep === 'emailPassword') resetFormAndGoStart()
+              else goPrevStep()
+            }}
+          >
             이전
           </Button>
 
           <Button
-            className={`h-12 flex-1 ${!canNext ? 'pointer-events-none opacity-50' : ''}`}
+            className={`h-12 flex-1 ${!canProceedNext ? 'pointer-events-none opacity-50' : ''}`}
             onClick={() => {
               if (currentStep === 'extraInfo') setStep('done')
-              else goNext()
+              else goNextStep()
             }}
           >
             {currentStep === 'extraInfo' ? '회원가입' : '다음'}

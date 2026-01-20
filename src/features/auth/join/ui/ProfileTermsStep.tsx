@@ -1,15 +1,36 @@
 'use client'
 
+import * as React from 'react'
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input'
-import type { AgreeKey, JoinFormState } from './JoinFunnel'
+import type {
+  AgreeKey,
+  JoinFormState,
+} from '@/features/auth/join/ui/JoinFunnel'
+
+function formatKoreanPhoneNumber(input: string) {
+  const digits = input.replace(/\D/g, '').slice(0, 11)
+
+  const first = digits.slice(0, 3)
+  const middle = digits.slice(3, 7)
+  const last = digits.slice(7, 11)
+
+  if (digits.length <= 3) return first
+  if (digits.length <= 7) return `${first}-${digits.slice(3)}`
+  return `${first}-${middle}-${last}`
+}
 
 export function ProfileTermsStep(props: {
   value: JoinFormState
   onChange: (patch: Partial<JoinFormState>) => void
   onToggleAgree: (k: AgreeKey, v: boolean) => void
 }) {
-  const v = props.value
+  const formValue = props.value
+
+  const onPhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const next = formatKoreanPhoneNumber(e.target.value)
+    props.onChange({ phone: next })
+  }
 
   return (
     <div className="space-y-5">
@@ -17,7 +38,7 @@ export function ProfileTermsStep(props: {
         <Input
           size="sm"
           placeholder="이름을 입력해주세요."
-          value={v.name}
+          value={formValue.name}
           onChange={(e) => props.onChange({ name: e.target.value })}
         />
       </Field>
@@ -26,9 +47,11 @@ export function ProfileTermsStep(props: {
         <div className="flex gap-2">
           <Input
             size="sm"
-            placeholder="'-'을 빼고 입력해주세요."
-            value={v.phone}
-            onChange={(e) => props.onChange({ phone: e.target.value })}
+            placeholder="010-0000-0000"
+            value={formValue.phone}
+            onChange={onPhoneChange}
+            inputMode="numeric"
+            autoComplete="tel"
           />
           <Button
             type="button"
@@ -44,19 +67,19 @@ export function ProfileTermsStep(props: {
       <div className="pt-2">
         <CheckRow
           label="전체 동의"
-          checked={v.agree.all}
-          onChange={(c) => props.onToggleAgree('all', c)}
+          checked={formValue.agree.all}
+          onChange={(checked) => props.onToggleAgree('all', checked)}
         />
         <div className="bg-brand-gray-200 my-3 h-px w-full" />
         <CheckRow
           label="(필수) 서비스 이용을 위한 필수 동의사항"
-          checked={v.agree.terms}
-          onChange={(c) => props.onToggleAgree('terms', c)}
+          checked={formValue.agree.terms}
+          onChange={(checked) => props.onToggleAgree('terms', checked)}
         />
         <CheckRow
           label="(선택) 마케팅 정보 수신 동의"
-          checked={v.agree.marketing}
-          onChange={(c) => props.onToggleAgree('marketing', c)}
+          checked={formValue.agree.marketing}
+          onChange={(checked) => props.onToggleAgree('marketing', checked)}
         />
       </div>
     </div>
