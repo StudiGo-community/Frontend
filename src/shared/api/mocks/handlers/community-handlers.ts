@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw'
 
+// ---------- 퀴즈 조회 ----------
 const getQuiz = http.get(
   `${process.env.NEXT_PUBLIC_API_BASE_URL}/daily-questions/today`,
   () => {
@@ -17,6 +18,7 @@ const getQuiz = http.get(
   }
 )
 
+// ---------- 퀴즈 제출 ----------
 const submitQuiz = http.post(
   `${process.env.NEXT_PUBLIC_API_BASE_URL}/daily-questions/today/submission`,
   async ({ request }) => {
@@ -64,6 +66,36 @@ const submitQuiz = http.post(
   }
 )
 
-const communityHandlers = [getQuiz, submitQuiz]
+// ---------- 퀴즈 결과 조회 ----------
+const getQuizResult = http.get(
+  `${process.env.NEXT_PUBLIC_API_BASE_URL}/daily-questions/today/result`,
+  () => {
+    return HttpResponse.json({
+      question_date: '2026-01-13',
+      status: 'COMPLETED',
+      daily_question_id: 501,
+      question: {
+        id: 3001,
+        title: 'SQL 기본',
+        description: '다음 질문에 답하세요.',
+        prompt: 'SELECT 문에서 조건을 거는 키워드는 ______ 이다.',
+      },
+      submission: {
+        id: 8001,
+        submitted_at: '2026-01-13T15:30:00+09:00',
+        is_correct: true,
+      },
+      explanation: '정답은 WHERE 입니다. 조건절을 의미합니다.',
+    })
+    // return HttpResponse.json(
+    //   {
+    //     detail: '오늘의 문제를 제출한 후 결과를 확인할 수 있습니다.',
+    //   },
+    //   { status: 409 }
+    // )
+  }
+)
+
+const communityHandlers = [getQuiz, submitQuiz, getQuizResult]
 
 export { communityHandlers }
