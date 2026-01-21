@@ -3,7 +3,7 @@
 import ChatRoomItem from '@/features/chat/ui/ChatRoomItem'
 import { useSearchParams } from 'next/navigation'
 import { useChatRoomList } from '@/features/chat/api/queries'
-import { type ChatRoomListResponse } from '@/features/chat/model/schema'
+import { type ChatRoom } from '@/features/chat/model/schema'
 
 function ChatRoomList() {
   const { data, isLoading, error } = useChatRoomList()
@@ -31,10 +31,7 @@ function ChatRoomList() {
 
 export default ChatRoomList
 
-const getOrderedChatRooms = (
-  chatRooms: ChatRoomListResponse['rooms'],
-  order: string | null
-) =>
+const getOrderedChatRooms = (chatRooms: ChatRoom[], order: string | null) =>
   [...chatRooms].sort((roomA, roomB) => {
     const timeA = roomA.lastMessageAt.getTime()
     const timeB = roomB.lastMessageAt.getTime()

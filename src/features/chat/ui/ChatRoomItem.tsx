@@ -1,17 +1,10 @@
 import { UserIcon } from 'lucide-react'
 import Image from 'next/image'
 import { formatRelativeDateTime } from '@/features/chat/lib/formatter'
+import { type ChatRoom } from '@/features/chat/model/schema'
 
 interface ChatRoomItemProps {
-  // TODO: API 연동할 때 조드 스키마에서 추출한 타입으로 변경
-  chatRoom: {
-    id: number
-    name: string
-    description: string
-    participantCount: number
-    lastMessageAt: Date
-    createdAt: Date
-  }
+  chatRoom: ChatRoom
 }
 
 function ChatRoomItem({ chatRoom }: ChatRoomItemProps) {

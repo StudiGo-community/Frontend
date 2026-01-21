@@ -26,3 +26,5 @@ export const ChatRoomListResponseSchema = z
   }))
 
 export type ChatRoomListResponse = z.infer<typeof ChatRoomListResponseSchema>
+
+export type ChatRoom = ChatRoomListResponse['rooms'][0]
