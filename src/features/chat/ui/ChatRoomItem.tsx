@@ -23,6 +23,7 @@ function ChatRoomItem({ chatRoom }: ChatRoomItemProps) {
           alt={`${chatRoom.name} 채팅방 썸네일`}
           className="object-cover"
           fill
+          sizes="100px"
         />
       </div>
       <div className="grid flex-1">

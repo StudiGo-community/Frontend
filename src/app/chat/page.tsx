@@ -12,6 +12,7 @@ function Chat() {
           className="object-cover"
           fill
           preload
+          sizes="100vw"
         />
       </section>
       <section className="mx-auto max-w-300 px-4">
