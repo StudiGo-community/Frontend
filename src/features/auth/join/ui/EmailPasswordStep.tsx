@@ -1,6 +1,6 @@
 'use client'
 
-import * as React from 'react'
+import type { ReactNode } from 'react'
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input'
 import type { JoinFormState } from '@/features/auth/join/ui/JoinFunnel'
@@ -119,7 +119,7 @@ export function EmailPasswordStep(props: {
   )
 }
 
-function Field(props: { label: string; children: React.ReactNode }) {
+function Field(props: { label: string; children: ReactNode }) {
   return (
     <div className="space-y-1">
       <label className="text-brand-gray-500 text-sm">{props.label}</label>

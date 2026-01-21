@@ -1,6 +1,6 @@
 'use client'
 
-import * as React from 'react'
+import type { ChangeEvent, ReactNode } from 'react'
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input'
 import type {
@@ -27,7 +27,7 @@ export function ProfileTermsStep(props: {
 }) {
   const formValue = props.value
 
-  const onPhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onPhoneChange = (e: ChangeEvent<HTMLInputElement>) => {
     const next = formatKoreanPhoneNumber(e.target.value)
     props.onChange({ phone: next })
   }
@@ -86,7 +86,7 @@ export function ProfileTermsStep(props: {
   )
 }
 
-function Field(props: { label: string; children: React.ReactNode }) {
+function Field(props: { label: string; children: ReactNode }) {
   return (
     <div className="space-y-1">
       <label className="text-brand-gray-500 text-sm">{props.label}</label>

@@ -1,6 +1,6 @@
 'use client'
 
-import * as React from 'react'
+import type { ChangeEvent, ReactNode } from 'react'
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input'
 import { Dropdown } from '@/shared/ui/dropdown/Dropdown'
@@ -23,7 +23,7 @@ function nicknameChecks(nickname: string) {
   return {
     length: nickname.length >= 2 && nickname.length <= 12,
     charset: NICKNAME_REGEX.test(nickname),
-    banned: !BANNED_WORDS.some((word) => lower.includes(word.toLowerCase())),
+    banned: BANNED_WORDS.some((word) => lower.includes(word.toLowerCase())),
   }
 }
 
@@ -48,15 +48,16 @@ export function ExtraInfoStep(props: {
   const nickname = formValue.nickname
   const nicknameTouched = nickname.length > 0
   const nicknameRule = nicknameChecks(nickname)
+
   const nicknameOk =
-    nicknameRule.length && nicknameRule.charset && nicknameRule.banned
+    nicknameRule.length && nicknameRule.charset && !nicknameRule.banned
 
   const ruleClass = (ok: boolean) => {
     if (!nicknameTouched) return 'text-brand-gray-300'
     return ok ? '!text-brand-green' : '!text-brand-error'
   }
 
-  const onBirthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onBirthChange = (e: ChangeEvent<HTMLInputElement>) => {
     const next = formatBirth(e.target.value)
     props.onChange({ birth: next })
   }
@@ -89,10 +90,12 @@ export function ExtraInfoStep(props: {
           <li className={ruleClass(nicknameRule.charset)}>
             ✓ 한글, 영문, 숫자만 사용 가능(공백 및 특수문자 불가)
           </li>
-          <li className={ruleClass(nicknameRule.banned)}>✓ 금지어 포함 불가</li>
+          <li className={ruleClass(!nicknameRule.banned)}>
+            ✓ 금지어 포함 불가
+          </li>
         </ul>
 
-        {nicknameTouched && !nicknameRule.banned && (
+        {nicknameTouched && nicknameRule.banned && (
           <p className="text-brand-error mt-1 text-sm">
             사용할 수 없는 단어가 포함되어 있습니다.
           </p>
@@ -135,7 +138,7 @@ export function ExtraInfoStep(props: {
   )
 }
 
-function Field(props: { label: string; children: React.ReactNode }) {
+function Field(props: { label: string; children: ReactNode }) {
   return (
     <div className="space-y-1">
       <label className="text-brand-gray-500 text-sm">{props.label}</label>

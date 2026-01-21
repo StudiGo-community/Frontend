@@ -1,31 +1,39 @@
 'use client'
 
-import * as React from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
-export interface StepProps {
-  name: string
-  children: React.ReactNode
-}
+export const useFunnel = <TStep extends string>(
+  steps: readonly TStep[],
+  defaultStep: TStep
+) => {
+  const [currentStep, setCurrentStep] = useState<TStep>(defaultStep)
 
-export interface FunnelProps {
-  children: Array<React.ReactElement<StepProps>>
-}
-
-export const useFunnel = (defaultStep: string) => {
-  const [step, setStep] = React.useState(defaultStep)
-
-  const Step = React.useCallback((props: StepProps): React.ReactElement => {
-    return <>{props.children}</>
-  }, [])
-
-  const Funnel = React.useCallback(
-    ({ children }: FunnelProps): React.ReactElement | null => {
-      const target = children.find((child) => child.props.name === step)
-      if (!target) return null
-      return <>{target.props.children}</>
-    },
-    [step]
+  const currentIndex = useMemo(
+    () => steps.indexOf(currentStep),
+    [currentStep, steps]
   )
 
-  return { Funnel, Step, setStep, currentStep: step } as const
+  const next = useCallback(() => {
+    if (currentIndex < steps.length - 1) {
+      setCurrentStep(steps[currentIndex + 1])
+    }
+  }, [currentIndex, steps])
+
+  const prev = useCallback(() => {
+    if (currentIndex > 0) {
+      setCurrentStep(steps[currentIndex - 1])
+    }
+  }, [currentIndex, steps])
+
+  const setStep = useCallback((step: TStep) => {
+    setCurrentStep(step)
+  }, [])
+
+  return {
+    currentStep,
+    setStep,
+    next,
+    prev,
+    steps,
+  } as const
 }
