@@ -5,11 +5,12 @@ import { type ChatRoom } from '@/features/chat/model/schema'
 
 interface ChatRoomItemProps {
   chatRoom: ChatRoom
+  onClick: () => void
 }
 
-function ChatRoomItem({ chatRoom }: ChatRoomItemProps) {
+function ChatRoomItem({ chatRoom, onClick }: ChatRoomItemProps) {
   return (
-    <li className="flex items-center">
+    <li className="flex items-center" onClick={onClick}>
       <div className="relative mr-4 size-25">
         <Image
           src={`/images/chat/chat-room-thumbnail-${chatRoom.id}.webp`}
