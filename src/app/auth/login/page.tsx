@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -11,7 +12,9 @@ import { Input } from '@/shared/ui/input'
 import KakaoIcon from '@/features/auth/assets/kakao-icon.svg'
 import GoogleIcon from '@/features/auth/assets/google-icon.svg'
 
-const loginSchema = z.object({
+import { EmailLoginRequestSchema } from '@/shared/api/schemas/auth'
+
+const loginFormSchema = z.object({
   email: z
     .string()
     .min(1, '이메일을 입력해주세요.')
@@ -20,7 +23,7 @@ const loginSchema = z.object({
   remember: z.boolean().optional(),
 })
 
-type LoginFormValues = z.infer<typeof loginSchema>
+type LoginFormValues = z.infer<typeof loginFormSchema>
 
 export default function Page() {
   const {
@@ -28,7 +31,7 @@ export default function Page() {
     handleSubmit,
     formState: { errors, isValid, isSubmitting },
   } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(loginFormSchema),
     mode: 'onChange',
     defaultValues: {
       email: '',
@@ -37,10 +40,26 @@ export default function Page() {
     },
   })
 
-  const onSubmit = (values: LoginFormValues) => {
-    // TODO: API 연결되면 여기서 로그인 요청
-    console.log('로그인 성공:', values)
-  }
+  const handleSocialLogin = useCallback((provider: 'kakao' | 'google') => {
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
+
+    // TODO: 팀 백엔드 명세에 맞게 경로 확정되면 수정
+    const startPath = `/api/v1/auth/social/${provider}/start`
+
+    const url = baseUrl ? `${baseUrl}${startPath}` : startPath
+    window.location.assign(url)
+  }, [])
+
+  const onSubmit = useCallback((values: LoginFormValues) => {
+    const payload = EmailLoginRequestSchema.parse({
+      email: values.email,
+      password: values.password,
+      remember_me: values.remember ?? false,
+    })
+
+    // TODO: API 확정/연동 시 여기서 호출
+    console.log('로그인 payload(서버 계약):', payload)
+  }, [])
 
   const isDisabled = !isValid || isSubmitting
 
@@ -58,11 +77,9 @@ export default function Page() {
           <Button
             type="button"
             size="reg"
-            style={{
-              backgroundColor: '#FEE500',
-              color: '#1E1919',
-            }}
+            style={{ backgroundColor: '#FEE500', color: '#1E1919' }}
             className="w-full cursor-pointer hover:opacity-90"
+            onClick={() => handleSocialLogin('kakao')}
           >
             <KakaoIcon className="mr-2 size-5 shrink-0 overflow-visible" />
             카카오로 시작하기
@@ -73,6 +90,7 @@ export default function Page() {
             size="reg"
             variant="outline"
             className="hover:bg-brand-gray-100 hover:border-brand-gray-400 w-full cursor-pointer"
+            onClick={() => handleSocialLogin('google')}
           >
             <GoogleIcon className="mr-2 size-5 shrink-0 overflow-visible" />
             구글로 시작하기
