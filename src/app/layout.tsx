@@ -4,7 +4,6 @@ import './globals.css'
 import { Header } from '@/shared/ui/header'
 import Footer from '@/shared/ui/Footer'
 import { Toaster } from '@/shared/ui/Toaster'
-import { MswComponent } from '@/shared/api/mocks'
 import Providers from '@/app/providers'
 
 export const metadata: Metadata = {
@@ -31,7 +30,6 @@ const RootLayout = ({
           <main className="flex-1">{children}</main>
           <Footer />
           <Toaster position="top-right" duration={1500} />
-          <MswComponent />
         </Providers>
       </body>
     </html>

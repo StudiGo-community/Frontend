@@ -1,3 +1,3 @@
-import { MswComponent } from '@/shared/api/mocks/MswComponent'
+import { worker } from '@/shared/api/mocks/browser'
 
-export { MswComponent }
+export { worker }
