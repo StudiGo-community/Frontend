@@ -1,5 +1,5 @@
 import z from 'zod'
-import { ErrorResponseSchema } from './common'
+import { ErrorResponseSchema } from '@/shared/api/schemas/auth/common'
 
 export const LogoutRequestSchema = z.object({
   all_devices: z.boolean().optional(),

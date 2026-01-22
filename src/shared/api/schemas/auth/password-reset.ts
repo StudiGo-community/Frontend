@@ -1,5 +1,5 @@
 import z from 'zod'
-import { ErrorResponseSchema } from './common'
+import { ErrorResponseSchema } from '@/shared/api/schemas/auth/common'
 
 export const PasswordResetRequestSchema = z.object({
   reset_token: z.string().min(1),

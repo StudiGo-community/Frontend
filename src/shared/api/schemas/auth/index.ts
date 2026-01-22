@@ -1,7 +1,16 @@
-export { EmailLoginRequestSchema, EmailLoginResponseSchema } from './login'
+export {
+  EmailLoginRequestSchema,
+  EmailLoginResponseSchema,
+} from '@/shared/api/schemas/auth/login'
 export {
   TokenRefreshRequestSchema,
   TokenRefreshResponseSchema,
-} from './refresh'
-export { LogoutRequestSchema, LogoutResponseSchema } from './logout'
-export { UserSchema, TokenResponseSchema } from './common'
+} from '@/shared/api/schemas/auth/refresh'
+export {
+  LogoutRequestSchema,
+  LogoutResponseSchema,
+} from '@/shared/api/schemas/auth/logout'
+export {
+  UserSchema,
+  TokenResponseSchema,
+} from '@/shared/api/schemas/auth/common'

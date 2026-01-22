@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import { postKakaoOAuth } from './endpoints/oauth'
+import { postKakaoOAuth } from '@/features/auth/api/endpoints/oauth'
 
 export const useKakaoOAuthMutation = () =>
   useMutation({

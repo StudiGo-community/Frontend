@@ -42,7 +42,6 @@ export function SocialCallback({ provider }: SocialCallbackProps) {
       }
 
       if (result.temporary_token) {
-        sessionStorage.setItem('temporary_token', result.temporary_token)
         sessionStorage.setItem(
           `${provider}_temporary_token`,
           result.temporary_token

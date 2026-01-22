@@ -1,5 +1,5 @@
 import z from 'zod'
-import { ErrorResponseSchema } from './common'
+import { ErrorResponseSchema } from '@/shared/api/schemas/auth/common'
 
 export const NicknameCheckRequestSchema = z.object({
   nickname: z.string().min(1),

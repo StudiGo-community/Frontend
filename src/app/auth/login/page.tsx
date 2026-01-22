@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input'
+import { toast } from 'sonner'
 
 import KakaoIcon from '@/features/auth/assets/kakao-icon.svg'
 import GoogleIcon from '@/features/auth/assets/google-icon.svg'
@@ -45,14 +46,19 @@ export default function Page() {
   }, [])
 
   const onSubmit = useCallback((values: LoginFormValues) => {
-    const payload = EmailLoginRequestSchema.parse({
+    const result = EmailLoginRequestSchema.safeParse({
       email: values.email,
       password: values.password,
       remember_me: values.remember ?? false,
     })
 
-    // TODO: 이메일 로그인 API 연동 시 여기서 호출
-    console.log('로그인 payload(서버 계약):', payload)
+    if (!result.success) {
+      toast.error('입력값을 확인해주세요.')
+      return
+    }
+
+    // TODO: API 호출
+    toast.success('로그인 요청을 보냈어요.')
   }, [])
 
   const isDisabled = !isValid || isSubmitting

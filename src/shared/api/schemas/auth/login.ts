@@ -1,6 +1,9 @@
 // src/shared/api/schemas/auth/login.ts
 import z from 'zod'
-import { ErrorResponseSchema, UserSchema } from './common'
+import {
+  ErrorResponseSchema,
+  UserSchema,
+} from '@/shared/api/schemas/auth/common'
 
 export const EmailLoginRequestSchema = z.object({
   email: z.string().email(),
