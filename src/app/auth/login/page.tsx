@@ -40,14 +40,8 @@ export default function Page() {
     },
   })
 
-  const handleSocialLogin = useCallback((provider: 'kakao' | 'google') => {
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
-
-    // TODO: 팀 백엔드 명세에 맞게 경로 확정되면 수정
-    const startPath = `/api/v1/auth/social/${provider}/start`
-
-    const url = baseUrl ? `${baseUrl}${startPath}` : startPath
-    window.location.assign(url)
+  const handleKakaoStart = useCallback(() => {
+    window.location.assign('/auth/social/kakao?code=MOCK_KAKAO_CODE')
   }, [])
 
   const onSubmit = useCallback((values: LoginFormValues) => {
@@ -57,7 +51,7 @@ export default function Page() {
       remember_me: values.remember ?? false,
     })
 
-    // TODO: API 확정/연동 시 여기서 호출
+    // TODO: 이메일 로그인 API 연동 시 여기서 호출
     console.log('로그인 payload(서버 계약):', payload)
   }, [])
 
@@ -79,7 +73,7 @@ export default function Page() {
             size="reg"
             style={{ backgroundColor: '#FEE500', color: '#1E1919' }}
             className="w-full cursor-pointer hover:opacity-90"
-            onClick={() => handleSocialLogin('kakao')}
+            onClick={handleKakaoStart}
           >
             <KakaoIcon className="mr-2 size-5 shrink-0 overflow-visible" />
             카카오로 시작하기
@@ -89,8 +83,9 @@ export default function Page() {
             type="button"
             size="reg"
             variant="outline"
-            className="hover:bg-brand-gray-100 hover:border-brand-gray-400 w-full cursor-pointer"
-            onClick={() => handleSocialLogin('google')}
+            className="hover:bg-brand-gray-100 hover:border-brand-gray-400 w-full"
+            disabled
+            title="구글 로그인은 다음 커밋에서 연결 예정"
           >
             <GoogleIcon className="mr-2 size-5 shrink-0 overflow-visible" />
             구글로 시작하기
