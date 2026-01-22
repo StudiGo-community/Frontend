@@ -1,16 +1,17 @@
 import { http, HttpResponse } from 'msw'
 
 export const authHandlers = [
-  http.post('http://localhost:3000/auth/oauth/kakao', async ({ request }) => {
-    const body = (await request.json()) as {
-      authorization_code: string
-      redirect_uri: string
-    }
+  http.post(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/oauth/kakao`,
+    async ({ request }) => {
+      const body = (await request.json()) as {
+        authorization_code: string
+        redirect_uri: string
+      }
 
-    // 신규회원
-    if (body.authorization_code === 'NEW_USER') {
-      return HttpResponse.json(
-        {
+      // 신규회원
+      if (body.authorization_code === 'NEW_USER') {
+        return HttpResponse.json({
           is_new_user: true,
           requires_additional_info: true,
           temporary_token: 'TEMP_TOKEN_123',
@@ -20,14 +21,11 @@ export const authHandlers = [
             profile_image_url: 'blank',
           },
           missing_fields: ['phone', 'birthdate', 'gender'],
-        },
-        { status: 200 }
-      )
-    }
+        })
+      }
 
-    // 기존회원
-    return HttpResponse.json(
-      {
+      // 기존회원
+      return HttpResponse.json({
         is_new_user: false,
         access_token: 'ACCESS_TOKEN_MOCK',
         refresh_token: 'REFRESH_TOKEN_MOCK',
@@ -40,8 +38,7 @@ export const authHandlers = [
           profile_image_url: 'https://...',
           role: 'USER',
         },
-      },
-      { status: 200 }
-    )
-  }),
+      })
+    }
+  ),
 ]
