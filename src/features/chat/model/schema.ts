@@ -6,8 +6,8 @@ export const ChatRoomSchema = z.object({
   name: z.string(),
   description: z.string(),
   participant_count: z.number(),
-  last_message_at: z.string(),
-  created_at: z.string(),
+  last_message_at: z.coerce.date(),
+  created_at: z.coerce.date(),
 })
 
 export const ChatRoomListResponseSchema = z
@@ -20,8 +20,8 @@ export const ChatRoomListResponseSchema = z
       name: room.name,
       description: room.description,
       participantCount: room.participant_count,
-      lastMessageAt: new Date(room.last_message_at),
-      createdAt: new Date(room.created_at),
+      lastMessageAt: room.last_message_at,
+      createdAt: room.created_at,
     })),
   }))
 
