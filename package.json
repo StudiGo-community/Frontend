@@ -5,7 +5,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "prepare": "husky"
+    "prepare": "husky",
+    "prebuild": "node scripts/validate-env.mjs"
   },
   "lint-staged": {
     "src/**/*.{ts,tsx}": [
@@ -51,6 +52,7 @@
     "@types/node": "^25.0.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.2.3",
     "eslint": "^9.39.2",
     "eslint-config-next": "16.1.1",
     "eslint-config-prettier": "^10.1.8",

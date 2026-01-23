@@ -10,6 +10,9 @@ jobs:
   CI:
     runs-on: ubuntu-latest
 
+    env:
+      NEXT_PUBLIC_KAKAO_REDIRECT_URI: ${{ secrets.NEXT_PUBLIC_KAKAO_REDIRECT_URI }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6

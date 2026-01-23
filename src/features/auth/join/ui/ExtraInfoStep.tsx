@@ -130,7 +130,6 @@ export function ExtraInfoStep(props: {
           <Dropdown.Content>
             <Dropdown.Item value="MALE">남성</Dropdown.Item>
             <Dropdown.Item value="FEMALE">여성</Dropdown.Item>
-            <Dropdown.Item value="NONE">선택 안 함</Dropdown.Item>
           </Dropdown.Content>
         </Dropdown>
       </Field>

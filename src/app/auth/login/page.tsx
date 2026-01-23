@@ -1,17 +1,21 @@
 'use client'
 
 import Link from 'next/link'
+import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input'
+import { toast } from 'sonner'
 
 import KakaoIcon from '@/features/auth/assets/kakao-icon.svg'
 import GoogleIcon from '@/features/auth/assets/google-icon.svg'
 
-const loginSchema = z.object({
+import { EmailLoginRequestSchema } from '@/features/auth/api/schemas/auth'
+
+const loginFormSchema = z.object({
   email: z
     .string()
     .min(1, '이메일을 입력해주세요.')
@@ -20,7 +24,7 @@ const loginSchema = z.object({
   remember: z.boolean().optional(),
 })
 
-type LoginFormValues = z.infer<typeof loginSchema>
+type LoginFormValues = z.infer<typeof loginFormSchema>
 
 export default function Page() {
   const {
@@ -28,7 +32,7 @@ export default function Page() {
     handleSubmit,
     formState: { errors, isValid, isSubmitting },
   } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(loginFormSchema),
     mode: 'onChange',
     defaultValues: {
       email: '',
@@ -37,10 +41,25 @@ export default function Page() {
     },
   })
 
-  const onSubmit = (values: LoginFormValues) => {
-    // TODO: API 연결되면 여기서 로그인 요청
-    console.log('로그인 성공:', values)
-  }
+  const handleKakaoStart = useCallback(() => {
+    window.location.assign('/auth/social/kakao?code=MOCK_KAKAO_CODE')
+  }, [])
+
+  const onSubmit = useCallback((values: LoginFormValues) => {
+    const result = EmailLoginRequestSchema.safeParse({
+      email: values.email,
+      password: values.password,
+      remember_me: values.remember ?? false,
+    })
+
+    if (!result.success) {
+      toast.error('입력값을 확인해주세요.')
+      return
+    }
+
+    // TODO: API 호출
+    toast.success('로그인 요청을 보냈어요.')
+  }, [])
 
   const isDisabled = !isValid || isSubmitting
 
@@ -58,11 +77,9 @@ export default function Page() {
           <Button
             type="button"
             size="reg"
-            style={{
-              backgroundColor: '#FEE500',
-              color: '#1E1919',
-            }}
+            style={{ backgroundColor: '#FEE500', color: '#1E1919' }}
             className="w-full cursor-pointer hover:opacity-90"
+            onClick={handleKakaoStart}
           >
             <KakaoIcon className="mr-2 size-5 shrink-0 overflow-visible" />
             카카오로 시작하기
@@ -72,7 +89,9 @@ export default function Page() {
             type="button"
             size="reg"
             variant="outline"
-            className="hover:bg-brand-gray-100 hover:border-brand-gray-400 w-full cursor-pointer"
+            className="hover:bg-brand-gray-100 hover:border-brand-gray-400 w-full"
+            disabled
+            title="구글 로그인은 다음 커밋에서 연결 예정"
           >
             <GoogleIcon className="mr-2 size-5 shrink-0 overflow-visible" />
             구글로 시작하기
