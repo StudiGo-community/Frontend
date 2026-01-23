@@ -20,17 +20,14 @@ export function SocialCallback({ provider }: SocialCallbackProps) {
         return
       }
 
-      const redirectUri = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI
-      if (!redirectUri) {
-        router.replace('/auth/login')
-        return
-      }
+      const redirectUri = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI!
 
       const result = await postKakaoOAuth({
         authorization_code: code,
         redirect_uri: redirectUri,
       })
 
+      // 기존 유저
       if (result.is_new_user === false) {
         localStorage.setItem('access_token', result.access_token)
         localStorage.setItem('token_type', result.token_type)
@@ -41,6 +38,7 @@ export function SocialCallback({ provider }: SocialCallbackProps) {
         return
       }
 
+      // 신규 유저
       if (result.temporary_token) {
         sessionStorage.setItem(
           `${provider}_temporary_token`,
