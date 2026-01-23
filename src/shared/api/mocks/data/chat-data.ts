@@ -2,7 +2,7 @@
 export const CHAT_ROOMS = [
   {
     id: 1,
-    name: 'DELE 시험 준비 채팅방',
+    name: 'DELE 시험 준비방',
     description: '#시험준비 #정보공유 #질의응답 #경험담',
     participant_count: 738,
     last_message_at: '2026-01-20T11:21:30Z',
