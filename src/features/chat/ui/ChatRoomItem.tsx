@@ -5,12 +5,12 @@ import { type ChatRoom } from '@/features/chat/model/schema'
 
 interface ChatRoomItemProps {
   chatRoom: ChatRoom
-  onClick: () => void
 }
 
-function ChatRoomItem({ chatRoom, onClick }: ChatRoomItemProps) {
+function ChatRoomItem({ chatRoom }: ChatRoomItemProps) {
+  /* TODO: KJH 로그인 안 한 유저는 진입 불가 토스트 보여주기 */
   return (
-    <li className="flex items-center" onClick={onClick}>
+    <li className="flex items-center">
       <div className="relative mr-4 size-25">
         <Image
           src={`/images/chat/chat-room-thumbnail-${chatRoom.id}.webp`}
