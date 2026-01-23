@@ -2,7 +2,7 @@ import z from 'zod'
 import {
   ErrorResponseSchema,
   UserProviderSchema,
-} from '@/features/auth/api/schemas/auth/common'
+} from '@/features/auth/api/schemas/login/common'
 
 export const FindEmailSendCodeRequestSchema = z.object({
   name: z.string().min(1),

@@ -13,7 +13,7 @@ import { toast } from 'sonner'
 import KakaoIcon from '@/features/auth/assets/kakao-icon.svg'
 import GoogleIcon from '@/features/auth/assets/google-icon.svg'
 
-import { EmailLoginRequestSchema } from '@/features/auth/api/schemas/auth'
+import { EmailLoginRequestSchema } from '@/features/auth/api/schemas/login'
 
 const loginFormSchema = z.object({
   email: z
