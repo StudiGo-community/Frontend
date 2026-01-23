@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -11,6 +11,8 @@ import { toast } from 'sonner'
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input'
 import { EmailLoginRequestSchema } from '@/features/auth/api/schemas/login'
+
+const SAVED_EMAIL_KEY = 'studigo.saved_login_email'
 
 const ErrorResponseSchema = z.object({
   error_code: z.string(),
@@ -37,6 +39,7 @@ export default function LoginForm() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isValid, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -47,6 +50,13 @@ export default function LoginForm() {
       remember: false,
     },
   })
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem(SAVED_EMAIL_KEY)
+    if (savedEmail) {
+      setValue('email', savedEmail, { shouldValidate: true })
+    }
+  }, [setValue])
 
   const onSubmit = useCallback(
     async (values: LoginFormValues) => {
@@ -59,6 +69,12 @@ export default function LoginForm() {
       if (!request.success) {
         toast.error('입력값을 확인해주세요.')
         return
+      }
+
+      if (values.remember) {
+        localStorage.setItem(SAVED_EMAIL_KEY, values.email)
+      } else {
+        localStorage.removeItem(SAVED_EMAIL_KEY)
       }
 
       try {
