@@ -2,7 +2,7 @@ import z from 'zod'
 import {
   ErrorResponseSchema,
   TokenResponseSchema,
-} from '@/shared/api/schemas/auth/common'
+} from '@/features/auth/api/schemas/auth/common'
 
 export const TokenRefreshRequestSchema = z.object({
   refresh_token: z.string().optional(),
