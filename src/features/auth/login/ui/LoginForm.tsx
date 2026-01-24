@@ -7,6 +7,7 @@ import { useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
+import axios, { AxiosError } from 'axios'
 
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input'
@@ -99,56 +100,42 @@ export default function LoginForm() {
       }
 
       try {
-        const res = await fetch('/api/v1/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify(request.data),
+        await axios.post('/api/v1/auth/login', request.data, {
+          withCredentials: true,
         })
 
-        const json: unknown = await res.json().catch(() => null)
+        toast.success('로그인에 성공했습니다.')
+        router.replace(next ? decodeURIComponent(next) : '/')
+      } catch (error) {
+        const axiosError = error as AxiosError<unknown>
+        const parsed = ErrorResponseSchema.safeParse(axiosError.response?.data)
 
-        if (!res.ok) {
-          const parsed = ErrorResponseSchema.safeParse(json)
+        if (!parsed.success) {
+          toast.error('로그인에 실패했습니다.')
+          return
+        }
 
-          if (!parsed.success) {
-            toast.error('로그인에 실패했습니다.')
-            return
-          }
+        const err: ErrorResponse = parsed.data
 
-          const err: ErrorResponse = parsed.data
-
-          if (err.error_code === 'INVALID_CREDENTIALS') {
+        switch (err.error_code) {
+          case 'INVALID_CREDENTIALS':
             toast.error('이메일 또는 비밀번호를 확인해주세요.')
-            return
-          }
-
-          if (err.error_code === 'ACCOUNT_WITHDRAWN') {
+            break
+          case 'ACCOUNT_WITHDRAWN':
             toast.error('탈퇴한 계정입니다.')
-            return
-          }
-
-          if (err.error_code === 'ACCOUNT_BANNED') {
+            break
+          case 'ACCOUNT_BANNED':
             toast.error('이용이 제한된 계정입니다.')
-            return
-          }
-
-          if (err.error_code === 'LOGIN_BLOCKED') {
+            break
+          case 'LOGIN_BLOCKED':
             toast.error(
               err.error_detail ??
                 '로그인 시도 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.'
             )
-            return
-          }
-
-          toast.error(err.error_detail ?? '로그인에 실패했습니다.')
-          return
+            break
+          default:
+            toast.error(err.error_detail ?? '로그인에 실패했습니다.')
         }
-
-        toast.success('로그인에 성공했어요.')
-        router.replace(next ? decodeURIComponent(next) : '/')
-      } catch {
-        toast.error('네트워크 오류가 발생했어요.')
       }
     },
     [router, next]
