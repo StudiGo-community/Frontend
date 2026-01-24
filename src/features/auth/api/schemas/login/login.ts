@@ -3,7 +3,7 @@ import z from 'zod'
 import {
   ErrorResponseSchema,
   UserSchema,
-} from '@/features/auth/api/schemas/auth/common'
+} from '@/features/auth/api/schemas/login/common'
 
 export const EmailLoginRequestSchema = z.object({
   email: z.string().email(),

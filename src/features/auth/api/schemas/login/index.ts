@@ -1,16 +1,16 @@
 export {
   EmailLoginRequestSchema,
   EmailLoginResponseSchema,
-} from '@/features/auth/api/schemas/auth/login'
+} from '@/features/auth/api/schemas/login/login'
 export {
   TokenRefreshRequestSchema,
   TokenRefreshResponseSchema,
-} from '@/features/auth/api/schemas/auth/refresh'
+} from '@/features/auth/api/schemas/login/refresh'
 export {
   LogoutRequestSchema,
   LogoutResponseSchema,
-} from '@/features/auth/api/schemas/auth/logout'
+} from '@/features/auth/api/schemas/login/logout'
 export {
   UserSchema,
   TokenResponseSchema,
-} from '@/features/auth/api/schemas/auth/common'
+} from '@/features/auth/api/schemas/login/common'
