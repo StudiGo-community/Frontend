@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input'
@@ -55,13 +56,15 @@ export default function CommunityFilters({
           ))}
         </nav>
 
-        <Button
-          size="sm"
-          className="bg-brand-black mb-3 flex items-center gap-2 px-4 py-2 font-bold text-white hover:bg-black/80"
-        >
-          <Plus size={18} />
-          게시글 작성
-        </Button>
+        <Link href="/community/create" passHref>
+          <Button
+            size="sm"
+            className="bg-brand-black mb-3 flex items-center gap-2 px-4 py-2 font-bold text-white hover:bg-black/80"
+          >
+            <Plus size={18} />
+            게시글 작성
+          </Button>
+        </Link>
       </div>
 
       <div className="flex items-center justify-between">

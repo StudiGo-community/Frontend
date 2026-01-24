@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import {
   CommunityBanner,
   CommunityFilters,
@@ -41,6 +41,7 @@ export default function Home() {
       }
       const dateA = new Date(a.createdAt).getTime()
       const dateB = new Date(b.createdAt).getTime()
+      return dateB - dateA
 
       return sortOrder === 'desc' ? b.id - a.id : a.id - b.id
     })
@@ -56,7 +57,7 @@ export default function Home() {
 
   return (
     <main className="mx-auto max-w-300 space-y-6 px-4 py-10">
-      <section id="community-banner" className="mb-16">
+      <section id="community-banner" className="mb-12.5">
         <CommunityBanner />
       </section>
 

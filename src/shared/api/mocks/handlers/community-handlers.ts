@@ -1,4 +1,58 @@
+import { PostFormData } from '@/shared/api/schema/postSchema'
 import { http, HttpResponse } from 'msw'
+
+const posts = [
+  {
+    id: '1',
+    title:
+      '흑백요리사2 백수저 손종원 셰프 누구? 프로필·결혼·레스토랑 한 눈 정리',
+    content: '<p>중앙 정렬될 본문 내용입니다...</p>',
+    category: 'Free',
+    author: '흑백요리사2',
+    created_at: '2026.01.08 02:35',
+    views: 1024,
+    likes: 337,
+    comments_count: 84,
+  },
+]
+
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
+
+// ---------- 게시글 목록 조회 (GET) ----------
+const getPosts = http.get(`${BASE_URL}/api/v1/posts`, () => {
+  return HttpResponse.json(posts)
+})
+
+// ---------- 게시글 등록 (POST) ----------
+const createPost = http.post(
+  `${BASE_URL}/api/v1/posts`,
+  async ({ request }) => {
+    // ✅ any 대신 PostFormData 타입을 지정하여 에러 해결
+    const newPostData = (await request.json()) as PostFormData
+
+    const newPost = {
+      ...newPostData,
+      id: String(posts.length + 1),
+      author: '나(테스트 유저)',
+      created_at: new Date().toISOString().split('T')[0].replace(/-/g, '.'),
+      views: 0,
+      likes: 0,
+      comments_count: 0,
+      category: newPostData.boardId || 'Free',
+    }
+
+    posts.push(newPost)
+    return HttpResponse.json(newPost, { status: 201 })
+  }
+)
+
+// ---------- 게시글 상세 조회 (GET) ----------
+const getPostDetail = http.get(`${BASE_URL}/api/v1/posts/:id`, ({ params }) => {
+  const { id } = params
+  const post = posts.find((p) => p.id === id)
+  if (!post) return new HttpResponse(null, { status: 404 })
+  return HttpResponse.json(post)
+})
 
 // ---------- 퀴즈 조회 ----------
 const getQuiz = http.get(
@@ -96,6 +150,13 @@ const getQuizResult = http.get(
   }
 )
 
-const communityHandlers = [getQuiz, submitQuiz, getQuizResult]
+const communityHandlers = [
+  getPosts,
+  createPost,
+  getPostDetail,
+  getQuiz,
+  submitQuiz,
+  getQuizResult,
+]
 
 export { communityHandlers }
