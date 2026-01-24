@@ -4,7 +4,7 @@ import {
   TokenRefreshRequestSchema,
   TokenRefreshResponse,
   TokenRefreshResponseSchema,
-} from '@/features/auth/api/schemas/auth/refresh'
+} from '@/features/auth/api/schemas/login/refresh'
 
 export const postTokenRefresh = async (
   body?: TokenRefreshRequest
