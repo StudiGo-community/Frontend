@@ -29,6 +29,7 @@ const loginFormSchema = z.object({
   password: z.string().min(1, '비밀번호를 입력해주세요.'),
   remember: z.boolean().optional(),
 })
+
 type LoginFormValues = z.infer<typeof loginFormSchema>
 
 export default function LoginForm() {
@@ -52,9 +53,15 @@ export default function LoginForm() {
   })
 
   useEffect(() => {
-    const savedEmail = localStorage.getItem(SAVED_EMAIL_KEY)
-    if (savedEmail) {
-      setValue('email', savedEmail, { shouldValidate: true })
+    const raw = localStorage.getItem(SAVED_EMAIL_KEY)
+    if (!raw) return
+
+    try {
+      const parsed: { email: string; remember: boolean } = JSON.parse(raw)
+      setValue('email', parsed.email, { shouldValidate: true })
+      setValue('remember', parsed.remember)
+    } catch {
+      localStorage.removeItem(SAVED_EMAIL_KEY)
     }
   }, [setValue])
 
@@ -72,7 +79,13 @@ export default function LoginForm() {
       }
 
       if (values.remember) {
-        localStorage.setItem(SAVED_EMAIL_KEY, values.email)
+        localStorage.setItem(
+          SAVED_EMAIL_KEY,
+          JSON.stringify({
+            email: values.email,
+            remember: true,
+          })
+        )
       } else {
         localStorage.removeItem(SAVED_EMAIL_KEY)
       }
