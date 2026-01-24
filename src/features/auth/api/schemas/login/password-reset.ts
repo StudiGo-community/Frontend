@@ -6,13 +6,11 @@ export const PasswordResetRequestSchema = z.object({
   new_password: z.string().min(1),
   new_password_confirm: z.string().min(1),
 })
-
 export type PasswordResetRequest = z.infer<typeof PasswordResetRequestSchema>
 
 export const PasswordResetResponseSchema = z.object({
   message: z.string(),
 })
-
 export type PasswordResetResponse = z.infer<typeof PasswordResetResponseSchema>
 
 export const PasswordResetErrorSchema = ErrorResponseSchema.extend({
@@ -26,11 +24,5 @@ export const PasswordResetErrorSchema = ErrorResponseSchema.extend({
     'PASSWORD_RECENTLY_USED',
     'TOO_MANY_REQUEST',
   ]),
-  retry_after: z.number().int().positive().optional(),
-}).transform((data) => ({
-  errorCode: data.error_code,
-  errorDetail: data.error_detail,
-  retryAfter: data.retry_after,
-}))
-
+})
 export type PasswordResetError = z.infer<typeof PasswordResetErrorSchema>

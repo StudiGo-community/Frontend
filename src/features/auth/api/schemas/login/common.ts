@@ -4,17 +4,11 @@ export const ErrorResponseSchema = z.object({
   error_code: z.string(),
   error_detail: z.string(),
 })
-
 export type ErrorResponse = z.infer<typeof ErrorResponseSchema>
 
 export const UserRoleSchema = z.enum(['USER', 'ADMIN'])
-export type UserRole = z.infer<typeof UserRoleSchema>
-
 export const UserStatusSchema = z.enum(['ACTIVE', 'BANNED', 'WITHDRAWN'])
-export type UserStatus = z.infer<typeof UserStatusSchema>
-
 export const UserProviderSchema = z.enum(['EMAIL', 'KAKAO', 'GOOGLE'])
-export type UserProvider = z.infer<typeof UserProviderSchema>
 
 export const TokenResponseSchema = z
   .object({
@@ -27,7 +21,6 @@ export const TokenResponseSchema = z
     tokenType: data.token_type,
     expiresIn: data.expires_in,
   }))
-
 export type TokenResponse = z.infer<typeof TokenResponseSchema>
 
 export const UserSchema = z
@@ -42,14 +35,7 @@ export const UserSchema = z
     provider: UserProviderSchema.optional(),
   })
   .transform((data) => ({
-    id: data.id,
-    email: data.email,
-    nickname: data.nickname,
-    name: data.name,
+    ...data,
     profileImageUrl: data.profile_image_url ?? null,
-    role: data.role,
-    status: data.status,
-    provider: data.provider,
   }))
-
 export type User = z.infer<typeof UserSchema>

@@ -16,17 +16,13 @@ import { setAccessToken } from '@/features/auth'
 import { postEmailLogin } from '@/features/auth/api/endpoints/login'
 import {
   EmailLoginRequest,
-  TokenResponse,
+  EmailLoginResponse,
+  LoginInvalidCredentialsErrorSchema,
+  LoginAccountWithdrawnErrorSchema,
+  LoginBlockedErrorSchema,
 } from '@/features/auth/api/schemas/login'
 
 const SAVED_EMAIL_KEY = 'studigo.saved_login_email'
-
-const ErrorResponseSchema = z.object({
-  error_code: z.string(),
-  error_detail: z.string(),
-  retry_after: z.number().optional(),
-})
-type ErrorResponse = z.infer<typeof ErrorResponseSchema>
 
 const loginFormSchema = z
   .object({
@@ -99,7 +95,6 @@ export default function LoginForm() {
   useEffect(() => {
     const raw = localStorage.getItem(SAVED_EMAIL_KEY)
     if (!raw) return
-
     try {
       const parsed: { email: string; remember: boolean } = JSON.parse(raw)
       if (parsed.remember) {
@@ -134,48 +129,36 @@ export default function LoginForm() {
       }
 
       try {
-        const response: TokenResponse = await postEmailLogin(payload)
+        const response = (await postEmailLogin(payload)) as EmailLoginResponse
 
         if (response.accessToken) {
           setAccessToken(response.accessToken)
         }
 
-        toast.success('로그인에 성공했습니다.')
+        toast.success(`${response.user.nickname}님, 환영합니다!`)
 
         const redirectPath = next ? decodeURIComponent(next) : '/'
         router.replace(redirectPath)
       } catch (error) {
-        const axiosError = error as AxiosError<unknown>
-        const parsedError = ErrorResponseSchema.safeParse(
-          axiosError.response?.data
-        )
+        const axiosError = error as AxiosError
+        const errorData = axiosError.response?.data
 
-        if (!parsedError.success) {
-          toast.error('로그인 중 알 수 없는 오류가 발생했습니다.')
-          return
-        }
+        const invalid = LoginInvalidCredentialsErrorSchema.safeParse(errorData)
+        if (invalid.success) return toast.error(invalid.data.detail)
 
-        const err: ErrorResponse = parsedError.data
+        const blocked = LoginBlockedErrorSchema.safeParse(errorData)
+        if (blocked.success)
+          return toast.error(
+            `${blocked.data.error_detail} (대기: ${blocked.data.retry_after}초)`
+          )
 
-        switch (err.error_code) {
-          case 'INVALID_CREDENTIALS':
-            toast.error('이메일 또는 비밀번호를 확인해주세요.')
-            break
-          case 'ACCOUNT_WITHDRAWN':
-            toast.error('탈퇴한 계정입니다.')
-            break
-          case 'ACCOUNT_BANNED':
-            toast.error('이용이 제한된 계정입니다.')
-            break
-          case 'LOGIN_BLOCKED':
-            toast.error(
-              err.error_detail ||
-                '로그인 시도 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.'
-            )
-            break
-          default:
-            toast.error(err.error_detail || '로그인에 실패했습니다.')
-        }
+        const withdrawn = LoginAccountWithdrawnErrorSchema.safeParse(errorData)
+        if (withdrawn.success)
+          return toast.error(
+            `${withdrawn.data.error_detail} (복구 기한: ${withdrawn.data.restoreDeadline.toLocaleDateString()})`
+          )
+
+        toast.error('로그인 정보가 일치하지 않거나 오류가 발생했습니다.')
       }
     },
     [router, next]
@@ -197,6 +180,7 @@ export default function LoginForm() {
             placeholder="이메일을 입력해주세요."
             autoComplete="email"
             {...register('email')}
+            className={errors.email ? 'border-brand-error' : ''}
           />
           {errors.email?.message && (
             <p className="text-brand-error text-sm">{errors.email.message}</p>
@@ -214,6 +198,7 @@ export default function LoginForm() {
             placeholder="비밀번호를 입력해주세요."
             autoComplete="current-password"
             {...register('password')}
+            className={errors.password ? 'border-brand-error' : ''}
           />
           {errors.password?.message && (
             <p className="text-brand-error text-sm">

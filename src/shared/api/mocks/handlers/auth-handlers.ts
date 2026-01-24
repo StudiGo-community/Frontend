@@ -13,7 +13,7 @@ export const authHandlers = [
     async ({ request }) => {
       const body = (await request.json()) as EmailLoginRequestBody
 
-      if (body.password === 'studigo123!') {
+      if (body.password === 'studigo10!') {
         return HttpResponse.json({
           access_token: 'MOCK_ACCESS_TOKEN_FOR_EMAIL',
           token_type: 'Bearer',
@@ -26,7 +26,7 @@ export const authHandlers = [
         })
       }
 
-      if (body.password === 'blocked123!') {
+      if (body.password === 'blocked10!') {
         return HttpResponse.json(
           {
             error_code: 'LOGIN_BLOCKED',
@@ -36,7 +36,7 @@ export const authHandlers = [
         )
       }
 
-      if (body.password === 'withdrawn123!') {
+      if (body.password === 'withdrawn10!') {
         return HttpResponse.json(
           {
             error_code: 'ACCOUNT_WITHDRAWN',
@@ -46,7 +46,7 @@ export const authHandlers = [
         )
       }
 
-      if (body.password === 'banned123!') {
+      if (body.password === 'banned10!') {
         return HttpResponse.json(
           {
             error_code: 'ACCOUNT_BANNED',

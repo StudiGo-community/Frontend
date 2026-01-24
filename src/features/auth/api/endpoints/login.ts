@@ -10,6 +10,7 @@ export const postEmailLogin = async (
   body: EmailLoginRequest
 ): Promise<TokenResponse> => {
   const payload = EmailLoginRequestSchema.parse(body)
+
   const { data } = await api.post('/api/v1/auth/login', payload)
 
   return TokenResponseSchema.parse(data)
