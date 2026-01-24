@@ -4,18 +4,13 @@ import ChatRoomItem from '@/features/chat/ui/ChatRoomItem'
 import { useSearchParams } from 'next/navigation'
 import { useChatRoomList } from '@/features/chat/api/queries'
 import { type ChatRoom } from '@/features/chat/model/schema'
-import { useState } from 'react'
-import ChatRoomEnterModal from '@/features/chat/ui/ChatRoomEnterModal'
 
 function ChatRoomList() {
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const { data, isLoading, error } = useChatRoomList()
   const searchParams = useSearchParams()
   const chatRooms = data?.rooms ?? []
   const order = searchParams.get('order')
   const orderedChatRooms = getOrderedChatRooms(chatRooms, order)
-
-  const handleModalToggle = () => setIsModalOpen((prev) => !prev)
 
   if (isLoading)
     return <div className="animate-pulse py-10 text-center">Loading...</div>
@@ -29,14 +24,9 @@ function ChatRoomList() {
     <div>
       <ul className="grid gap-16 py-4">
         {orderedChatRooms.map((chatRoom) => (
-          <ChatRoomItem
-            key={chatRoom.id}
-            chatRoom={chatRoom}
-            onClick={handleModalToggle}
-          />
+          <ChatRoomItem key={chatRoom.id} chatRoom={chatRoom} />
         ))}
       </ul>
-      <ChatRoomEnterModal isOpen={isModalOpen} onClose={handleModalToggle} />
     </div>
   )
 }

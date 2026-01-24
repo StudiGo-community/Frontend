@@ -16,3 +16,11 @@ export const formatRelativeDateTime = (targetDate: Date) => {
     day: '2-digit',
   })
 }
+
+export const formatTimeString = (date: Date) => {
+  return date.toLocaleTimeString('ko-KR', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  })
+}
