@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
@@ -41,6 +41,7 @@ export default function LoginForm() {
     register,
     handleSubmit,
     setValue,
+    control,
     formState: { errors, isValid, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -58,12 +59,31 @@ export default function LoginForm() {
 
     try {
       const parsed: { email: string; remember: boolean } = JSON.parse(raw)
-      setValue('email', parsed.email, { shouldValidate: true })
-      setValue('remember', parsed.remember)
+
+      if (parsed.remember) {
+        setValue('email', parsed.email, { shouldValidate: true })
+        setValue('remember', true)
+      }
     } catch {
       localStorage.removeItem(SAVED_EMAIL_KEY)
     }
   }, [setValue])
+
+  const remember = useWatch({ control, name: 'remember' })
+  const email = useWatch({ control, name: 'email' })
+
+  useEffect(() => {
+    if (remember) {
+      if (email) {
+        localStorage.setItem(
+          SAVED_EMAIL_KEY,
+          JSON.stringify({ email, remember: true })
+        )
+      }
+    } else {
+      localStorage.removeItem(SAVED_EMAIL_KEY)
+    }
+  }, [remember, email])
 
   const onSubmit = useCallback(
     async (values: LoginFormValues) => {
@@ -76,18 +96,6 @@ export default function LoginForm() {
       if (!request.success) {
         toast.error('입력값을 확인해주세요.')
         return
-      }
-
-      if (values.remember) {
-        localStorage.setItem(
-          SAVED_EMAIL_KEY,
-          JSON.stringify({
-            email: values.email,
-            remember: true,
-          })
-        )
-      } else {
-        localStorage.removeItem(SAVED_EMAIL_KEY)
       }
 
       try {
@@ -137,12 +145,10 @@ export default function LoginForm() {
           return
         }
 
-        // TODO: access token 메모리 저장 (토큰 인프라 이슈에서 처리)
-
         toast.success('로그인에 성공했어요.')
         router.replace(next ? decodeURIComponent(next) : '/')
       } catch {
-        toast.error('네트워크 오류가 발생했어요. 잠시 후 다시 시도해주세요.')
+        toast.error('네트워크 오류가 발생했어요.')
       }
     },
     [router, next]
@@ -219,30 +225,12 @@ export default function LoginForm() {
           <span className="text-brand-gray-300">
             이메일 or 비밀번호가 생각 안나세요?
           </span>
-          <Link
-            href="/find-email"
-            className="text-brand-login-text font-bold underline underline-offset-2"
-          >
+          <Link href="/find-email" className="font-bold underline">
             이메일 찾기
           </Link>
           <span className="text-brand-gray-300">|</span>
-          <Link
-            href="/reset-password"
-            className="text-brand-login-text font-bold underline underline-offset-2"
-          >
+          <Link href="/reset-password" className="font-bold underline">
             비밀번호 재설정
-          </Link>
-        </div>
-
-        <div>
-          <span className="text-brand-gray-300">
-            아직 회원가입을 안하셨나요?
-          </span>
-          <Link
-            href="/auth/join"
-            className="text-brand-login-text font-bold underline underline-offset-2"
-          >
-            회원가입
           </Link>
         </div>
       </div>
