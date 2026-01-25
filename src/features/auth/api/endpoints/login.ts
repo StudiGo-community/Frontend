@@ -2,16 +2,16 @@ import { api } from '@/shared/api/client'
 import {
   EmailLoginRequest,
   EmailLoginRequestSchema,
-  TokenResponse,
-  TokenResponseSchema,
+  EmailLoginResponse,
+  EmailLoginResponseSchema,
 } from '@/features/auth/api/schemas/login'
 
 export const postEmailLogin = async (
   body: EmailLoginRequest
-): Promise<TokenResponse> => {
+): Promise<EmailLoginResponse> => {
   const payload = EmailLoginRequestSchema.parse(body)
 
-  const { data } = await api.post('/api/v1/auth/login', payload)
+  const { data } = await api.post('/auth/login', payload)
 
-  return TokenResponseSchema.parse(data)
+  return EmailLoginResponseSchema.parse(data)
 }

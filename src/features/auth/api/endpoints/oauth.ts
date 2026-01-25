@@ -11,7 +11,7 @@ export const postKakaoOAuth = async (input: {
 }): Promise<KakaoOAuthResponse> => {
   const body = KakaoOAuthRequestSchema.parse(input)
 
-  const { data } = await axios.post('/api/v1/auth/oauth/kakao', body, {
+  const { data } = await axios.post('/auth/oauth/kakao', body, {
     headers: { 'Content-Type': 'application/json' },
     withCredentials: true,
   })

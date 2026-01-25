@@ -11,7 +11,7 @@ export const postTokenRefresh = async (
 ): Promise<TokenRefreshResponse> => {
   const payload = TokenRefreshRequestSchema.parse(body ?? {})
 
-  const { data } = await api.post('/api/v1/auth/refresh', payload, {
+  const { data } = await api.post('/auth/refresh', payload, {
     withCredentials: true,
   })
 

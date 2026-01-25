@@ -38,7 +38,7 @@ export const setupAuthInterceptors = () => {
         throw error
       }
 
-      if (originalRequest.url?.includes('/api/v1/auth/refresh')) {
+      if (originalRequest.url?.includes('/auth/refresh')) {
         clearAccessToken()
         throw error
       }
@@ -52,7 +52,6 @@ export const setupAuthInterceptors = () => {
         if (!refreshAccessTokenPromise) {
           refreshAccessTokenPromise = postTokenRefresh()
             .then((refreshResponse) => {
-              // ✅ 타입이 camelCase라서 accessToken 사용
               setAccessToken(refreshResponse.accessToken)
               return refreshResponse.accessToken
             })

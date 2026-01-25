@@ -13,7 +13,7 @@ export const UserProviderSchema = z.enum(['EMAIL', 'KAKAO', 'GOOGLE'])
 export const TokenResponseSchema = z
   .object({
     access_token: z.string(),
-    token_type: z.literal('Bearer'),
+    token_type: z.string(),
     expires_in: z.number().int().positive(),
   })
   .transform((data) => ({
@@ -29,7 +29,7 @@ export const UserSchema = z
     email: z.string().email(),
     nickname: z.string(),
     name: z.string(),
-    profile_image_url: z.string().url().nullable().optional(),
+    profile_image_url: z.string().url().nullable(),
     role: UserRoleSchema,
     status: UserStatusSchema,
     provider: UserProviderSchema.optional(),
