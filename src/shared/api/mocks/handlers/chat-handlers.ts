@@ -16,6 +16,29 @@ const getChatRoomList = http.get(
   }
 )
 
-const chatHandlers = [getChatRoomList]
+// ---------- 채팅방 입장 ----------
+const enterChatRoom = http.post<{ roomId?: string }>(
+  `${process.env.NEXT_PUBLIC_API_BASE_URL}/chat/:roomId`,
+  ({ params }) => {
+    const { roomId } = params
+    const parsedRoomId = Number(roomId)
+
+    if ([1, 2, 3, 4].includes(parsedRoomId ?? '')) {
+      return HttpResponse.json({
+        message: '채팅방에 입장했습니다.',
+        room: {
+          id: parsedRoomId,
+          name: CHAT_ROOMS.find((room) => room.id === parsedRoomId)?.name,
+        },
+      })
+    }
+    return HttpResponse.json(
+      { detail: '채팅방을 찾을 수 없습니다.' },
+      { status: 404 }
+    )
+  }
+)
+
+const chatHandlers = [getChatRoomList, enterChatRoom]
 
 export { chatHandlers }
