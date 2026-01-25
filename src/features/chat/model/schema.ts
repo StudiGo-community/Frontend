@@ -28,3 +28,14 @@ export const ChatRoomListResponseSchema = z
 export type ChatRoomListResponse = z.infer<typeof ChatRoomListResponseSchema>
 
 export type ChatRoom = ChatRoomListResponse['rooms'][0]
+
+// ---------- 채팅방 입장 ----------
+export const ChatRoomEnterResponseSchema = z.object({
+  message: z.string(),
+  room: z.object({
+    id: z.number(),
+    name: z.string(),
+  }),
+})
+
+export type ChatRoomEnterResponse = z.infer<typeof ChatRoomEnterResponseSchema>
