@@ -39,3 +39,10 @@ export const ChatRoomEnterResponseSchema = z.object({
 })
 
 export type ChatRoomEnterResponse = z.infer<typeof ChatRoomEnterResponseSchema>
+
+// ---------- 실패 ----------
+export const ChatErrorResponseSchema = z.object({
+  detail: z.string(),
+})
+
+export type ChatErrorResponse = z.infer<typeof ChatErrorResponseSchema>
