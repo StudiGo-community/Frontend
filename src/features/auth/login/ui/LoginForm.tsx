@@ -139,6 +139,7 @@ export default function LoginForm() {
 
         const redirectPath = next ? decodeURIComponent(next) : '/'
         router.replace(redirectPath)
+        router.refresh()
       } catch (error) {
         const axiosError = error as AxiosError
         const errorData = axiosError.response?.data
