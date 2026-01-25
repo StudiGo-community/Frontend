@@ -23,7 +23,7 @@ function ChatRoomList() {
     )
   return (
     <div>
-      <ul className="grid gap-16 py-4">
+      <ul className="grid">
         {orderedChatRooms.map((chatRoom) => (
           <ChatRoomItem key={chatRoom.id} chatRoom={chatRoom} />
         ))}

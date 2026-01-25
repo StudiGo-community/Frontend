@@ -15,7 +15,8 @@ function ChatRoomItem({ chatRoom }: ChatRoomItemProps) {
   const { mutate: enterChatRoom, isPending } = useEnterChatRoom()
 
   const handleClick = () => {
-    /* TODO: 로그인 안 한 유저는 진입 불가 토스트 보여주기 */
+    /* TODO: 로그인 안 한 유저는 입장 불가 토스트 보여주기 */
+    /* TODO: 이미 접속한 채팅방이 있는 유저는 중복 입장 불가 토스트 보여주기 */
     if (isPending) return
     enterChatRoom(chatRoom.id)
   }
@@ -25,7 +26,7 @@ function ChatRoomItem({ chatRoom }: ChatRoomItemProps) {
       <button
         type="button"
         className={cn(
-          'rounded-brand-base flex w-full min-w-0 items-center',
+          'rounded-brand-base flex w-full min-w-0 items-center py-10',
           'focus:outline-none',
           'hover:bg-brand-light focus-visible:bg-brand-light'
         )}
