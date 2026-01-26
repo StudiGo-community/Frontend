@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw'
-import { CHAT_ROOMS } from '@/shared/api/mocks/data/chat-data'
+import { CHAT_ROOMS, MESSAGES } from '@/shared/api/mocks/data/chat-data'
 
 // ---------- 채팅방 목록 조회 ----------
 const getChatRoomList = http.get(
@@ -39,6 +39,44 @@ const enterChatRoom = http.post<{ roomId?: string }>(
   }
 )
 
-const chatHandlers = [getChatRoomList, enterChatRoom]
+// ---------- 채팅 메세지 조회 ----------
+const getChatMessageList = http.get(
+  `${process.env.NEXT_PUBLIC_API_BASE_URL}/chat/:roomId/messages`,
+  async ({ params, request }) => {
+    const { roomId } = params
+
+    const url = new URL(request.url)
+    const size = url.searchParams.get('size') ?? 50
+    const parsedSize = Number(size)
+    const cursor = url.searchParams.get('cursor') ?? 1
+    const parsedCursor = Number(cursor)
+
+    const startIndex = (parsedCursor - 1) * parsedSize
+    const endIndex = startIndex + parsedSize
+    const hasMore = endIndex < MESSAGES.length
+
+    return HttpResponse.json({
+      room_id: Number(roomId),
+      messages: MESSAGES.slice(startIndex, endIndex),
+      next_cursor: hasMore ? parsedCursor + 1 : null,
+      has_more: hasMore,
+    })
+    // await new Promise(() => setTimeout(() => {}, 30000)).then(() => {
+    //   return HttpResponse.json({ rooms: CHAT_ROOMS })
+    // })
+    // return HttpResponse.json(
+    //   { detail: '채팅 이용이 제한된 사용자입니다.' },
+    //   { status: 403 }
+    // )
+    // return HttpResponse.json({
+    //   room_id: Number(roomId),
+    //   messages: [],
+    //   next_cursor: null,
+    //   has_more: false,
+    // })
+  }
+)
+
+const chatHandlers = [getChatRoomList, enterChatRoom, getChatMessageList]
 
 export { chatHandlers }
