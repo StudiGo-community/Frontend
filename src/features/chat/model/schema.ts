@@ -40,6 +40,63 @@ export const ChatRoomEnterResponseSchema = z.object({
 
 export type ChatRoomEnterResponse = z.infer<typeof ChatRoomEnterResponseSchema>
 
+// ---------- 채팅 메세지 조회 ----------
+export const ChatMessageListRequestSchema = z.object({
+  roomId: z.number(),
+  size: z.number().optional(),
+  cursor: z.number().optional(),
+})
+
+export type ChatMessageListRequest = z.infer<
+  typeof ChatMessageListRequestSchema
+>
+
+export const ChatMessageSenderSchema = z.object({
+  id: z.number(),
+  nickname: z.string(),
+  profile_image_url: z.nullable(z.string()),
+})
+
+export const ChatMessageSchema = z.object({
+  id: z.number(),
+  sender_user_id: z.number(),
+  sender: ChatMessageSenderSchema,
+  content: z.string(),
+  status: z.enum(['SENT', 'DELETED_BY_ADMIN']),
+  created_at: z.coerce.date(),
+})
+
+export const ChatMessageListResponseSchema = z
+  .object({
+    room_id: z.number(),
+    messages: z.array(ChatMessageSchema),
+    next_cursor: z.nullable(z.number()),
+    has_more: z.boolean(),
+  })
+  .transform((data) => ({
+    roomId: data.room_id,
+    messages: data.messages.map((message) => ({
+      id: message.id,
+      senderUserId: message.sender_user_id,
+      sender: {
+        id: message.sender.id,
+        nickname: message.sender.nickname,
+        profileImageUrl: message.sender.profile_image_url,
+      },
+      content: message.content,
+      status: message.status,
+      createdAt: message.created_at,
+    })),
+    nextCursor: data.next_cursor,
+    hasMore: data.has_more,
+  }))
+
+export type ChatMessageListResponse = z.infer<
+  typeof ChatMessageListResponseSchema
+>
+
+export type Message = ChatMessageListResponse['messages'][0]
+
 // ---------- 실패 ----------
 export const ChatErrorResponseSchema = z.object({
   detail: z.string(),
