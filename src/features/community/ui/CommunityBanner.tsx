@@ -15,7 +15,7 @@ export default function CommunityBanner() {
   const { data: quizData } = useQuiz()
 
   return (
-    <div className="flex h-50 w-full gap-4 transition-all duration-500 ease-in-out">
+    <section className="flex h-50 w-full gap-4 transition-all duration-500 ease-in-out">
       {quoteData && (
         <QuoteBanner
           data={quoteData}
@@ -32,6 +32,6 @@ export default function CommunityBanner() {
           imageSrc={QuizImage.src}
         />
       )}
-    </div>
+    </section>
   )
 }

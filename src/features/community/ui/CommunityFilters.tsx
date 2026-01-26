@@ -1,115 +1,97 @@
-'use client'
+// 'use client'
+// TODO: nuqs 를 쓰게 되면 다시 클라이언트 컴포넌트로
 
 import Link from 'next/link'
 import { cn } from '@/shared/lib/cn'
-import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input'
-import { Plus, ArrowUpNarrowWide, ArrowDownWideNarrow } from 'lucide-react'
+import { Plus } from 'lucide-react'
+import Link from 'next/link'
 
-const COMMUNITY_TABS = ['전체', '자유', '모집', '학습'] as const
+// TODO: 명세서 나오는거 보고 value 수정 & constans로 옮기기
+const CATEGORIES = [
+  { label: '전체', value: 'all' },
+  { label: '자유', value: 'free' },
+  { label: '모집', value: 'recruit' },
+  { label: '학습', value: 'study' },
+] as const
+
+const SORT = [
+  { label: '인기순', value: 'popular' },
+  { label: '최신순', value: 'latest' },
+  // { label: '오래된순', value: 'oldest' }, // 사용할 필요가..?
+] as const
 
 interface CommunityFiltersProps {
-  activeTab: string
-  onTabChange: (tab: string) => void
-  searchQuery: string
-  onSearchChange: (value: string) => void
+  activeCategory: string
   sortBy: 'popular' | 'latest'
-  onSortByChange: (val: 'popular' | 'latest') => void
-  sortOrder: 'asc' | 'desc'
-  onSortOrderChange: (order: 'asc' | 'desc') => void
 }
 
 export default function CommunityFilters({
-  activeTab,
-  onTabChange,
-  searchQuery,
-  onSearchChange,
+  activeCategory,
   sortBy,
-  onSortByChange,
-  sortOrder,
-  onSortOrderChange,
 }: CommunityFiltersProps) {
-  const toggleSort = () => {
-    onSortOrderChange(sortOrder === 'asc' ? 'desc' : 'asc')
-  }
-
   return (
-    <div className="flex flex-col gap-6">
-      <div className="border-brand-gray-100 flex items-end justify-between border-b">
+    <div className="flex flex-col gap-4">
+      {/* 윗줄 */}
+      <div className="border-brand-gray-100 flex items-end justify-between border-b-2">
         <nav className="flex gap-8">
-          {COMMUNITY_TABS.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => onTabChange(tab)}
+          {CATEGORIES.map((category) => (
+            <Link
+              key={category.value}
+              // TODO: 해당하는 쿼리 파라미터를 추가해주기? nuqs 고려
+              href={`?category=${category.value}`}
               className={cn(
-                'relative pb-4 text-lg font-bold transition-all',
-                activeTab === tab
-                  ? 'text-brand-black'
+                'relative pb-3 text-lg font-bold transition-all',
+                activeCategory === category.value
+                  ? 'text-brand-black border-brand-black border-b-4'
                   : 'text-brand-gray-300 hover:text-brand-gray-400'
               )}
             >
-              {tab}
-              {activeTab === tab && (
-                <div className="bg-brand-black absolute right-0 bottom-0 left-0 h-1" />
-              )}
-            </button>
+              {category.label}
+            </Link>
           ))}
         </nav>
 
-        <Link href="/community/create" passHref>
-          <Button
-            size="sm"
-            className="bg-brand-black mb-3 flex items-center gap-2 px-4 py-2 font-bold text-white hover:bg-black/80"
-          >
-            <Plus size={18} />
-            게시글 작성
-          </Button>
+        <Link
+          href={'/write'}
+          className="bg-brand-black mb-2 flex items-center gap-2 rounded-lg px-6 py-3 text-base font-bold text-white hover:bg-black/80"
+        >
+          <Plus size={18} />
+          게시글 작성
         </Link>
       </div>
 
+      {/* 아랫줄 */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {['popular', 'latest'].map((type) => (
-            <button
-              key={type}
-              onClick={() => onSortByChange(type as 'popular' | 'latest')}
+        {/* 정렬 */}
+        <div className="flex shrink-0 items-center gap-2">
+          {SORT.map((type) => (
+            <Link
+              key={type.value}
+              // TODO: 해당하는 쿼리 파라미터를 추가해주기? nuqs 고려
+              href={`?sort=${type.value}`}
               className={cn(
-                'rounded-full border px-4 py-1.5 text-xs font-bold transition-all',
-                sortBy === type
+                'rounded-full border px-4 py-1.5 text-base font-bold transition-all',
+                sortBy === type.value
                   ? 'border-brand-main text-brand-main bg-brand-main/5'
                   : 'border-brand-gray-200 text-brand-gray-400'
               )}
             >
-              {type === 'popular' ? '인기순' : '최신순'}
-            </button>
+              {type.label}
+            </Link>
           ))}
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={toggleSort}
-            title={
-              sortOrder === 'desc' ? '내림차순 (최신순)' : '오름차순 (오래된순)'
-            }
-            className="rounded-brand-base bg-brand-white hover:border-brand-main text-brand-gray-300 hover:text-brand-main flex h-10 w-10 items-center justify-center border border-transparent transition-all"
-          >
-            {sortOrder === 'desc' ? (
-              <ArrowDownWideNarrow size={24} />
-            ) : (
-              <ArrowUpNarrowWide size={24} />
-            )}
-          </button>
-          <div className="w-72">
-            <Input
-              type="search"
-              size="sm"
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="검색어를 입력하세요"
-              className="hover:border-brand-main text-brand-gray-300 hover:text-brand-main"
-            />
-          </div>
-        </div>
+        {/* 검색 */}
+        {/* TODO: 클라이언트 컴포넌트로 분리 (어차피 언컨트롤드 컴포넌트면 분리할 필요가 없긴 한데, 디바운스를 넣을건지, 디자인 의도 물어보기) */}
+        <Input
+          type="search"
+          size="sm"
+          // value={searchQuery}
+          // onChange={(e) => onSearchChange(e.target.value)}
+          placeholder="검색어를 입력하세요"
+          className="hover:border-brand-main text-brand-gray-300 hover:text-brand-main max-w-sm"
+        />
       </div>
     </div>
   )
