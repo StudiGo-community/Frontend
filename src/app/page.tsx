@@ -4,7 +4,7 @@ import {
   PostCard,
 } from '@/features/community/ui'
 import { MOCK_POSTS } from '@/features/community/mockData'
-import { Pagination } from '@/shared/ui/Pagination'
+import UrlPagination from '@/shared/ui/UrlPagination'
 
 // nuqs 쓰면 거기서 다시 처리
 interface PageProps {
@@ -53,12 +53,10 @@ export default async function Page({ searchParams }: PageProps) {
         </div>
 
         {/* 페이지네이션 */}
-        <Pagination
-          page={Number(page) ?? 10}
+        <UrlPagination
+          page={Number(page) || 1}
           totalPages={50} // TODO: API 수정 요청함. 결과에 따라 처리.
-          // onChangePage={() => {
-          //   console.log('change page')
-          // }}
+          searchParams={{ page, category, sort, query }}
           className="mb-16 py-4"
         />
       </section>

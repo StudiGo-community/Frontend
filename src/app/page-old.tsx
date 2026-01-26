@@ -3,11 +3,11 @@
 import React, { useState, useMemo } from 'react'
 import {
   CommunityBanner,
-  CommunityFilters,
+  // CommunityFilters,
   PostCard,
 } from '@/features/community/ui'
 import { MOCK_POSTS, Post } from '@/features/community/mockData'
-import { Pagination } from '@/shared/ui/Pagination'
+// import { Pagination } from '@/shared/ui/Pagination'
 
 const POSTS_PER_PAGE = 10
 
@@ -18,6 +18,15 @@ export default function Home() {
   const [sortBy, setSortBy] = useState<'popular' | 'latest'>('latest')
 
   const [currentPage, setCurrentPage] = useState(1)
+
+  // lint 방지용
+  console.log(
+    setActiveTab,
+    setSearchQuery,
+    setSortOrder,
+    setSortBy,
+    setCurrentPage
+  )
 
   const filteredAndSortedPosts = useMemo(() => {
     let filtered: Post[] = [...MOCK_POSTS]
@@ -39,8 +48,8 @@ export default function Home() {
       if (sortBy === 'popular') {
         return sortOrder === 'desc' ? b.likes - a.likes : a.likes - b.likes
       }
-      const dateA = new Date(a.createdAt).getTime()
-      const dateB = new Date(b.createdAt).getTime()
+      // const dateA = new Date(a.createdAt).getTime()
+      // const dateB = new Date(b.createdAt).getTime()
 
       return sortOrder === 'desc' ? b.id - a.id : a.id - b.id
     })
@@ -52,7 +61,7 @@ export default function Home() {
     return filteredAndSortedPosts.slice(indexOfFirstPost, indexOfLastPost)
   }, [filteredAndSortedPosts, currentPage])
 
-  const totalPages = Math.ceil(filteredAndSortedPosts.length / POSTS_PER_PAGE)
+  // const totalPages = Math.ceil(filteredAndSortedPosts.length / POSTS_PER_PAGE)
 
   return (
     <main className="mx-auto max-w-300 space-y-6 px-4 py-10">
@@ -66,7 +75,7 @@ export default function Home() {
         </section>
 
         <section id="community-navigation" className="mt-2">
-          <CommunityFilters
+          {/* <CommunityFilters
             activeTab={activeTab}
             onTabChange={(tab) => {
               setActiveTab(tab)
@@ -81,7 +90,7 @@ export default function Home() {
             onSortOrderChange={setSortOrder}
             sortBy={sortBy}
             onSortByChange={setSortBy}
-          />
+          /> */}
         </section>
 
         <section id="community-post-list" className="-mt-5 flex flex-col">
@@ -96,11 +105,11 @@ export default function Home() {
       </div>
 
       <section className="flex justify-center py-6">
-        <Pagination
+        {/* <Pagination
           page={currentPage}
           totalPages={totalPages > 0 ? totalPages : 1}
           onChangePage={setCurrentPage}
-        />
+        /> */}
       </section>
 
       <div className="fixed right-10 bottom-10">

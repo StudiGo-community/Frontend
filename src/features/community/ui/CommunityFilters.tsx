@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { cn } from '@/shared/lib/cn'
 import { Input } from '@/shared/ui/input'
 import { Plus } from 'lucide-react'
-import Link from 'next/link'
 
 // TODO: 명세서 나오는거 보고 value 수정 & constans로 옮기기
 const CATEGORIES = [
