@@ -1,16 +1,24 @@
 import {
   useQuery,
   useMutation,
+  useInfiniteQuery,
   type UseQueryOptions,
   type UseMutationOptions,
+  type UseInfiniteQueryOptions,
+  type InfiniteData,
 } from '@tanstack/react-query'
 import {
   type ChatRoomListResponse,
   type ChatRoomEnterResponse,
   type ChatErrorResponse,
+  type ChatMessageListResponse,
 } from '@/features/chat/model/schema'
 import { queryKeys } from '@/features/chat/api/query-keys'
-import { enterChatRoom, getChatRoomList } from '@/features/chat/api/api'
+import {
+  enterChatRoom,
+  getChatMessageList,
+  getChatRoomList,
+} from '@/features/chat/api/api'
 import { AxiosError } from 'axios'
 import { useChatStore } from '@/features/chat/model/store'
 import { toast } from 'sonner'
@@ -54,6 +62,35 @@ export const useEnterChatRoom = (options?: EnterChatRoomMutationOptions) => {
     onError: (error) => {
       toast.error(error.response?.data.detail ?? '채팅방 입장에 실패했습니다.')
     },
+    ...options,
+  })
+}
+
+// ---------- 채팅 메세지 조회 ----------
+type ChatMessageListQueryOptions = Omit<
+  UseInfiniteQueryOptions<
+    ChatMessageListResponse,
+    AxiosError<ChatErrorResponse>,
+    InfiniteData<ChatMessageListResponse>
+  >,
+  'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam' | 'enabled'
+>
+
+export const useChatMessageList = (
+  roomId: number | null,
+  options?: ChatMessageListQueryOptions
+) => {
+  return useInfiniteQuery({
+    queryKey: queryKeys.messageList(roomId ?? -1),
+    queryFn: ({ pageParam }) =>
+      getChatMessageList({
+        roomId: roomId ?? -1,
+        cursor: pageParam as number | undefined,
+      }),
+    initialPageParam: undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasMore ? lastPage.nextCursor : undefined,
+    enabled: !!roomId,
     ...options,
   })
 }
