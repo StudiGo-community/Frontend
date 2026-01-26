@@ -17,17 +17,12 @@ interface PageProps {
 }
 
 export default async function Page({ searchParams }: PageProps) {
+  // TODO: 따로 분리하지 말아야하나? (nuqs 도입시 리팩토링)
   const { page, category, sort, query } = await searchParams
-
-  // 일단 lint 방지
-  console.log(
-    `page: ${page}, category: ${category}, sort: ${sort}, query: ${query}`
-  )
 
   return (
     <>
       {/* 오늘의 문장 */}
-      {/* TODO: 아래 여백 조정 */}
       <CommunityBanner />
 
       {/* 게시판 */}
@@ -38,6 +33,7 @@ export default async function Page({ searchParams }: PageProps) {
         <CommunityFilters
           activeCategory={category ?? 'all'}
           sortBy={sort ?? 'popular'}
+          searchParams={{ category, sort, query, page }}
         />
 
         {/* 게시글 목록 */}

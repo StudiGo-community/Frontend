@@ -6,6 +6,8 @@ import { cn } from '@/shared/lib/cn'
 import { Input } from '@/shared/ui/input'
 import { Plus } from 'lucide-react'
 
+import { createUrl } from '@/shared/lib/url'
+
 // TODO: 명세서 나오는거 보고 value 수정 & constans로 옮기기
 const CATEGORIES = [
   { label: '전체', value: 'all' },
@@ -23,11 +25,13 @@ const SORT = [
 interface CommunityFiltersProps {
   activeCategory: string
   sortBy: 'popular' | 'latest'
+  searchParams: Record<string, string | string[] | undefined>
 }
 
 export default function CommunityFilters({
   activeCategory,
   sortBy,
+  searchParams,
 }: CommunityFiltersProps) {
   return (
     <div className="flex flex-col gap-4">
@@ -37,8 +41,10 @@ export default function CommunityFilters({
           {CATEGORIES.map((category) => (
             <Link
               key={category.value}
-              // TODO: 해당하는 쿼리 파라미터를 추가해주기? nuqs 고려
-              href={`?category=${category.value}`}
+              href={createUrl('', searchParams, {
+                category: category.value,
+                page: 1,
+              })}
               className={cn(
                 'relative pb-3 text-lg font-bold transition-all',
                 activeCategory === category.value
@@ -67,8 +73,10 @@ export default function CommunityFilters({
           {SORT.map((type) => (
             <Link
               key={type.value}
-              // TODO: 해당하는 쿼리 파라미터를 추가해주기? nuqs 고려
-              href={`?sort=${type.value}`}
+              href={createUrl('', searchParams, {
+                sort: type.value,
+                page: 1,
+              })}
               className={cn(
                 'rounded-full border px-4 py-1.5 text-base font-bold transition-all',
                 sortBy === type.value

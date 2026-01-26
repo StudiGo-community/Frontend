@@ -9,6 +9,8 @@ import {
 } from '@/shared/ui/Pagination'
 import { cn } from '../lib/cn'
 
+import { createUrl } from '@/shared/lib/url'
+
 interface UrlPaginationProps {
   totalPages: number
   page: number
@@ -24,21 +26,7 @@ export default function UrlPagination({
 }: UrlPaginationProps) {
   // TODO: nuqs 도입시 리팩토링
   const createPageURL = (pageNumber: number | string) => {
-    const params = new URLSearchParams()
-
-    // 모든 searchParams를 순회하며 유지
-    Object.entries(searchParams).forEach(([key, value]) => {
-      if (value === undefined || key === 'page') return
-
-      if (Array.isArray(value)) {
-        value.forEach((v) => params.append(key, v))
-      } else {
-        params.set(key, value as string)
-      }
-    })
-
-    params.set('page', pageNumber.toString())
-    return `?${params.toString()}`
+    return createUrl('', searchParams, { page: pageNumber })
   }
 
   const getPageRange = (current: number, total: number) => {
