@@ -5,8 +5,8 @@ import {
 } from '@/features/auth/api/schemas/login/common'
 
 export const FindEmailSendCodeRequestSchema = z.object({
-  name: z.string().min(1),
-  phone: z.string().min(8),
+  name: z.string().min(1, '이름을 입력해주세요.'),
+  phone: z.string().min(8, '올바른 휴대폰 번호를 입력해주세요.'),
 })
 
 export type FindEmailSendCodeRequest = z.infer<
@@ -35,11 +35,10 @@ export type FindEmailSendCodeError = z.infer<
   typeof FindEmailSendCodeErrorSchema
 >
 
-// POST /api/v1/auth/find-email/verify
 export const FindEmailVerifyRequestSchema = z.object({
-  name: z.string().min(1),
-  phone: z.string().min(8),
-  code: z.string().length(6),
+  name: z.string().min(1, '이름을 입력해주세요.'),
+  phone: z.string().min(8, '올바른 휴대폰 번호를 입력해주세요.'),
+  code: z.string().length(6, '인증번호 6자리를 입력해주세요.'),
 })
 
 export type FindEmailVerifyRequest = z.infer<
@@ -71,7 +70,13 @@ export type FindEmailVerifyResponse = z.infer<
 >
 
 export const FindEmailVerifyErrorSchema = ErrorResponseSchema.extend({
-  error_code: z.enum(['INVALID_CODE', 'USER_NOT_FOUND']),
+  error_code: z.enum([
+    'INVALID_CODE',
+    'USER_NOT_FOUND',
+    'INVALID_NICKNAME_LENGTH', // 명세서 비고란의 에러코드 포함
+    'INVALID_NICKNAME_FORMAT',
+    'NICKNAME_ALREADY_EXISTS',
+  ]),
 })
 
 export type FindEmailVerifyError = z.infer<typeof FindEmailVerifyErrorSchema>

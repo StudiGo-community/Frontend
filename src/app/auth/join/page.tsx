@@ -1,4 +1,4 @@
-import { JoinFunnel } from '@/features/auth/join/ui'
+import { JoinFunnel } from '@/features/auth'
 
 export default function Page() {
   return (

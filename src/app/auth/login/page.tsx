@@ -1,6 +1,6 @@
 'use client'
 
-import LoginPage from '@/features/auth/login/ui/page'
+import { LoginPage } from '@/features/auth'
 import { Suspense } from 'react'
 
 export default function Page() {

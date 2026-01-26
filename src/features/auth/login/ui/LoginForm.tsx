@@ -1,43 +1,66 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { toast } from 'sonner'
-import axios, { AxiosError } from 'axios'
 
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input'
-import { EmailLoginRequestSchema } from '@/features/auth/api/schemas/login'
+
+import { useLoginMutation } from '../hooks/useLoginMutation'
 
 const SAVED_EMAIL_KEY = 'studigo.saved_login_email'
 
-const ErrorResponseSchema = z.object({
-  error_code: z.string(),
-  error_detail: z.string(),
-  retry_after: z.number().optional(),
-})
-type ErrorResponse = z.infer<typeof ErrorResponseSchema>
+const loginFormSchema = z
+  .object({
+    email: z
+      .string()
+      .min(1, '이메일을 입력해주세요.')
+      .email('이메일 형식에 맞춰 작성해주세요.'),
+    password: z
+      .string()
+      .min(1, '비밀번호를 입력해주세요.')
+      .min(8, '비밀번호는 8자 이상이어야 합니다.')
+      .max(20, '비밀번호는 20자 이하이어야 합니다.')
+      .regex(
+        /^(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])/,
+        '영문 소문자, 숫자, 특수문자(!@#$%^&*)를 모두 포함해야 합니다.'
+      ),
+    remember: z.boolean().optional(),
+  })
+  .superRefine(({ password, email }, ctx) => {
+    if (password === email) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: '이메일과 동일한 비밀번호는 사용할 수 없습니다.',
+        path: ['password'],
+      })
+    }
 
-const loginFormSchema = z.object({
-  email: z
-    .string()
-    .min(1, '이메일을 입력해주세요.')
-    .email('이메일 형식에 맞춰 작성해주세요.'),
-  password: z.string().min(1, '비밀번호를 입력해주세요.'),
-  remember: z.boolean().optional(),
-})
+    for (let i = 0; i < password.length - 2; i++) {
+      const char1 = password.charCodeAt(i)
+      const char2 = password.charCodeAt(i + 1)
+      const char3 = password.charCodeAt(i + 2)
+
+      if (
+        (char1 + 1 === char2 && char2 + 1 === char3) ||
+        (char1 - 1 === char2 && char2 - 1 === char3)
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: '연속된 문자나 숫자를 3자 이상 사용할 수 없습니다.',
+          path: ['password'],
+        })
+        break
+      }
+    }
+  })
 
 type LoginFormValues = z.infer<typeof loginFormSchema>
 
 export default function LoginForm() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const next = searchParams.get('next')
-
   const {
     register,
     handleSubmit,
@@ -57,10 +80,8 @@ export default function LoginForm() {
   useEffect(() => {
     const raw = localStorage.getItem(SAVED_EMAIL_KEY)
     if (!raw) return
-
     try {
       const parsed: { email: string; remember: boolean } = JSON.parse(raw)
-
       if (parsed.remember) {
         setValue('email', parsed.email, { shouldValidate: true })
         setValue('remember', true)
@@ -74,72 +95,25 @@ export default function LoginForm() {
   const email = useWatch({ control, name: 'email' })
 
   useEffect(() => {
-    if (remember) {
-      if (email) {
-        localStorage.setItem(
-          SAVED_EMAIL_KEY,
-          JSON.stringify({ email, remember: true })
-        )
-      }
-    } else {
+    if (remember && email) {
+      localStorage.setItem(
+        SAVED_EMAIL_KEY,
+        JSON.stringify({ email, remember: true })
+      )
+    } else if (!remember) {
       localStorage.removeItem(SAVED_EMAIL_KEY)
     }
   }, [remember, email])
 
-  const onSubmit = useCallback(
-    async (values: LoginFormValues) => {
-      const request = EmailLoginRequestSchema.safeParse({
-        email: values.email,
-        password: values.password,
-        remember_me: values.remember ?? false,
-      })
+  const loginMutation = useLoginMutation()
 
-      if (!request.success) {
-        toast.error('입력값을 확인해주세요.')
-        return
-      }
-
-      try {
-        await axios.post('/api/v1/auth/login', request.data, {
-          withCredentials: true,
-        })
-
-        toast.success('로그인에 성공했습니다.')
-        router.replace(next ? decodeURIComponent(next) : '/')
-      } catch (error) {
-        const axiosError = error as AxiosError<unknown>
-        const parsed = ErrorResponseSchema.safeParse(axiosError.response?.data)
-
-        if (!parsed.success) {
-          toast.error('로그인에 실패했습니다.')
-          return
-        }
-
-        const err: ErrorResponse = parsed.data
-
-        switch (err.error_code) {
-          case 'INVALID_CREDENTIALS':
-            toast.error('이메일 또는 비밀번호를 확인해주세요.')
-            break
-          case 'ACCOUNT_WITHDRAWN':
-            toast.error('탈퇴한 계정입니다.')
-            break
-          case 'ACCOUNT_BANNED':
-            toast.error('이용이 제한된 계정입니다.')
-            break
-          case 'LOGIN_BLOCKED':
-            toast.error(
-              err.error_detail ??
-                '로그인 시도 횟수를 초과했습니다. 잠시 후 다시 시도해주세요.'
-            )
-            break
-          default:
-            toast.error(err.error_detail ?? '로그인에 실패했습니다.')
-        }
-      }
-    },
-    [router, next]
-  )
+  function onSubmit(values: LoginFormValues) {
+    loginMutation.mutate({
+      email: values.email,
+      password: values.password,
+      remember_me: values.remember ?? false,
+    })
+  }
 
   const isDisabled = !isValid || isSubmitting
 
@@ -157,6 +131,7 @@ export default function LoginForm() {
             placeholder="이메일을 입력해주세요."
             autoComplete="email"
             {...register('email')}
+            className={errors.email ? 'border-brand-error' : ''}
           />
           {errors.email?.message && (
             <p className="text-brand-error text-sm">{errors.email.message}</p>
@@ -174,6 +149,7 @@ export default function LoginForm() {
             placeholder="비밀번호를 입력해주세요."
             autoComplete="current-password"
             {...register('password')}
+            className={errors.password ? 'border-brand-error' : ''}
           />
           {errors.password?.message && (
             <p className="text-brand-error text-sm">
@@ -186,10 +162,13 @@ export default function LoginForm() {
           <input
             id="remember"
             type="checkbox"
-            className="border-brand-gray-300 h-4 w-4 rounded"
+            className="border-brand-gray-300 h-4 w-4 cursor-pointer rounded"
             {...register('remember')}
           />
-          <label htmlFor="remember" className="text-brand-gray-500 text-sm">
+          <label
+            htmlFor="remember"
+            className="text-brand-gray-500 cursor-pointer text-sm select-none"
+          >
             이메일 저장
           </label>
         </div>
@@ -200,10 +179,10 @@ export default function LoginForm() {
           variant="secondary"
           disabled={isDisabled}
           className={`w-full font-normal hover:opacity-90 ${
-            !isDisabled ? 'cursor-pointer' : ''
+            !isDisabled ? 'cursor-pointer' : 'cursor-not-allowed'
           }`}
         >
-          이메일로 로그인
+          {isSubmitting ? '로그인 중...' : '이메일로 로그인'}
         </Button>
       </form>
 

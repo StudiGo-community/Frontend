@@ -1,8 +1,7 @@
-// src/shared/api/schemas/auth/login.ts
 import z from 'zod'
 import {
-  ErrorResponseSchema,
   UserSchema,
+  ErrorResponseSchema,
 } from '@/features/auth/api/schemas/login/common'
 
 export const EmailLoginRequestSchema = z.object({
@@ -10,7 +9,6 @@ export const EmailLoginRequestSchema = z.object({
   password: z.string().min(1),
   remember_me: z.boolean().optional(),
 })
-
 export type EmailLoginRequest = z.infer<typeof EmailLoginRequestSchema>
 
 export const EmailLoginResponseSchema = z
@@ -18,23 +16,27 @@ export const EmailLoginResponseSchema = z
     access_token: z.string(),
     token_type: z.literal('Bearer'),
     expires_in: z.number().int().positive(),
-    user: z.any(),
+    user: UserSchema,
   })
-  .transform((data) => {
-    const user = UserSchema.parse(data.user)
-
-    return {
-      accessToken: data.access_token,
-      tokenType: data.token_type,
-      expiresIn: data.expires_in,
-      user,
-    }
-  })
-
+  .transform((data) => ({
+    accessToken: data.access_token,
+    tokenType: data.token_type,
+    expiresIn: data.expires_in,
+    user: {
+      id: data.user.id,
+      email: data.user.email,
+      nickname: data.user.nickname,
+      name: data.user.name,
+      role: data.user.role,
+      status: data.user.status,
+      provider: data.user.provider,
+      profileImageUrl: data.user.profileImageUrl ?? null,
+    },
+  }))
 export type EmailLoginResponse = z.infer<typeof EmailLoginResponseSchema>
 
-export const LoginInvalidCredentialsErrorSchema = ErrorResponseSchema.extend({
-  error_code: z.literal('INVALID_CREDENTIALS'),
+export const LoginInvalidCredentialsErrorSchema = z.object({
+  detail: z.string(),
 })
 
 export const LoginAccountWithdrawnErrorSchema = ErrorResponseSchema.extend({
@@ -42,22 +44,13 @@ export const LoginAccountWithdrawnErrorSchema = ErrorResponseSchema.extend({
   can_restore: z.boolean(),
   restore_deadline: z.string(),
 }).transform((data) => ({
-  errorCode: data.error_code,
-  errorDetail: data.error_detail,
-  canRestore: data.can_restore,
+  error_code: data.error_code,
+  error_detail: data.error_detail,
+  can_restore: data.can_restore,
   restoreDeadline: new Date(data.restore_deadline),
 }))
 
 export const LoginBlockedErrorSchema = ErrorResponseSchema.extend({
   error_code: z.literal('LOGIN_BLOCKED'),
   retry_after: z.number().int().positive(),
-}).transform((data) => ({
-  errorCode: data.error_code,
-  errorDetail: data.error_detail,
-  retryAfter: data.retry_after,
-}))
-
-export type LoginAccountWithdrawnError = z.infer<
-  typeof LoginAccountWithdrawnErrorSchema
->
-export type LoginBlockedError = z.infer<typeof LoginBlockedErrorSchema>
+})

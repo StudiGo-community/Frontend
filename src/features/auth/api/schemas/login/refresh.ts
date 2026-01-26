@@ -7,7 +7,6 @@ import {
 export const TokenRefreshRequestSchema = z.object({
   refresh_token: z.string().optional(),
 })
-
 export type TokenRefreshRequest = z.infer<typeof TokenRefreshRequestSchema>
 
 export const TokenRefreshResponseSchema = TokenResponseSchema
@@ -20,5 +19,4 @@ export const TokenRefreshErrorSchema = ErrorResponseSchema.extend({
     'TOKEN_REVOKED',
   ]),
 })
-
 export type TokenRefreshError = z.infer<typeof TokenRefreshErrorSchema>
