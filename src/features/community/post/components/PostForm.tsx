@@ -8,15 +8,15 @@ import axios, { AxiosError } from 'axios'
 import { DropdownMenu } from '@/shared/ui/DropdownMenu'
 import { postSchema, type PostFormData } from '@/shared/api/schema/postSchema'
 import TipTapEditor from '@/features/community/post/components/editor/TipTapEditor'
-import TagInput from '@/features/community/post/components/TagInput'
 import { Button } from '@/shared/ui/Button'
 import { cn } from '@/shared/lib/cn'
 import { ChevronDown } from 'lucide-react'
 
 const CATEGORY_OPTIONS = [
-  { label: '자유게시판', value: '자유게시판' },
-  { label: '모집게시판', value: '모집게시판' },
-  { label: '학습게시판', value: '학습게시판' },
+  { label: 'Free', value: 'Free' },
+  { label: 'Travel', value: 'Travel' },
+  { label: 'Movie', value: 'Movie' },
+  { label: 'TEST', value: 'TEST' },
 ]
 
 export default function PostForm({
@@ -33,20 +33,18 @@ export default function PostForm({
     resolver: zodResolver(postSchema) as Resolver<PostFormData>,
     defaultValues: initialData || {
       title: '',
-      boardId: '',
+      category: 'Free',
       content: '',
-      tags: [],
+      thumbnail_url: null,
+      images: [],
     },
   })
 
+  const currentCategory = methods.watch('category')
+
   const mutation = useMutation({
     mutationFn: async (formData: PostFormData) =>
-      axios.post('/api/v1/posts', {
-        ...formData,
-        category: formData.boardId || '자유게시판',
-        thumbnail_url: null,
-        images: [],
-      }),
+      axios.post('/api/v1/posts', formData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] })
       router.push('/community')
@@ -61,12 +59,8 @@ export default function PostForm({
     mutation.mutate(data)
   }
 
-  let submitButtonText = '등록하기'
-  if (mutation.isPending) {
-    submitButtonText = '등록 중...'
-  } else if (isEditing) {
-    submitButtonText = '수정 완료'
-  }
+  let submitButtonText = isEditing ? '수정 완료' : '등록하기'
+  if (mutation.isPending) submitButtonText = '등록 중...'
 
   return (
     <FormProvider {...methods}>
@@ -82,15 +76,15 @@ export default function PostForm({
                   type="button"
                   className={cn(
                     'bg-brand-gray-100 rounded-brand-base hover:border-brand-gray-300 flex w-full items-center justify-between border p-3 text-left transition-all outline-none',
-                    methods.formState.errors.boardId && 'border-brand-error'
+                    methods.formState.errors.category && 'border-brand-error'
                   )}
                 >
                   <span
                     className={cn(
-                      !methods.watch('boardId') && 'text-brand-gray-400'
+                      !methods.watch('category') && 'text-brand-gray-400'
                     )}
                   >
-                    {methods.watch('boardId') || '게시판을 선택해 주세요.'}
+                    {currentCategory || '카테고리를 선택해 주세요.'}{' '}
                   </span>
                   <ChevronDown className="text-brand-gray-400 size-4" />
                 </button>
@@ -101,9 +95,13 @@ export default function PostForm({
                   <DropdownMenu.Item
                     key={opt.value}
                     onSelect={() =>
-                      methods.setValue('boardId', opt.value, {
-                        shouldValidate: true,
-                      })
+                      methods.setValue(
+                        'category',
+                        opt.value as PostFormData['category'],
+                        {
+                          shouldValidate: true,
+                        }
+                      )
                     }
                     className="hover:bg-brand-gray-50 cursor-pointer px-3 py-2 text-sm outline-none"
                   >
@@ -137,8 +135,6 @@ export default function PostForm({
             }
           />
         </div>
-
-        <TagInput />
 
         <div className="bg-brand-white border-brand-gray-100 fixed right-0 bottom-0 left-0 z-30 flex justify-end gap-3 border-t p-4 px-6">
           <Button

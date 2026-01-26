@@ -27,7 +27,6 @@ const getPosts = http.get(`${BASE_URL}/api/v1/posts`, () => {
 const createPost = http.post(
   `${BASE_URL}/api/v1/posts`,
   async ({ request }) => {
-    // ✅ any 대신 PostFormData 타입을 지정하여 에러 해결
     const newPostData = (await request.json()) as PostFormData
 
     const newPost = {
@@ -38,7 +37,7 @@ const createPost = http.post(
       views: 0,
       likes: 0,
       comments_count: 0,
-      category: newPostData.boardId || 'Free',
+      category: newPostData.category || 'Free',
     }
 
     posts.push(newPost)
