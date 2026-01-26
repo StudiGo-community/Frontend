@@ -2,6 +2,7 @@ import {
   CommunityBanner,
   CommunityFilters,
   PostCard,
+  FloatingButton,
 } from '@/features/community/ui'
 import { MOCK_POSTS } from '@/features/community/mockData'
 import UrlPagination from '@/shared/ui/UrlPagination'
@@ -60,11 +61,7 @@ export default async function Page({ searchParams }: PageProps) {
       </section>
 
       {/* 플로팅 버튼 */}
-      <div className="fixed right-10 bottom-10">
-        <button className="bg-brand-third hover:bg-opacity-90 rounded-full px-6 py-3 font-bold text-white shadow-lg transition-all">
-          플로팅 버튼
-        </button>
-      </div>
+      <FloatingButton />
     </>
   )
 }

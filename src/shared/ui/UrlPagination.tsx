@@ -51,7 +51,7 @@ export default function UrlPagination({
             aria-disabled={page === 1}
             replace={false}
             className={cn(
-              'hover:text-brand-main bg-transparent px-1 hover:bg-transparent hover:underline',
+              'hover:text-brand-main bg-transparent px-1 hover:bg-transparent',
               page === 1 ? 'pointer-events-none opacity-50' : ''
             )}
           />
@@ -68,7 +68,7 @@ export default function UrlPagination({
                 isActive={page === p}
                 replace={false}
                 className={cn(
-                  'hover:text-brand-main bg-transparent px-1 text-base hover:bg-transparent hover:underline',
+                  'hover:text-brand-main bg-transparent px-1 text-base hover:bg-transparent',
                   page === p ? 'text-brand-main border-none underline' : ''
                 )}
               >

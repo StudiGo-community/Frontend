@@ -83,7 +83,7 @@ function PaginationPrevious({
       className={className}
       {...props}
     >
-      <ChevronLeftIcon data-icon="inline-start" />
+      <ChevronLeftIcon data-icon="inline-start" className="size-5" />
       {/* <span className="hidden sm:block">Previous</span> */}
     </PaginationLink>
   )
@@ -104,7 +104,7 @@ function PaginationNext({
       {...props}
     >
       {/* <span className="hidden sm:block">Next</span> */}
-      <ChevronRightIcon data-icon="inline-end" />
+      <ChevronRightIcon data-icon="inline-end" className="size-5" />
     </PaginationLink>
   )
 }
