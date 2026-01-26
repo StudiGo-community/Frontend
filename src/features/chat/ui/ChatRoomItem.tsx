@@ -6,19 +6,25 @@ import { formatRelativeDateTime } from '@/features/chat/lib/formatter'
 import { type ChatRoom } from '@/features/chat/model/schema'
 import { useEnterChatRoom } from '@/features/chat/api/queries'
 import { cn } from '@/shared/lib/cn'
+import { useChatStore } from '@/features/chat/model/store'
+import { toast } from 'sonner'
 
 interface ChatRoomItemProps {
   chatRoom: ChatRoom
 }
 
 function ChatRoomItem({ chatRoom }: ChatRoomItemProps) {
+  const enteredRoomId = useChatStore((state) => state.enteredRoomId)
   const { mutate: enterChatRoom, isPending } = useEnterChatRoom()
 
   const handleClick = () => {
     /* TODO: 로그인 안 한 유저는 입장 불가 토스트 보여주기 */
-    /* TODO: 이미 접속한 채팅방이 있는 유저는 중복 입장 불가 토스트 보여주기 */
     if (isPending) return
-    enterChatRoom(chatRoom.id)
+    if (enteredRoomId && enteredRoomId !== chatRoom.id) {
+      toast.warning('채팅방은 중복 입장할 수 없습니다.')
+      return
+    }
+    enterChatRoom(enteredRoomId ?? chatRoom.id)
   }
 
   return (
