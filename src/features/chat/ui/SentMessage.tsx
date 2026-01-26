@@ -1,27 +1,18 @@
 import { formatTimeString } from '@/features/chat/lib/formatter'
 import { cn } from '@/shared/lib/cn'
+import { Message } from '@/features/chat/model/schema'
 
-// TODO: API 연동할 때 스키마에서 뽑은 타입으로 변경하기
-interface Message {
-  id: number
-  sender_user_id: number
-  sender: {
-    id: number
-    nickname: string
-    profile_image_url: string
-  }
-  content: string
-  status: 'SENT' | 'DELETED_BY_ADMIN'
-  created_at: string
+interface SentMessageProps {
+  message: Message
 }
 
-function SentMessage({ message }: { message: Message }) {
+function SentMessage({ message }: SentMessageProps) {
   const isBlindMessage = message.status === 'DELETED_BY_ADMIN'
 
   return (
     <li className="flex max-w-4/5 items-end gap-1 self-end">
       <span className="text-brand-gray-300 text-sm font-medium">
-        {formatTimeString(new Date(message.created_at))}
+        {formatTimeString(message.createdAt)}
       </span>
       <span
         className={cn(

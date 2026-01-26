@@ -4,7 +4,7 @@ import { Suspense } from 'react'
 
 function Chat() {
   return (
-    <div className="mt-14 mb-24.5">
+    <div className="mt-14 mb-35.5">
       <section className="relative mb-12.5 aspect-8/1">
         <Image
           src="/images/chat/chat-banner.webp"
@@ -22,7 +22,7 @@ function Chat() {
             <div className="h-96 w-full animate-pulse rounded-xl bg-gray-50"></div>
           }
         >
-          <div className="border-b-brand-gray-100 mt-8 mb-14 border-b">
+          <div className="border-b-brand-gray-100 mt-8 mb-4 border-b">
             <div className="flex items-end justify-between">
               <div className="text-brand-black relative pb-4 text-lg font-bold">
                 <span>전체</span>

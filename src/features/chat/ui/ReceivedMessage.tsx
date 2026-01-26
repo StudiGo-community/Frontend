@@ -1,22 +1,13 @@
 import { formatTimeString } from '@/features/chat/lib/formatter'
 import { cn } from '@/shared/lib/cn'
 import Image from 'next/image'
+import { Message } from '@/features/chat/model/schema'
 
-// TODO: API 연동할 때 스키마에서 뽑은 타입으로 변경하기
-interface Message {
-  id: number
-  sender_user_id: number
-  sender: {
-    id: number
-    nickname: string
-    profile_image_url: string
-  }
-  content: string
-  status: 'SENT' | 'DELETED_BY_ADMIN'
-  created_at: string
+interface ReceivedMessageProps {
+  message: Message
 }
 
-function ReceivedMessage({ message }: { message: Message }) {
+function ReceivedMessage({ message }: ReceivedMessageProps) {
   const isBlindMessage = message.status === 'DELETED_BY_ADMIN'
 
   return (
@@ -26,7 +17,7 @@ function ReceivedMessage({ message }: { message: Message }) {
           <Image
             // TODO: 외부 이미지 사용하기 전에 넥스트 설정에 등록하기
             src={
-              //   message.sender.profile_image_url ??
+              message.sender.profileImageUrl ??
               '/images/profiles/default-1.webp'
             }
             alt={`${message.sender.nickname}의 프로필 이미지`}
@@ -50,7 +41,7 @@ function ReceivedMessage({ message }: { message: Message }) {
           {isBlindMessage ? '블라인드 처리된 메시지입니다.' : message.content}
         </span>
         <span className="text-brand-gray-300 text-sm font-medium">
-          {formatTimeString(new Date(message.created_at))}
+          {formatTimeString(message.createdAt)}
         </span>
       </div>
     </li>
