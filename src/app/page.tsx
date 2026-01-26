@@ -18,6 +18,8 @@ interface PageProps {
 
 export default async function Page({ searchParams }: PageProps) {
   const { page, category, sort, query } = await searchParams
+
+  // 일단 lint 방지
   console.log(
     `page: ${page}, category: ${category}, sort: ${sort}, query: ${query}`
   )
@@ -39,7 +41,7 @@ export default async function Page({ searchParams }: PageProps) {
         />
 
         {/* 게시글 목록 */}
-        <div
+        <ul
           id="community-post-list"
           className="flex flex-col gap-4 border-b-2 pb-8"
         >
@@ -50,7 +52,7 @@ export default async function Page({ searchParams }: PageProps) {
               해당 게시글이 없습니다.
             </div>
           )}
-        </div>
+        </ul>
 
         {/* 페이지네이션 */}
         <UrlPagination
