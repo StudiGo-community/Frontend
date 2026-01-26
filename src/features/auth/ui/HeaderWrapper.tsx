@@ -1,11 +1,10 @@
 'use client'
 
-import { getAccessToken } from '@/features/auth'
+import { useTokenStore } from '@/features/auth'
 import Header from '@/shared/ui/header/Header'
 
 export const HeaderWrapper = () => {
-  const token = getAccessToken()
-  const isLoggedIn = !!token
-
+  const accessToken = useTokenStore((state) => state.accessToken)
+  const isLoggedIn = !!accessToken
   return <Header isLoggedIn={isLoggedIn} />
 }

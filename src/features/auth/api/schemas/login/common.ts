@@ -35,7 +35,13 @@ export const UserSchema = z
     provider: UserProviderSchema.optional(),
   })
   .transform((data) => ({
-    ...data,
+    id: data.id,
+    email: data.email,
+    nickname: data.nickname,
+    name: data.name,
+    role: data.role,
+    status: data.status,
+    provider: data.provider,
     profileImageUrl: data.profile_image_url ?? null,
   }))
 export type User = z.infer<typeof UserSchema>

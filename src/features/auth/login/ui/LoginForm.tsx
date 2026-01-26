@@ -1,26 +1,15 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { toast } from 'sonner'
-import { AxiosError } from 'axios'
 
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input'
 
-import { setAccessToken } from '@/features/auth'
-import { postEmailLogin } from '@/features/auth/api/endpoints/login'
-import {
-  EmailLoginRequest,
-  EmailLoginResponse,
-  LoginInvalidCredentialsErrorSchema,
-  LoginAccountWithdrawnErrorSchema,
-  LoginBlockedErrorSchema,
-} from '@/features/auth/api/schemas/login'
+import { useLoginMutation } from '../hooks/useLoginMutation'
 
 const SAVED_EMAIL_KEY = 'studigo.saved_login_email'
 
@@ -72,10 +61,6 @@ const loginFormSchema = z
 type LoginFormValues = z.infer<typeof loginFormSchema>
 
 export default function LoginForm() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const next = searchParams.get('next')
-
   const {
     register,
     handleSubmit,
@@ -120,50 +105,15 @@ export default function LoginForm() {
     }
   }, [remember, email])
 
-  const onSubmit = useCallback(
-    async (values: LoginFormValues) => {
-      const payload: EmailLoginRequest = {
-        email: values.email,
-        password: values.password,
-        remember_me: values.remember ?? false,
-      }
+  const loginMutation = useLoginMutation()
 
-      try {
-        const response = (await postEmailLogin(payload)) as EmailLoginResponse
-
-        if (response.accessToken) {
-          setAccessToken(response.accessToken)
-        }
-
-        toast.success(`${response.user.nickname}님, 환영합니다!`)
-
-        const redirectPath = next ? decodeURIComponent(next) : '/'
-        router.replace(redirectPath)
-        router.refresh()
-      } catch (error) {
-        const axiosError = error as AxiosError
-        const errorData = axiosError.response?.data
-
-        const invalid = LoginInvalidCredentialsErrorSchema.safeParse(errorData)
-        if (invalid.success) return toast.error(invalid.data.detail)
-
-        const blocked = LoginBlockedErrorSchema.safeParse(errorData)
-        if (blocked.success)
-          return toast.error(
-            `${blocked.data.error_detail} (대기: ${blocked.data.retry_after}초)`
-          )
-
-        const withdrawn = LoginAccountWithdrawnErrorSchema.safeParse(errorData)
-        if (withdrawn.success)
-          return toast.error(
-            `${withdrawn.data.error_detail} (복구 기한: ${withdrawn.data.restoreDeadline.toLocaleDateString()})`
-          )
-
-        toast.error('로그인 정보가 일치하지 않거나 오류가 발생했습니다.')
-      }
-    },
-    [router, next]
-  )
+  function onSubmit(values: LoginFormValues) {
+    loginMutation.mutate({
+      email: values.email,
+      password: values.password,
+      remember_me: values.remember ?? false,
+    })
+  }
 
   const isDisabled = !isValid || isSubmitting
 

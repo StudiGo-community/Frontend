@@ -1,33 +1,34 @@
+import { create } from 'zustand'
+
 const TOKEN_STORAGE_KEY = 'studigo_access_token'
 
-let accessToken: string | null = null
+interface TokenStore {
+  accessToken: string | null
+  setAccessToken: (token: string) => void
+  clearAccessToken: () => void
+  initializeToken: () => void
+}
 
-const initializeToken = () => {
-  if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem(TOKEN_STORAGE_KEY)
-    if (stored) {
-      accessToken = stored
+export const useTokenStore = create<TokenStore>((set) => ({
+  accessToken: null,
+  setAccessToken: (token) => {
+    set({ accessToken: token })
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(TOKEN_STORAGE_KEY, token)
     }
-  }
-}
-
-export const setAccessToken = (token: string) => {
-  accessToken = token
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(TOKEN_STORAGE_KEY, token)
-  }
-}
-
-export const getAccessToken = () => {
-  if (accessToken === null) {
-    initializeToken()
-  }
-  return accessToken
-}
-
-export const clearAccessToken = () => {
-  accessToken = null
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem(TOKEN_STORAGE_KEY)
-  }
-}
+  },
+  clearAccessToken: () => {
+    set({ accessToken: null })
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(TOKEN_STORAGE_KEY)
+    }
+  },
+  initializeToken: () => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(TOKEN_STORAGE_KEY)
+      if (stored) {
+        set({ accessToken: stored })
+      }
+    }
+  },
+}))

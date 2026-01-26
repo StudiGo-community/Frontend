@@ -22,7 +22,16 @@ export const EmailLoginResponseSchema = z
     accessToken: data.access_token,
     tokenType: data.token_type,
     expiresIn: data.expires_in,
-    user: data.user,
+    user: {
+      id: data.user.id,
+      email: data.user.email,
+      nickname: data.user.nickname,
+      name: data.user.name,
+      role: data.user.role,
+      status: data.user.status,
+      provider: data.user.provider,
+      profileImageUrl: data.user.profileImageUrl ?? null,
+    },
   }))
 export type EmailLoginResponse = z.infer<typeof EmailLoginResponseSchema>
 
@@ -35,7 +44,9 @@ export const LoginAccountWithdrawnErrorSchema = ErrorResponseSchema.extend({
   can_restore: z.boolean(),
   restore_deadline: z.string(),
 }).transform((data) => ({
-  ...data,
+  error_code: data.error_code,
+  error_detail: data.error_detail,
+  can_restore: data.can_restore,
   restoreDeadline: new Date(data.restore_deadline),
 }))
 

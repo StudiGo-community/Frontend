@@ -16,54 +16,58 @@ export {
   TokenRefreshRequestSchema,
   TokenRefreshResponseSchema,
   TokenRefreshErrorSchema,
-} from './refresh'
+} from '@/features/auth/api/schemas/login/refresh'
 export type {
   TokenRefreshRequest,
   TokenRefreshResponse,
   TokenRefreshError,
-} from './refresh'
+} from '@/features/auth/api/schemas/login/refresh'
 
 export {
   LogoutRequestSchema,
   LogoutResponseSchema,
   LogoutErrorSchema,
-} from './logout'
-export type { LogoutRequest, LogoutResponse, LogoutError } from './logout'
+} from '@/features/auth/api/schemas/login/logout'
+export type {
+  LogoutRequest,
+  LogoutResponse,
+  LogoutError,
+} from '@/features/auth/api/schemas/login/logout'
 
 export {
   FindEmailSendCodeRequestSchema,
   FindEmailSendCodeResponseSchema,
   FindEmailVerifyRequestSchema,
   FindEmailVerifyResponseSchema,
-} from './find-email'
+} from '@/features/auth/api/schemas/login/find-email'
 export type {
   FindEmailSendCodeRequest,
   FindEmailSendCodeResponse,
   FindEmailVerifyRequest,
   FindEmailVerifyResponse,
-} from './find-email'
+} from '@/features/auth/api/schemas/login/find-email'
 
 export {
   NicknameCheckRequestSchema,
   NicknameCheckResponseSchema,
   NicknameCheckErrorSchema,
-} from './nickname'
+} from '@/features/auth/api/schemas/login/nickname'
 export type {
   NicknameCheckRequest,
   NicknameCheckResponse,
   NicknameCheckError,
-} from './nickname'
+} from '@/features/auth/api/schemas/login/nickname'
 
 export {
   PasswordResetRequestSchema,
   PasswordResetResponseSchema,
   PasswordResetErrorSchema,
-} from './password-reset'
+} from '@/features/auth/api/schemas/login/password-reset'
 export type {
   PasswordResetRequest,
   PasswordResetResponse,
   PasswordResetError,
-} from './password-reset'
+} from '@/features/auth/api/schemas/login/password-reset'
 
-export { WithdrawalInfoResponseSchema } from './withdrawal'
-export type { WithdrawalInfoResponse } from './withdrawal'
+export { WithdrawalInfoResponseSchema } from '@/features/auth/api/schemas/login/withdrawal'
+export type { WithdrawalInfoResponse } from '@/features/auth/api/schemas/login/withdrawal'

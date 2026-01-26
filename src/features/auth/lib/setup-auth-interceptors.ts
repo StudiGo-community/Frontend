@@ -2,11 +2,7 @@ import type { AxiosError, InternalAxiosRequestConfig } from 'axios'
 
 import { api } from '@/shared/api/client'
 import { postTokenRefresh } from '@/features/auth/api/endpoints/refresh'
-import {
-  clearAccessToken,
-  getAccessToken,
-  setAccessToken,
-} from '@/features/auth/model/store/token-store'
+import { useTokenStore } from '@/features/auth/model/store/token-store'
 
 interface RetriableRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean
@@ -20,10 +16,10 @@ export const setupAuthInterceptors = () => {
   isInterceptorInstalled = true
 
   api.interceptors.request.use((config) => {
-    const token = getAccessToken()
-    if (token) {
+    const { accessToken } = useTokenStore.getState()
+    if (accessToken) {
       config.headers = config.headers ?? {}
-      config.headers.Authorization = `Bearer ${token}`
+      config.headers.Authorization = `Bearer ${accessToken}`
     }
     return config
   })
@@ -39,7 +35,7 @@ export const setupAuthInterceptors = () => {
       }
 
       if (originalRequest.url?.includes('/auth/refresh')) {
-        clearAccessToken()
+        useTokenStore.getState().clearAccessToken()
         throw error
       }
 
@@ -52,7 +48,9 @@ export const setupAuthInterceptors = () => {
         if (!refreshAccessTokenPromise) {
           refreshAccessTokenPromise = postTokenRefresh()
             .then((refreshResponse) => {
-              setAccessToken(refreshResponse.accessToken)
+              useTokenStore
+                .getState()
+                .setAccessToken(refreshResponse.accessToken)
               return refreshResponse.accessToken
             })
             .finally(() => {
@@ -67,7 +65,7 @@ export const setupAuthInterceptors = () => {
 
         return api(originalRequest)
       } catch (refreshError) {
-        clearAccessToken()
+        useTokenStore.getState().clearAccessToken()
         throw refreshError
       }
     }
