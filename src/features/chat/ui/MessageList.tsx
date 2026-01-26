@@ -1,119 +1,46 @@
+'use client'
+
 import ReceivedMessage from '@/features/chat/ui/ReceivedMessage'
 import SentMessage from '@/features/chat/ui/SentMessage'
+import { useChatMessageList } from '@/features/chat/api/queries'
+import { useChatStore } from '@/features/chat/model/store'
+import { useMemo } from 'react'
+import Loading from '@/features/chat/ui/Loading'
+import Error from '@/features/chat/ui/Error'
 
 // TODO: 유저 정보 스토어에 저장된 것 불러오기
 const userId = 1
-// TODO: MSW 핸들러 설정할 때 옮기기
-const MESSAGES = {
-  room_id: 2,
-  messages: [
-    {
-      id: 1,
-      sender_user_id: userId,
-      sender: {
-        id: userId,
-        nickname: '길동',
-        profile_image_url: 'https://...',
-      },
-      content:
-        'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Aliquam rerum dolorum, perspiciatis culpa atque dolore libero itaque voluptates id odio nisi velit officiis, tempore reiciendis, hic commodi explicabo dolores nihil!',
-      status: 'SENT',
-      created_at: '2026-01-24T11:23:11Z',
-    },
-    {
-      id: 2,
-      sender_user_id: 2,
-      sender: {
-        id: 2,
-        nickname: '철수',
-        profile_image_url: 'https://...',
-      },
-      content: '안녕!',
-      status: 'SENT',
-      created_at: '2026-01-24T11:24:11Z',
-    },
-    {
-      id: 3,
-      sender_user_id: 3,
-      sender: {
-        id: 3,
-        nickname: '영희',
-        profile_image_url: 'https://...',
-      },
-      content:
-        'Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae modi architecto delectus velit doloribus libero fugit nam ducimus vel provident, commodi, assumenda animi hic ea officia deleniti ab nostrum fuga.',
-      status: 'SENT',
-      created_at: '2026-01-24T11:24:11Z',
-    },
-    {
-      id: 4,
-      sender_user_id: userId,
-      sender: {
-        id: userId,
-        nickname: '길동',
-        profile_image_url: 'https://...',
-      },
-      content: '뭐해??',
-      status: 'SENT',
-      created_at: '2026-01-24T11:25:11Z',
-    },
-    {
-      id: 5,
-      sender_user_id: 3,
-      sender: {
-        id: 3,
-        nickname: '영희',
-        profile_image_url: 'https://...',
-      },
-      content: '밤샘하는 중 ㅠㅠ',
-      status: 'SENT',
-      created_at: '2026-01-24T11:26:11Z',
-    },
-    {
-      id: 6,
-      sender_user_id: 2,
-      sender: {
-        id: 2,
-        nickname: '철수',
-        profile_image_url: 'https://...',
-      },
-      content: '메롱',
-      status: 'DELETED_BY_ADMIN',
-      created_at: '2026-01-24T11:27:11Z',
-    },
-    {
-      id: 7,
-      sender_user_id: userId,
-      sender: {
-        id: userId,
-        nickname: '길동',
-        profile_image_url: 'https://...',
-      },
-      content: '메롱',
-      status: 'DELETED_BY_ADMIN',
-      created_at: '2026-01-24T11:27:11Z',
-    },
-    {
-      id: 8,
-      sender_user_id: userId,
-      sender: {
-        id: userId,
-        nickname: '길동',
-        profile_image_url: 'https://...',
-      },
-      content:
-        'ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ',
-      status: 'SENT',
-      created_at: '2026-01-24T11:27:11Z',
-    },
-  ],
-} as const
 
 function MessageList() {
+  const roomId = useChatStore((state) => state.enteredRoomId)
+  const { data, isLoading, error } = useChatMessageList(roomId)
+  const messages = useMemo(
+    () => data?.pages.flatMap((page) => page.messages),
+    [data?.pages]
+  )
+
+  if (isLoading) return <Loading className="mt-9" />
+  if (error)
+    return (
+      <Error
+        className="mt-9"
+        message={
+          error.response?.data.detail ??
+          '메세지를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.'
+        }
+      />
+    )
+  if (messages?.length === 0)
+    return (
+      <div className="text-brand-gray-500 mt-9 py-9 text-center">
+        아직 대화가 없습니다. 첫 메세지를 보내보세요!
+      </div>
+    )
   return (
     <div className="mt-9">
+      {/* TODO: 무한 스크롤 처리 추가 */}
       <ul className="flex flex-col gap-4">
-        {MESSAGES.messages.map((message) =>
+        {messages?.map((message) =>
           message.sender.id === userId ? (
             <SentMessage key={message.id} message={message} />
           ) : (
