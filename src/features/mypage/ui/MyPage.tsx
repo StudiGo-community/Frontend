@@ -1,4 +1,5 @@
 'use client'
+import MenuIcon from '@/features/mypage/assets/menu-icon.svg'
 
 import Image from 'next/image'
 import { useMemo, useState } from 'react'
@@ -157,41 +158,48 @@ export default function MyPage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-6 pt-10">
-        <h1 className="text-brand-black text-2xl font-black">마이페이지</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-brand-black text-2xl font-black">마이페이지</h1>
+          <MenuIcon width={4} height={27} className="ml-2 block" />
+        </div>
 
-        <div className="border-brand-gray-200 mt-6 flex items-end justify-between border-b">
-          <div className="flex gap-8">
-            <TabButton active={tab === 'post'} onClick={() => setTab('post')}>
-              <span className="text-lg">내 게시글</span>
-            </TabButton>
-            <TabButton
-              active={tab === 'comment'}
-              onClick={() => setTab('comment')}
-            >
-              <span className="text-lg">내 댓글</span>
-            </TabButton>
-            <TabButton active={tab === 'like'} onClick={() => setTab('like')}>
-              <span className="text-lg">좋아요</span>
-            </TabButton>
-          </div>
-          <div className="flex items-center gap-6 pb-3">
-            <ArrayIcon className="text-brand-gray-300 h-5 w-auto shrink-0" />
-            <Dropdown value={selectedBoard} onValueChange={setSelectedBoard}>
-              <Dropdown.Trigger size="md" className="w-60">
-                <Dropdown.Value placeholder="게시판을 선택해 주세요." />
-              </Dropdown.Trigger>
-              <Dropdown.Content>
-                <Dropdown.Item value="popular">인기게시판</Dropdown.Item>
-                <Dropdown.Item value="recruit">모집 게시판</Dropdown.Item>
-                <Dropdown.Item value="study">학습 게시판</Dropdown.Item>
-                <Dropdown.Item value="free">자유 게시판</Dropdown.Item>
-              </Dropdown.Content>
-            </Dropdown>
-            <Input
-              type="search"
-              placeholder="검색어 입력"
-              className="w-[320px]"
-            />
+        <div className="border-brand-gray-200 relative mt-6 border-b">
+          <div className="flex items-end justify-between">
+            <div className="flex gap-8">
+              <TabButton active={tab === 'post'} onClick={() => setTab('post')}>
+                <span className="text-lg">내 게시글</span>
+              </TabButton>
+              <TabButton
+                active={tab === 'comment'}
+                onClick={() => setTab('comment')}
+              >
+                <span className="text-lg">내 댓글</span>
+              </TabButton>
+              <TabButton active={tab === 'like'} onClick={() => setTab('like')}>
+                <span className="text-lg">좋아요</span>
+              </TabButton>
+            </div>
+            <div className="flex items-center gap-6 pb-3">
+              <ArrayIcon className="text-brand-gray-300 h-5 w-auto shrink-0" />
+              <Dropdown value={selectedBoard} onValueChange={setSelectedBoard}>
+                <Dropdown.Trigger size="md" className="w-60">
+                  <Dropdown.Value placeholder="게시판을 선택해 주세요." />
+                </Dropdown.Trigger>
+                <Dropdown.Content>
+                  <Dropdown.Item value="popular">인기게시판</Dropdown.Item>
+                  <Dropdown.Item value="recruit">모집 게시판</Dropdown.Item>
+                  <Dropdown.Item value="study">학습 게시판</Dropdown.Item>
+                  <Dropdown.Item value="free">자유 게시판</Dropdown.Item>
+                </Dropdown.Content>
+              </Dropdown>
+              <div className="relative flex w-[320px] items-center">
+                <Input
+                  type="search"
+                  placeholder="검색어 입력"
+                  className="w-full"
+                />
+              </div>
+            </div>
           </div>
         </div>
 
