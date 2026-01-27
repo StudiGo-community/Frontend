@@ -23,7 +23,7 @@ export default function PostCard({ post }: PostCardProps) {
                 alt={post.author.nickname}
                 width={24}
                 height={24}
-                className="shrink-0 rounded-full object-cover"
+                className="size-6 shrink-0 rounded-full object-cover"
               />
             ) : (
               <div className="bg-brand-gray-200 h-6 w-6 shrink-0 rounded-full" />
@@ -63,6 +63,7 @@ export default function PostCard({ post }: PostCardProps) {
               src={post.thumbnail}
               alt="post thumbnail"
               fill
+              sizes="96px"
               className="object-cover transition-transform duration-300 group-hover:scale-105"
             />
           </div>

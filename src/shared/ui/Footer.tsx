@@ -38,6 +38,7 @@ const Footer = () => {
               alt="LINKVERSE"
               className="object-contain object-left"
               fill={true}
+              sizes="96px"
               priority
             />
           </div>
