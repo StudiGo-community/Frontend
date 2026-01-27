@@ -4,9 +4,9 @@ import React, { useState, useMemo } from 'react'
 import {
   CommunityBanner,
   // CommunityFilters,
-  PostCard,
 } from '@/features/community/ui'
-import { MOCK_POSTS, Post } from '@/features/community/mockData'
+import { MOCK_POSTS, Post } from '@/entities/post/model/mockData'
+import PostCard from '@/entities/post/ui/PostCard'
 // import { Pagination } from '@/shared/ui/Pagination'
 
 const POSTS_PER_PAGE = 10

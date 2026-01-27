@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { CheckCircle2Icon, Volume2 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
-import { QuizResponse } from '@/features/community/model/schema'
+import { QuizResponse } from '@/entities/quiz/model/schema'
 import { useQuizResult, useSubmitQuiz } from '@/features/community/api/queries'
 import QuizInputForm from '@/features/community/ui/QuizInputForm'
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { MOCK_BANNER_DATA } from '@/features/community/bannerMockData'
+import { MOCK_BANNER_DATA } from '@/entities/quiz/bannerMockData'
 import { QuizBanner } from '@/features/community/ui/QuizBanner'
 import { QuoteBanner } from '@/features/community/ui/QuoteBanner'
 import QuoteImage from '@/features/community/assets/quote-image.png'

@@ -28,7 +28,7 @@ interface CommunityFiltersProps {
   searchParams: Record<string, string | string[] | undefined>
 }
 
-export default function CommunityFilters({
+export default function CommunityBoardFilters({
   activeCategory,
   sortBy,
   searchParams,

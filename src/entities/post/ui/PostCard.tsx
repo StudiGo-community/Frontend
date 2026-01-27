@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import { Eye, Heart, MessageSquare } from 'lucide-react'
-import { Post } from '@/features/community/mockData'
+import { Post } from '@/entities/post/model/mockData'
 import Link from 'next/link'
 
 interface PostCardProps {
