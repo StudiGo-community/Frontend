@@ -7,7 +7,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/shared/ui/Pagination'
-import { cn } from '../lib/cn'
+import { cn } from '@/shared/lib/cn'
 
 import { createUrl } from '@/shared/lib/url'
 

@@ -1,5 +1,5 @@
 import CommunityBoardFilters from '@/features/community-filter/ui/CommunityBoardFilters'
-import { CommunityBoardSearchParams } from '../model/types'
+import { CommunityBoardSearchParams } from '@/widgets/community-board/model/types'
 import PostCard from '@/entities/post/ui/PostCard'
 import UrlPagination from '@/shared/ui/UrlPagination'
 import { MOCK_POSTS } from '@/entities/post/model/mockData'

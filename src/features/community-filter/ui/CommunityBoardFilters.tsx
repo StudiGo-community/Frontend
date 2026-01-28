@@ -7,6 +7,7 @@ import { Input } from '@/shared/ui/input'
 import { Plus } from 'lucide-react'
 
 import { createUrl } from '@/shared/lib/url'
+import SearchForm from '@/features/community-filter/ui/SearchForm'
 
 // TODO: 명세서 나오는거 보고 value 수정 & constans로 옮기기
 const CATEGORIES = [
@@ -90,15 +91,8 @@ export default function CommunityBoardFilters({
         </div>
 
         {/* 검색 */}
-        {/* TODO: 클라이언트 컴포넌트로 분리 (어차피 언컨트롤드 컴포넌트면 분리할 필요가 없긴 한데, 디바운스를 넣을건지, 디자인 의도 물어보기) */}
-        <Input
-          type="search"
-          size="sm"
-          // value={searchQuery}
-          // onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="검색어를 입력하세요"
-          className="hover:border-brand-main text-brand-gray-300 hover:text-brand-main max-w-sm"
-        />
+        {/* TODO: 검색 버튼 없애고 디바운스 넣거나 하려면 이젠 진짜 nuqs 쓰기 */}
+        <SearchForm currentSearchParams={searchParams} />
       </div>
     </div>
   )
