@@ -50,7 +50,7 @@ export const MESSAGES = Array.from({ length: MESSAGE_COUNT }, (_, i) => {
   const userId = Math.floor(Math.random() * 2) + 1
 
   return {
-    id: i + i,
+    id: i + 1,
     sender_user_id: userId,
     sender: {
       id: userId,
