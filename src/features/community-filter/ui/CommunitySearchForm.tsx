@@ -9,7 +9,9 @@ interface SearchFormProps {
   currentSearchParams: Record<string, string | string[] | undefined>
 }
 
-export default function SearchForm({ currentSearchParams }: SearchFormProps) {
+export default function CommunitySearchForm({
+  currentSearchParams,
+}: SearchFormProps) {
   const router = useRouter()
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

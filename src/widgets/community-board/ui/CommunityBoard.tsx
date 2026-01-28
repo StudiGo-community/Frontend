@@ -15,11 +15,7 @@ export default async function CommunityBoard({
       <h1 className="text-brand-black text-4xl font-extrabold">게시판</h1>
 
       {/* 게시판 헤더 */}
-      <CommunityBoardFilters
-        activeCategory={category ?? 'all'}
-        sortBy={sort ?? 'popular'}
-        searchParams={{ category, sort, query, page }}
-      />
+      <CommunityBoardFilters searchParams={{ category, sort, query, page }} />
 
       {/* 게시글 목록 */}
       <ul
