@@ -21,8 +21,18 @@ const eslintConfig = defineConfig([
       'boundaries/elements': [
         { type: 'app', pattern: 'src/app/**' },
         {
+          type: 'widgets',
+          pattern: 'src/widgets/*/**',
+          capture: ['sliceName'],
+        },
+        {
           type: 'features',
           pattern: 'src/features/*/**',
+          capture: ['sliceName'],
+        },
+        {
+          type: 'entities',
+          pattern: 'src/entities/*/**',
           capture: ['sliceName'],
         },
         { type: 'shared', pattern: 'src/shared/**' },
@@ -36,14 +46,40 @@ const eslintConfig = defineConfig([
           message:
             '${file.type} 레이어는 ${dependency.type} 레이어를 참조할 수 없습니다.',
           rules: [
-            { from: 'app', allow: ['features', 'shared'] },
+            {
+              from: 'app',
+              allow: ['widgets', 'features', 'entities', 'shared'],
+            },
+            {
+              from: 'widgets',
+              allow: [
+                'features',
+                'entities',
+                'shared',
+                ['widgets', { sliceName: '${from.sliceName}' }],
+              ],
+              disallow: [['widgets', { sliceName: '!${from.sliceName}' }]],
+              message:
+                '${from.sliceName} 슬라이스는 ${dependency.sliceName} 슬라이스를 참조할 수 없습니다.',
+            },
             {
               from: 'features',
               allow: [
+                'entities',
                 'shared',
                 ['features', { sliceName: '${from.sliceName}' }],
               ],
               disallow: [['features', { sliceName: '!${from.sliceName}' }]],
+              message:
+                '${from.sliceName} 슬라이스는 ${dependency.sliceName} 슬라이스를 참조할 수 없습니다.',
+            },
+            {
+              from: 'entities',
+              allow: [
+                'shared',
+                ['entities', { sliceName: '${from.sliceName}' }],
+              ],
+              disallow: [['entities', { sliceName: '!${from.sliceName}' }]],
               message:
                 '${from.sliceName} 슬라이스는 ${dependency.sliceName} 슬라이스를 참조할 수 없습니다.',
             },
