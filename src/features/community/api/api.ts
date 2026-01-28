@@ -6,7 +6,7 @@ import {
   type QuizSubmissionRequest,
   type QuizSubmissionResponse,
   type QuizResultResponse,
-} from '@/features/community/model/schema'
+} from '@/entities/quiz/model/schema'
 import { api } from '@/shared/api/client'
 
 // ---------- 퀴즈 조회 ----------

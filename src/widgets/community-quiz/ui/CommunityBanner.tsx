@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { MOCK_BANNER_DATA } from '@/features/community/bannerMockData'
+import { MOCK_BANNER_DATA } from '@/entities/quiz/bannerMockData'
 import { QuizBanner } from '@/features/community/ui/QuizBanner'
 import { QuoteBanner } from '@/features/community/ui/QuoteBanner'
 import QuoteImage from '@/features/community/assets/quote-image.png'
@@ -15,7 +15,7 @@ export default function CommunityBanner() {
   const { data: quizData } = useQuiz()
 
   return (
-    <div className="flex h-50 w-full gap-4 transition-all duration-500 ease-in-out">
+    <section className="flex h-50 w-full gap-4 transition-all duration-500 ease-in-out">
       {quoteData && (
         <QuoteBanner
           data={quoteData}
@@ -32,6 +32,6 @@ export default function CommunityBanner() {
           imageSrc={QuizImage.src}
         />
       )}
-    </div>
+    </section>
   )
 }

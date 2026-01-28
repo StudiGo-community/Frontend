@@ -15,7 +15,7 @@ import {
   type QuizResultResponse,
   type QuizSubmissionRequest,
   type QuizSubmissionResponse,
-} from '@/features/community/model/schema'
+} from '@/entities/quiz/model/schema'
 import { AxiosError } from 'axios'
 
 // ---------- 퀴즈 조회 ----------

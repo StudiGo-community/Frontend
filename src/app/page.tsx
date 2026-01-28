@@ -1,114 +1,32 @@
-'use client'
+import CommunityBanner from '@/widgets/community-quiz/ui/CommunityBanner'
+import CommunityBoard from '@/widgets/community-board/ui/CommunityBoard'
+import FloatingButton from '@/shared/ui/FloatingButton'
+import { CommunityBoardSearchParams } from '@/widgets/community-board/model/types'
 
-import { useState, useMemo } from 'react'
-import {
-  CommunityBanner,
-  CommunityFilters,
-  PostCard,
-} from '@/features/community/ui'
-import { MOCK_POSTS, Post } from '@/features/community/mockData'
-import { Pagination } from '@/shared/ui/Pagination'
+// nuqs 쓰면 거기서 다시 처리
+interface PageProps {
+  searchParams: Promise<CommunityBoardSearchParams>
+}
 
-const POSTS_PER_PAGE = 10
-
-export default function Home() {
-  const [activeTab, setActiveTab] = useState<string>('전체')
-  const [searchQuery, setSearchQuery] = useState<string>('')
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
-  const [sortBy, setSortBy] = useState<'popular' | 'latest'>('latest')
-
-  const [currentPage, setCurrentPage] = useState(1)
-
-  const filteredAndSortedPosts = useMemo(() => {
-    let filtered: Post[] = [...MOCK_POSTS]
-
-    if (activeTab !== '전체') {
-      filtered = filtered.filter((post) => post.category === activeTab)
-    }
-
-    if (searchQuery.trim() !== '') {
-      const lowerQuery = searchQuery.toLowerCase()
-      filtered = filtered.filter(
-        (post) =>
-          post.title.toLowerCase().includes(lowerQuery) ||
-          post.author.nickname.toLowerCase().includes(lowerQuery)
-      )
-    }
-
-    return filtered.sort((a, b) => {
-      if (sortBy === 'popular') {
-        return sortOrder === 'desc' ? b.likes - a.likes : a.likes - b.likes
-      }
-      const dateA = new Date(a.createdAt).getTime()
-      const dateB = new Date(b.createdAt).getTime()
-      return dateB - dateA
-
-      return sortOrder === 'desc' ? b.id - a.id : a.id - b.id
-    })
-  }, [activeTab, searchQuery, sortOrder, sortBy])
-
-  const currentPosts = useMemo(() => {
-    const indexOfLastPost = currentPage * POSTS_PER_PAGE
-    const indexOfFirstPost = indexOfLastPost - POSTS_PER_PAGE
-    return filteredAndSortedPosts.slice(indexOfFirstPost, indexOfLastPost)
-  }, [filteredAndSortedPosts, currentPage])
-
-  const totalPages = Math.ceil(filteredAndSortedPosts.length / POSTS_PER_PAGE)
+export default async function Page({ searchParams }: PageProps) {
+  // TODO: 따로 분리하지 말아야하나? (nuqs 도입시 리팩토링)
+  const { page, category, sort, query } = await searchParams
 
   return (
-    <main className="mx-auto max-w-300 space-y-6 px-4 py-10">
-      <section id="community-banner" className="mb-12.5">
-        <CommunityBanner />
-      </section>
+    <>
+      {/* 오늘의 문장 */}
+      <CommunityBanner />
 
-      <div className="space-y-6">
-        <section>
-          <h1 className="text-brand-black text-3xl font-black">게시판</h1>
-        </section>
+      {/* 게시판 */}
+      <CommunityBoard
+        page={page}
+        category={category}
+        sort={sort}
+        query={query}
+      />
 
-        <section id="community-navigation" className="mt-2">
-          <CommunityFilters
-            activeTab={activeTab}
-            onTabChange={(tab) => {
-              setActiveTab(tab)
-              setCurrentPage(1)
-            }}
-            searchQuery={searchQuery}
-            onSearchChange={(query) => {
-              setSearchQuery(query)
-              setCurrentPage(1)
-            }}
-            sortOrder={sortOrder}
-            onSortOrderChange={setSortOrder}
-            sortBy={sortBy}
-            onSortByChange={setSortBy}
-          />
-        </section>
-
-        <section id="community-post-list" className="-mt-5 flex flex-col">
-          {currentPosts.length > 0 ? (
-            currentPosts.map((post) => <PostCard key={post.id} post={post} />)
-          ) : (
-            <div className="text-brand-gray-300 py-20 text-center">
-              해당 카테고리에 게시글이 없습니다.
-            </div>
-          )}
-        </section>
-      </div>
-
-      <section className="flex justify-center py-6">
-        <Pagination
-          page={currentPage}
-          totalPages={totalPages > 0 ? totalPages : 1}
-          onChangePage={setCurrentPage}
-        />
-      </section>
-
-      <div className="fixed right-10 bottom-10">
-        <button className="bg-brand-third hover:bg-opacity-90 rounded-full px-6 py-3 font-bold text-white shadow-lg transition-all">
-          플로팅 버튼
-        </button>
-      </div>
-    </main>
+      {/* 플로팅 버튼 */}
+      <FloatingButton />
+    </>
   )
 }

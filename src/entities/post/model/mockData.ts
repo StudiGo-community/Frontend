@@ -1,13 +1,11 @@
-import {
-  profile1,
-  profile2,
-  profile3,
-  profile4,
-  thumbnail1,
-  thumbnail2,
-  thumbnail3,
-  thumbnail4,
-} from '@/features/community/assets/index'
+import profile1 from '@/entities/post/model/profile1.jpg'
+import profile2 from '@/entities/post/model/profile2.png'
+import profile3 from '@/entities/post/model/profile3.jpg'
+import profile4 from '@/entities/post/model/profile4.jpg'
+import thumbnail1 from '@/entities/post/model/thumbnail1.jpg'
+import thumbnail2 from '@/entities/post/model/thumbnail2.jpg'
+import thumbnail3 from '@/entities/post/model/thumbnail3.jpg'
+import thumbnail4 from '@/entities/post/model/thumbnail4.jpg'
 import { StaticImageData } from 'next/image'
 
 export interface Author {
