@@ -7,7 +7,6 @@ import {
   type UseInfiniteQueryOptions,
   type InfiniteData,
 } from '@tanstack/react-query'
-import { queryKeys } from '@/features/chat/api/query-keys'
 import { AxiosError } from 'axios'
 import { useChatStore } from '@/features/chat/model/store'
 import { toast } from 'sonner'
@@ -20,6 +19,7 @@ import { type ChatMessageListResponse } from '@/entities/message/model/schema'
 import { type BasicErrorResponse } from '@/shared/model/error-schema'
 import { enterChatRoom, getChatRoomList } from '@/entities/chat-room/api/api'
 import { getChatMessageList } from '@/entities/message/api/api'
+import { chatKeys } from '@/shared/api/query-keys'
 
 // ---------- 채팅방 목록 조회 ----------
 type ChatRoomListQueryOptions = Omit<
@@ -29,7 +29,7 @@ type ChatRoomListQueryOptions = Omit<
 
 export const useChatRoomList = (options?: ChatRoomListQueryOptions) => {
   return useQuery({
-    queryKey: queryKeys.roomList(),
+    queryKey: chatKeys.roomList(),
     queryFn: getChatRoomList,
     ...options,
   })
@@ -78,7 +78,7 @@ export const useChatMessageList = (
   options?: ChatMessageListQueryOptions
 ) => {
   return useInfiniteQuery({
-    queryKey: queryKeys.messageList(roomId ?? -1),
+    queryKey: chatKeys.messageList(roomId ?? -1),
     queryFn: ({ pageParam }) =>
       getChatMessageList({
         roomId: roomId ?? -1,
