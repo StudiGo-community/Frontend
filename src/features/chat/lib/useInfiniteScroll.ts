@@ -1,5 +1,5 @@
+import { type Message } from '@/entities/message/model/schema'
 import { useEffect, useRef } from 'react'
-import { type Message } from '@/features/chat/model/schema'
 
 function useInfiniteScroll(
   messages: Message[] | undefined,

@@ -1,12 +1,14 @@
 import { api } from '@/shared/api/client'
 import {
-  ChatRoomListResponseSchema,
   ChatMessageListResponseSchema,
+  type ChatMessageListRequest,
+  type ChatMessageListResponse,
+} from '@/entities/message/model/schema'
+import {
+  ChatRoomListResponseSchema,
   type ChatRoomListResponse,
   type ChatRoomEnterResponse,
-  type ChatMessageListResponse,
-  type ChatMessageListRequest,
-} from '@/features/chat/model/schema'
+} from '@/entities/chat-room/model/schema'
 
 // ---------- 채팅방 목록 조회 ----------
 export const getChatRoomList = async (): Promise<ChatRoomListResponse> => {

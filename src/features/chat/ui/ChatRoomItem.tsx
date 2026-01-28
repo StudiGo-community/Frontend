@@ -3,11 +3,11 @@
 import { UserIcon } from 'lucide-react'
 import Image from 'next/image'
 import { formatRelativeDateTime } from '@/features/chat/lib/formatter'
-import { type ChatRoom } from '@/features/chat/model/schema'
 import { useEnterChatRoom } from '@/features/chat/api/queries'
 import { cn } from '@/shared/lib/cn'
 import { useChatStore } from '@/features/chat/model/store'
 import { toast } from 'sonner'
+import { type ChatRoom } from '@/entities/chat-room/model/schema'
 
 interface ChatRoomItemProps {
   chatRoom: ChatRoom

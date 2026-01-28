@@ -7,12 +7,6 @@ import {
   type UseInfiniteQueryOptions,
   type InfiniteData,
 } from '@tanstack/react-query'
-import {
-  type ChatRoomListResponse,
-  type ChatRoomEnterResponse,
-  type ChatErrorResponse,
-  type ChatMessageListResponse,
-} from '@/features/chat/model/schema'
 import { queryKeys } from '@/features/chat/api/query-keys'
 import {
   enterChatRoom,
@@ -23,10 +17,16 @@ import { AxiosError } from 'axios'
 import { useChatStore } from '@/features/chat/model/store'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import {
+  type ChatRoomEnterResponse,
+  type ChatRoomListResponse,
+} from '@/entities/chat-room/model/schema'
+import { type ChatMessageListResponse } from '@/entities/message/model/schema'
+import { type BasicErrorResponse } from '@/shared/model/error-schema'
 
 // ---------- 채팅방 목록 조회 ----------
 type ChatRoomListQueryOptions = Omit<
-  UseQueryOptions<ChatRoomListResponse, AxiosError<ChatErrorResponse>>,
+  UseQueryOptions<ChatRoomListResponse, AxiosError<BasicErrorResponse>>,
   'queryKey' | 'queryFn'
 >
 
@@ -42,7 +42,7 @@ export const useChatRoomList = (options?: ChatRoomListQueryOptions) => {
 type EnterChatRoomMutationOptions = Omit<
   UseMutationOptions<
     ChatRoomEnterResponse,
-    AxiosError<ChatErrorResponse>,
+    AxiosError<BasicErrorResponse>,
     number
   >,
   'mutationFn' | 'onSuccess' | 'onError'
@@ -70,7 +70,7 @@ export const useEnterChatRoom = (options?: EnterChatRoomMutationOptions) => {
 type ChatMessageListQueryOptions = Omit<
   UseInfiniteQueryOptions<
     ChatMessageListResponse,
-    AxiosError<ChatErrorResponse>,
+    AxiosError<BasicErrorResponse>,
     InfiniteData<ChatMessageListResponse>
   >,
   'queryKey' | 'queryFn' | 'initialPageParam' | 'getNextPageParam' | 'enabled'

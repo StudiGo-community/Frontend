@@ -1,7 +1,7 @@
+import { type Message } from '@/entities/message/model/schema'
 import { formatTimeString } from '@/features/chat/lib/formatter'
 import { cn } from '@/shared/lib/cn'
 import Image from 'next/image'
-import { Message } from '@/features/chat/model/schema'
 
 interface ReceivedMessageProps {
   message: Message

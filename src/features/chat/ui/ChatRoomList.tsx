@@ -3,9 +3,9 @@
 import ChatRoomItem from '@/features/chat/ui/ChatRoomItem'
 import { useSearchParams } from 'next/navigation'
 import { useChatRoomList } from '@/features/chat/api/queries'
-import { type ChatRoom } from '@/features/chat/model/schema'
 import Loading from '@/features/chat/ui/Loading'
 import Error from '@/features/chat/ui/Error'
+import { type ChatRoom } from '@/entities/chat-room/model/schema'
 
 function ChatRoomList() {
   const { data, isLoading, error } = useChatRoomList()
