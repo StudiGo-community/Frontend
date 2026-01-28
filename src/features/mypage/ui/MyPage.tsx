@@ -59,7 +59,7 @@ export default function MyPage() {
         <div className="mt-2">
           <MyPost />
         </div>
-
+        {/*TODO: 페이지 네이션 고치기*/}
         <div className="border-brand-gray-200 border-b" />
         <div className="my-14 flex justify-center">
           <Pagination page={page} totalPages={10} onChangePage={setPage} />
