@@ -1,17 +1,17 @@
 'use client'
 
-import ReceivedMessage from '@/features/chat/ui/ReceivedMessage'
-import SentMessage from '@/features/chat/ui/SentMessage'
-import { useChatMessageList } from '@/features/chat/api/queries'
-import { useChatStore } from '@/features/chat/model/store'
+import ReceivedMessage from '@/entities/message/ui/ReceivedMessage'
+import SentMessage from '@/entities/message/ui/SentMessage'
+import { useChatStore } from '@/entities/chat-room/model/store'
 import { useMemo } from 'react'
-import Loading from '@/features/chat/ui/Loading'
-import Error from '@/features/chat/ui/Error'
-import useInfiniteScroll from '@/features/chat/lib/useInfiniteScroll'
+import Loading from '@/shared/ui/Loading'
+import Error from '@/shared/ui/Error'
 import { Button } from '@/shared/ui/Button'
 import { ChevronDownIcon } from 'lucide-react'
-import EmptyState from '@/features/chat/ui/EmptyState'
+import EmptyState from '@/shared/ui/EmptyState'
 import { cn } from '@/shared/lib/cn'
+import { useChatMessageList } from '@/entities/message/api/queries'
+import useInfiniteScroll from '@/features/chat-message-scroll/lib/useInfiniteScroll'
 
 // TODO: 유저 정보 스토어에 저장된 것 불러오기
 const userId = 1

@@ -1,9 +1,7 @@
-import {
-  ChatHeader,
-  ChatSidebar,
-  MessageInput,
-  MessageList,
-} from '@/features/chat'
+import MessageInput from '@/features/chat-message-send/ui/MessageInput'
+import ChatHeader from '@/widgets/chat-header/ui/ChatHeader'
+import MessageList from '@/widgets/chat-message-list/ui/MessageList'
+import ChatSidebar from '@/widgets/chat-sidebar/ui/ChatSidebar'
 
 async function ChatDetails({
   params,

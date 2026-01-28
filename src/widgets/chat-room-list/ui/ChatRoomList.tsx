@@ -1,11 +1,11 @@
 'use client'
 
-import ChatRoomItem from '@/features/chat/ui/ChatRoomItem'
+import ChatRoomItem from '@/widgets/chat-room-list/ui/ChatRoomItem'
 import { useSearchParams } from 'next/navigation'
-import { useChatRoomList } from '@/features/chat/api/queries'
-import Loading from '@/features/chat/ui/Loading'
-import Error from '@/features/chat/ui/Error'
+import Loading from '@/shared/ui/Loading'
+import Error from '@/shared/ui/Error'
 import { type ChatRoom } from '@/entities/chat-room/model/schema'
+import { useChatRoomList } from '@/entities/chat-room/api/queries'
 
 function ChatRoomList() {
   const { data, isLoading, error } = useChatRoomList()

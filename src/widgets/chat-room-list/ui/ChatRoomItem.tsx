@@ -2,12 +2,12 @@
 
 import { UserIcon } from 'lucide-react'
 import Image from 'next/image'
-import { formatRelativeDateTime } from '@/features/chat/lib/formatter'
-import { useEnterChatRoom } from '@/features/chat/api/queries'
+import { formatRelativeDateTime } from '@/widgets/chat-room-list/lib/formatter'
 import { cn } from '@/shared/lib/cn'
-import { useChatStore } from '@/features/chat/model/store'
+import { useChatStore } from '@/entities/chat-room/model/store'
 import { toast } from 'sonner'
 import { type ChatRoom } from '@/entities/chat-room/model/schema'
+import { useEnterChatRoom } from '@/features/chat-room-enter/api/queries'
 
 interface ChatRoomItemProps {
   chatRoom: ChatRoom

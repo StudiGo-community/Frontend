@@ -1,4 +1,5 @@
-import { ChatRoomFilter, ChatRoomList } from '@/features/chat'
+import ChatRoomSortButton from '@/features/chat-room-sort/ui/ChatRoomSortButton'
+import { ChatRoomList } from '@/widgets/chat-room-list'
 import Image from 'next/image'
 import { Suspense } from 'react'
 
@@ -28,7 +29,7 @@ function Chat() {
                 <span>전체</span>
                 <div className="bg-brand-black absolute right-0 bottom-0 left-0 h-1" />
               </div>
-              <ChatRoomFilter />
+              <ChatRoomSortButton />
             </div>
           </div>
           <ChatRoomList />

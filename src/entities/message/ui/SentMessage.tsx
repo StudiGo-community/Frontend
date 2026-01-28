@@ -1,6 +1,6 @@
 import { type Message } from '@/entities/message/model/schema'
-import { formatTimeString } from '@/features/chat/lib/formatter'
 import { cn } from '@/shared/lib/cn'
+import { formatTimeString } from '@/entities/message/lib/formatter'
 
 interface SentMessageProps {
   message: Message

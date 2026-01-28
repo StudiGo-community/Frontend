@@ -2,8 +2,8 @@
 
 import { EllipsisVerticalIcon, UserIcon } from 'lucide-react'
 import Image from 'next/image'
-import { useChatStore } from '@/features/chat/model/store'
-import { useChatRoomList } from '@/features/chat/api/queries'
+import { useChatStore } from '@/entities/chat-room/model/store'
+import { useChatRoomList } from '@/entities/chat-room/api/queries'
 
 function ChatHeader() {
   const currentRoomId = useChatStore((state) => state.enteredRoomId)

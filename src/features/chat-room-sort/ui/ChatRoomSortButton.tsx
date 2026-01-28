@@ -4,7 +4,7 @@ import { Button } from '@/shared/ui/Button'
 import { ArrowDownWideNarrow, ArrowUpNarrowWide } from 'lucide-react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
-function ChatRoomFilter() {
+function ChatRoomSortButton() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -38,4 +38,4 @@ function ChatRoomFilter() {
   )
 }
 
-export default ChatRoomFilter
+export default ChatRoomSortButton
