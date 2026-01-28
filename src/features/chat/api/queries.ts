@@ -8,11 +8,6 @@ import {
   type InfiniteData,
 } from '@tanstack/react-query'
 import { queryKeys } from '@/features/chat/api/query-keys'
-import {
-  enterChatRoom,
-  getChatMessageList,
-  getChatRoomList,
-} from '@/features/chat/api/api'
 import { AxiosError } from 'axios'
 import { useChatStore } from '@/features/chat/model/store'
 import { toast } from 'sonner'
@@ -23,6 +18,8 @@ import {
 } from '@/entities/chat-room/model/schema'
 import { type ChatMessageListResponse } from '@/entities/message/model/schema'
 import { type BasicErrorResponse } from '@/shared/model/error-schema'
+import { enterChatRoom, getChatRoomList } from '@/entities/chat-room/api/api'
+import { getChatMessageList } from '@/entities/message/api/api'
 
 // ---------- 채팅방 목록 조회 ----------
 type ChatRoomListQueryOptions = Omit<
