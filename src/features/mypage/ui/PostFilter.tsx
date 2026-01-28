@@ -36,7 +36,6 @@ interface PostFilterProps {
   onChangeBoard: (value: string) => void
   search: string
   onChangeSearch: (value: string) => void
-  isLgDown: boolean
 }
 export default function PostFilter({
   tab,
@@ -45,7 +44,6 @@ export default function PostFilter({
   onChangeBoard,
   search,
   onChangeSearch,
-  isLgDown,
 }: PostFilterProps) {
   return (
     <div className="flex w-full items-end justify-between">
@@ -67,30 +65,28 @@ export default function PostFilter({
         <span className="hidden sm:inline">
           <ArrayIcon className="text-brand-gray-300 h-5 w-auto shrink-0" />
         </span>
-        {!isLgDown && (
-          <>
-            <Dropdown value={selectedBoard} onValueChange={onChangeBoard}>
-              <Dropdown.Trigger size="md" className="w-60">
-                <Dropdown.Value placeholder="게시판을 선택해 주세요." />
-              </Dropdown.Trigger>
-              <Dropdown.Content>
-                <Dropdown.Item value="popular">인기게시판</Dropdown.Item>
-                <Dropdown.Item value="recruit">모집 게시판</Dropdown.Item>
-                <Dropdown.Item value="study">학습 게시판</Dropdown.Item>
-                <Dropdown.Item value="free">자유 게시판</Dropdown.Item>
-              </Dropdown.Content>
-            </Dropdown>
-            <div className="relative flex w-[320px] items-center">
-              <Input
-                type="search"
-                placeholder="검색어 입력"
-                className="w-full"
-                value={search}
-                onChange={(e) => onChangeSearch(e.target.value)}
-              />
-            </div>
-          </>
-        )}
+        <div className="hidden items-center gap-6 lg:flex">
+          <Dropdown value={selectedBoard} onValueChange={onChangeBoard}>
+            <Dropdown.Trigger size="md" className="w-60">
+              <Dropdown.Value placeholder="게시판을 선택해 주세요." />
+            </Dropdown.Trigger>
+            <Dropdown.Content>
+              <Dropdown.Item value="popular">인기게시판</Dropdown.Item>
+              <Dropdown.Item value="recruit">모집 게시판</Dropdown.Item>
+              <Dropdown.Item value="study">학습 게시판</Dropdown.Item>
+              <Dropdown.Item value="free">자유 게시판</Dropdown.Item>
+            </Dropdown.Content>
+          </Dropdown>
+          <div className="relative flex w-[320px] items-center">
+            <Input
+              type="search"
+              placeholder="검색어 입력"
+              className="w-full"
+              value={search}
+              onChange={(e) => onChangeSearch(e.target.value)}
+            />
+          </div>
+        </div>
       </div>
     </div>
   )

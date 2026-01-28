@@ -3,11 +3,7 @@ import { Avatar } from '@/shared/ui/Avatar'
 import HeartIcon from '@/features/mypage/assets/heart-icon.svg'
 import CommentIcon from '@/features/mypage/assets/comment-icon.svg'
 
-interface MyPostProps {
-  isMdDown: boolean
-}
-
-export default function MyPost({ isMdDown }: MyPostProps) {
+export default function MyPost() {
   return (
     <div>
       {Array.from({ length: 10 }).map((_, idx) => (
@@ -49,17 +45,15 @@ export default function MyPost({ isMdDown }: MyPostProps) {
                   </span>
                 </div>
               </div>
-              {!isMdDown && (
-                <div className="bg-brand-gray-100 relative h-30 w-30 shrink-0 overflow-hidden rounded-lg">
-                  <Image
-                    src="/images/mypage/post-example.png"
-                    alt="thumbnail"
-                    fill
-                    sizes="120px"
-                    className="object-cover"
-                  />
-                </div>
-              )}
+              <div className="bg-brand-gray-100 relative hidden h-30 w-30 shrink-0 overflow-hidden rounded-lg md:block">
+                <Image
+                  src="/images/mypage/post-example.png"
+                  alt="thumbnail"
+                  fill
+                  sizes="120px"
+                  className="object-cover"
+                />
+              </div>
             </div>
           </div>
         </div>

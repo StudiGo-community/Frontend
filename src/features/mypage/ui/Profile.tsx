@@ -1,9 +1,7 @@
 import Image from 'next/image'
 import { Button } from '@/shared/ui/Button'
 
-type ProfileProps = {
-  isMdDown: boolean
-}
+// Removed isMdDown prop and related logic
 
 function PinProfile() {
   return (
@@ -76,7 +74,7 @@ function Balloon({
   )
 }
 
-export default function Profile({ isMdDown }: ProfileProps) {
+export default function Profile() {
   return (
     <div className="mb-10 flex w-full flex-row items-center justify-center gap-2 max-lg:gap-5 sm:gap-4 md:gap-8">
       <div className="flex min-w-0 flex-1 justify-end px-2 max-lg:px-5 sm:px-4 md:px-8">
@@ -88,47 +86,43 @@ export default function Profile({ isMdDown }: ProfileProps) {
           >
             <span className="block">내 정보 수정</span>
           </Button>
-          {!isMdDown && (
-            <div className="flex flex-col items-end leading-tight">
-              <h2 className="text-brand-black text-2xl font-black lg:text-3xl">
-                Fortes42
-              </h2>
-              <p className="text-brand-gray-400 mt-0.5 text-sm lg:text-base">
-                fortelsv42@gmail.com
-              </p>
-              <p className="text-brand-gray-300 mt-0.5 text-[10px] lg:text-xs">
-                최초 가입일&nbsp;&nbsp;2026.01.08
-              </p>
-            </div>
-          )}
+          <div className="hidden flex-col items-end leading-tight md:flex">
+            <h2 className="text-brand-black text-2xl font-black lg:text-3xl">
+              Fortes42
+            </h2>
+            <p className="text-brand-gray-400 mt-0.5 text-sm lg:text-base">
+              fortelsv42@gmail.com
+            </p>
+            <p className="text-brand-gray-300 mt-0.5 text-[10px] lg:text-xs">
+              최초 가입일&nbsp;&nbsp;2026.01.08
+            </p>
+          </div>
         </div>
       </div>
       <div className="z-10 flex flex-col items-center">
         <PinProfile />
       </div>
       <div className="flex min-w-0 flex-1 flex-col items-start px-2 max-lg:px-5 sm:px-4 md:px-8">
-        {!isMdDown && (
-          <>
-            <Balloon
-              tail="left"
-              className="mb-2 w-35 max-lg:w-60 sm:w-45 md:w-55 lg:w-80"
-            >
-              <div className="text-brand-black text-sm font-bold lg:text-base">
-                오늘도 힘내봐요!
-              </div>
-              <div className="text-brand-gray-400 mt-1 text-xs lg:text-sm">
-                Hazlo lo mejor que puedas hoy también
-              </div>
-            </Balloon>
-            <Balloon
-              variant="green"
-              tail="right"
-              className="mt-2 ml-24 w-20 max-lg:ml-16 max-lg:w-32 sm:w-28 md:w-32 lg:w-45"
-            >
-              <div className="text-sm font-bold lg:text-base">STUDY GO !</div>
-            </Balloon>
-          </>
-        )}
+        <div className="hidden md:block">
+          <Balloon
+            tail="left"
+            className="mb-2 w-35 max-lg:w-60 sm:w-45 md:w-55 lg:w-80"
+          >
+            <div className="text-brand-black text-sm font-bold lg:text-base">
+              오늘도 힘내봐요!
+            </div>
+            <div className="text-brand-gray-400 mt-1 text-xs lg:text-sm">
+              Hazlo lo mejor que puedas hoy también
+            </div>
+          </Balloon>
+          <Balloon
+            variant="green"
+            tail="right"
+            className="mt-2 ml-24 w-20 max-lg:ml-16 max-lg:w-32 sm:w-28 md:w-32 lg:w-45"
+          >
+            <div className="text-sm font-bold lg:text-base">STUDY GO !</div>
+          </Balloon>
+        </div>
       </div>
     </div>
   )

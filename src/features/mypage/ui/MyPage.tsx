@@ -4,7 +4,6 @@ import { useMemo, useState } from 'react'
 import PostFilter from '@/features/mypage/ui/PostFilter'
 import MyPost from '@/features/mypage/ui/MyPost'
 import MenuIcon from '@/features/mypage/assets/menu-icon.svg'
-import { useIsMdDown, useIsLgDown } from '@/features/mypage/hooks/useMediaQuery'
 import { Pagination } from '@/shared/ui/Pagination'
 import Profile from '@/features/mypage/ui/Profile'
 import TimeLine, { TimelineItem } from '@/features/mypage/ui/TimeLine'
@@ -18,9 +17,6 @@ export default function MyPage() {
   const [selectedBoard, setSelectedBoard] = useState('')
   const [search, setSearch] = useState('')
 
-  const isMdDown = useIsMdDown()
-  const isLgDown = useIsLgDown()
-
   const timeline = useMemo<TimelineItem[]>(() => MY_TIMELINE, [])
 
   return (
@@ -28,7 +24,7 @@ export default function MyPage() {
       <section className="pt-10">
         <div className="relative mx-auto flex max-w-6xl flex-col items-center px-5">
           <div className="flex w-full flex-col items-center">
-            <Profile isMdDown={isMdDown} />
+            <Profile />
 
             <div className="border-brand-gray-200 w-full pb-10">
               <div className="mx-auto max-w-6xl px-5">
@@ -56,13 +52,12 @@ export default function MyPage() {
               onChangeBoard={setSelectedBoard}
               search={search}
               onChangeSearch={setSearch}
-              isLgDown={isLgDown}
             />
           </div>
         </div>
 
         <div className="mt-2">
-          <MyPost isMdDown={isMdDown} />
+          <MyPost />
         </div>
 
         <div className="border-brand-gray-200 border-b" />
