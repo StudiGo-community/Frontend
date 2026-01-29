@@ -1,3 +1,3 @@
-import CommunityBanner from '@/widgets/community-quiz/ui/CommunityBanner'
+// import CommunityBanner from '@/widgets/community-quiz/ui/CommunityBanner'
 
-export { CommunityBanner }
+// export { CommunityBanner }
