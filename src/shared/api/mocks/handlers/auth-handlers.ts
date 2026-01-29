@@ -5,6 +5,10 @@ interface LoginRequestBody {
   password: string
 }
 
+type LogoutRequestBody = {
+  all_devices?: boolean
+}
+
 export const authHandlers = [
   http.post(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`,
@@ -58,6 +62,21 @@ export const authHandlers = [
           detail: '이메일 또는 비밀번호를 확인해주세요.',
         },
         { status: 401 }
+      )
+    }
+  ),
+
+  http.post(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/logout`,
+    async ({ request }) => {
+      const _body = (await request
+        .json()
+        .catch(() => ({}))) as LogoutRequestBody
+      void _body
+
+      return HttpResponse.json(
+        { message: '로그아웃되었습니다.' },
+        { status: 200 }
       )
     }
   ),

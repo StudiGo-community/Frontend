@@ -198,6 +198,16 @@ export default function LoginForm() {
           <Link href="/reset-password" className="font-bold underline">
             비밀번호 재설정
           </Link>
+          <span className="text-brand-gray-300">|</span>
+          <span className="text-brand-gray-300 text-sm">
+            아직 회원가입을 안하셨나요?
+          </span>
+          <Link
+            href="/auth/join"
+            className="text-center text-sm font-bold underline"
+          >
+            회원가입
+          </Link>
         </div>
       </div>
     </>
