@@ -59,8 +59,6 @@ export const MESSAGES = Array.from({ length: MESSAGE_COUNT }, (_, i) => {
     },
     content: MESSAGE_CONTENTS[i % MESSAGE_CONTENTS.length],
     status: 'SENT',
-    created_at: new Date(
-      Date.now() - (MESSAGE_COUNT - i) * 60000
-    ).toISOString(),
+    created_at: new Date(Date.now() - i * 60000).toISOString(),
   }
 })
