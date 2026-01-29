@@ -27,13 +27,14 @@ export const useLogoutMutation = () => {
       // TODO: API 연동 시 return api.post('/api/v1/auth/logout', { all_devices: opts.allDevices ?? false })
     },
 
-    onSettled: (_data, _error, opts) => {
+    onSuccess: (_data, opts: LogoutOptions) => {
       clearAuthClientState()
-
       const fallback = isProtectedPath(pathname) ? '/login' : '/'
       const to = opts?.redirectTo ?? fallback
-
       window.location.replace(to)
+    },
+    onError: () => {
+      alert('로그아웃에 실패했습니다. 다시 시도해 주세요.')
     },
   })
 }

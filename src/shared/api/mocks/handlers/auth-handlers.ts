@@ -81,16 +81,6 @@ export const authHandlers = [
     }
   ),
 
-  http.post('/api/v1/auth/logout', async ({ request }) => {
-    const _body = (await request.json().catch(() => ({}))) as LogoutRequestBody
-    void _body
-
-    return HttpResponse.json(
-      { message: '로그아웃되었습니다.' },
-      { status: 200 }
-    )
-  }),
-
   http.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/oauth/kakao`, () => {
     return HttpResponse.json({
       access_token: 'MOCK_KAKAO_TOKEN',
