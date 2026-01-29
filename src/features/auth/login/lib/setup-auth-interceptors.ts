@@ -1,8 +1,8 @@
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios'
 
 import { api } from '@/shared/api/client'
-import { useTokenStore } from '@/features/auth'
 import { postTokenRefresh } from '@/entities/auth/login/api/refresh'
+import { useTokenStore } from '@/entities/token/store/token-store'
 
 interface RetriableRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean

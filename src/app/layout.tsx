@@ -4,7 +4,7 @@ import './globals.css'
 import Footer from '@/shared/ui/Footer'
 import { Toaster } from '@/shared/ui/Toaster'
 import Providers from '@/app/providers'
-import { HeaderWrapper } from '@/features/auth'
+import { HeaderWrapper } from '@/widgets/auth-header/ui/HeaderWrapper'
 
 export const metadata: Metadata = {
   title: 'StudiGo',

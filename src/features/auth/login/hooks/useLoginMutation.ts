@@ -3,7 +3,6 @@ import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { AxiosError } from 'axios'
 
-import { useTokenStore } from '@/features/auth'
 import {
   EmailLoginRequest,
   EmailLoginResponse,
@@ -12,6 +11,7 @@ import {
   LoginInvalidCredentialsErrorSchema,
 } from '@/entities/auth/login/model/login-schema'
 import { postEmailLogin } from '@/entities/auth/login/api/login'
+import { useTokenStore } from '@/entities/token/store/token-store'
 
 export function useLoginMutation() {
   const router = useRouter()
