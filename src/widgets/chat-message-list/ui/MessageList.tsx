@@ -68,7 +68,7 @@ function MessageList() {
       )}
       {messages && (
         <ul
-          className="flex h-full flex-col gap-4 overflow-y-auto pt-9 pb-16"
+          className="flex h-full flex-col-reverse gap-4 overflow-y-auto pt-9 pb-16"
           ref={containerRef}
         >
           {messages.map((message) =>
