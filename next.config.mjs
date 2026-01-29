@@ -1,5 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // 메인 페이지를 community로 설정
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/community',
+        permanent: true,
+      },
+    ]
+  },
+
   // Turbopack 사용 시 SVG를 React 컴포넌트로 import 가능하게 설정
   turbopack: {
     rules: {
