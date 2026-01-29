@@ -7,6 +7,9 @@ import profile2 from '@/entities/post/model/profile2.png'
 import thumbnail3 from '@/entities/post/model/thumbnail3.jpg'
 import { Heart, MessageSquare, Siren } from 'lucide-react'
 import { Button } from '@/shared/ui/Button'
+import { Textarea } from '@/shared/ui/Textarea'
+import UrlPagination from '@/shared/ui/UrlPagination'
+import OptionDropdown from './OptionDropdown'
 
 const post = {
   id: 1,
@@ -76,18 +79,20 @@ export default async function Page({ params }: PageProps) {
       {/* 게시글 헤더 */}
       <section className="border-brand-gray-100 space-y-4 border-b-2">
         {/* 제목, 드롭다운 */}
-        <div>
+        <div className="flex items-center justify-between">
           <h1 className="text-brand-black text-4xl font-extrabold">
             {post.title}
           </h1>
 
-          <div></div>
+          {/* TODO: 인자 어떻게 처리할지 결정하기 */}
+          <OptionDropdown />
         </div>
 
         {/* 기타 정보 */}
         <div className="flex flex-col gap-4 py-4 sm:flex-row sm:items-center sm:justify-between">
           {/* 작성자, 시간 */}
           <div className="text-brand-gray-400 flex items-center gap-4 text-base">
+            {/* TODO: 아바타 컴포넌트 분리 */}
             {post.author.profileImageUrl ? (
               <Image
                 src={post.author.profileImageUrl}
@@ -121,9 +126,9 @@ export default async function Page({ params }: PageProps) {
 
       {/* 게시글 본문 */}
       {/* TODO: 클라이언트 컴포넌트로 분리 (내용 부분은 팁탭 에디터 뷰어) */}
-      <section className="border-brand-gray-100 border-b-2">
+      <section>
         {/* 내용 */}
-        <div className="py-4">{post.content}</div>
+        <div className="py-8">{post.content}</div>
 
         {/* 버튼: (좋아요, 신고하기), 댓글 수 */}
         <div className="flex items-end justify-between py-4">
@@ -139,7 +144,7 @@ export default async function Page({ params }: PageProps) {
               신고하기
             </Button>
           </div>
-          <span className="flex items-center gap-1">
+          <span className="text-brand-gray-400 flex items-center gap-1">
             <MessageSquare size={14} strokeWidth={2} />
             {post.commentCount.toLocaleString()}
           </span>
@@ -149,10 +154,71 @@ export default async function Page({ params }: PageProps) {
       {/* 게시글 댓글 */}
       <section>
         {/* 댓글 목록 */}
-        <div></div>
+        <div className="flex flex-col">
+          <ul className="border-brand-gray-100 flex flex-col gap-8 border-y-2 py-8">
+            {/* TODO: 컴포넌트 분리 */}
+            {post.comments.map((comment) => (
+              <li key={comment.id} className="flex justify-between py-2">
+                {/* 좌측 */}
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-2">
+                    {comment.author.profileImageUrl ? (
+                      <Image
+                        src={comment.author.profileImageUrl}
+                        alt={comment.author.nickname}
+                        width={24}
+                        height={24}
+                        className="size-6 shrink-0 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="bg-brand-gray-200 h-6 w-6 shrink-0 rounded-full" />
+                    )}
+                    <span className="text-brand-gray-500 text-base font-bold">
+                      {comment.author.nickname}
+                    </span>
+                  </div>
+                  <div>{comment.content}</div>
+                  <span className="text-brand-gray-300 text-sm">
+                    {comment.createdAt}
+                  </span>
+                </div>
+
+                {/* 우측 */}
+                <div className="flex flex-col items-end justify-between">
+                  {/* TODO: 인자 어떻게 처리할지 결정하기 */}
+                  <OptionDropdown />
+
+                  <Button variant="outline" size="sm" className="text-sm">
+                    {/* isLiked 인 경우엔 fill-brand-third */}
+                    <Heart
+                      size={14}
+                      strokeWidth={2}
+                      className="text-brand-third"
+                    />
+                    좋아요
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <UrlPagination
+            totalPages={5}
+            page={1}
+            searchParams={{}}
+            className="py-12"
+          />
+        </div>
 
         {/* 댓글 작성 */}
-        <div>{/* <Textarea></Textarea> */}</div>
+        <div className="flex flex-col gap-4">
+          <Textarea placeholder="댓글을 입력해주세요" />
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-brand-gray-400">0 / 500</span>
+            <Button variant="secondary" size="sm" className="px-6 text-sm">
+              등록
+            </Button>
+          </div>
+        </div>
       </section>
     </>
   )
