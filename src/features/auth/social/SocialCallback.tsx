@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { postKakaoOAuth } from '@/features/auth/api/endpoints/oauth'
+import { postKakaoOAuth } from '@/entities/auth/login/api/oauth'
 
 interface SocialCallbackProps {
   provider: 'kakao'

@@ -4,14 +4,14 @@ import { toast } from 'sonner'
 import { AxiosError } from 'axios'
 
 import { useTokenStore } from '@/features/auth'
-import { postEmailLogin } from '@/features/auth/api/endpoints/login'
 import {
   EmailLoginRequest,
   EmailLoginResponse,
-  LoginInvalidCredentialsErrorSchema,
   LoginAccountWithdrawnErrorSchema,
   LoginBlockedErrorSchema,
-} from '@/features/auth/api/schemas/login'
+  LoginInvalidCredentialsErrorSchema,
+} from '@/entities/auth/login/model/login-schema'
+import { postEmailLogin } from '@/entities/auth/login/api/login'
 
 export function useLoginMutation() {
   const router = useRouter()
