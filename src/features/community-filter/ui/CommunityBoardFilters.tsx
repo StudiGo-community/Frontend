@@ -24,7 +24,7 @@ export default function CommunityBoardFilters({
 
         {/* 게시글 작성 버튼 */}
         <Link
-          href={'/write'}
+          href={'/community/write'}
           className="bg-brand-black mb-2 flex items-center gap-2 rounded-lg px-6 py-3 text-base font-bold text-white hover:bg-black/80"
         >
           <Plus size={18} />
