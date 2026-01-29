@@ -5,17 +5,17 @@ import { DropdownMenu } from '@/shared/ui/DropdownMenu'
 import { Ellipsis, Pencil, Share, Trash2 } from 'lucide-react'
 
 // TODO: 인자 어떻게 처리할지 결정하기
-interface OptionDropdownProps {
+interface ActionDropdownProps {
   onEdit?: () => void
   onShare?: () => void
   onDelete?: () => void
 }
 
-export default function OptionDropdown({
+export default function ActionDropdown({
   onEdit,
   onShare,
   onDelete,
-}: OptionDropdownProps) {
+}: ActionDropdownProps) {
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
@@ -32,7 +32,7 @@ export default function OptionDropdown({
         align="end"
       >
         <DropdownMenu.Item
-          className="flex cursor-pointer items-center justify-between"
+          className="text-brand-gray-500 flex cursor-pointer items-center justify-between py-2"
           onClick={onEdit}
         >
           <span>수정하기</span>
@@ -40,7 +40,7 @@ export default function OptionDropdown({
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <DropdownMenu.Item
-          className="flex cursor-pointer items-center justify-between"
+          className="text-brand-gray-500 flex cursor-pointer items-center justify-between py-2"
           onClick={onShare}
         >
           <span>공유하기</span>
@@ -49,7 +49,7 @@ export default function OptionDropdown({
         <DropdownMenu.Separator />
         <DropdownMenu.Item
           variant="destructive"
-          className="flex cursor-pointer items-center justify-between"
+          className="flex cursor-pointer items-center justify-between py-2"
           onClick={onDelete}
         >
           <span>삭제하기</span>
