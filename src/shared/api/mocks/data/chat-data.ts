@@ -62,3 +62,23 @@ export const MESSAGES = Array.from({ length: MESSAGE_COUNT }, (_, i) => {
     created_at: new Date(Date.now() - i * 60000).toISOString(),
   }
 })
+
+const SOCKET_MESSAGE_COUNT = 5
+
+export const SOCKET_MESSAGES = Array.from(
+  { length: SOCKET_MESSAGE_COUNT },
+  (_, i) => ({
+    id: MESSAGES.length + i + 1,
+    sender_user_id: 3,
+    sender: {
+      id: 3,
+      nickname: '웹소켓',
+      profile_image_url: null,
+    },
+    content: `웹소켓에서 수신한 ${i + 1}번째 메세지 입니다.`,
+    status: 'SENT',
+    created_at: new Date(
+      new Date(MESSAGES[0].created_at).getTime() + (i + 1) * 60000
+    ).toISOString(),
+  })
+)

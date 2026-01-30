@@ -12,6 +12,7 @@ import EmptyState from '@/shared/ui/EmptyState'
 import { cn } from '@/shared/lib/cn'
 import { useChatMessageList } from '@/entities/message/api/queries'
 import useInfiniteScroll from '@/features/chat-message-scroll/lib/useInfiniteScroll'
+import useMessageSubscribe from '@/features/chat-message-subscribe/model/useMessageSubscribe'
 
 // TODO: 유저 정보 스토어에 저장된 것 불러오기
 const userId = 1
@@ -26,6 +27,7 @@ function MessageList() {
     isFetchingNextPage,
     hasNextPage,
     isEnabled,
+    isSuccess,
     fetchNextPage,
   } = useChatMessageList(roomId)
   const messages = useMemo(
@@ -39,6 +41,8 @@ function MessageList() {
     isEnabled,
     fetchNextPage
   )
+  // TODO: 로그인 구현 이후 엑세스 토큰 스토어에서 가져와서 사용하기
+  useMessageSubscribe(isSuccess ? roomId : null, 'access_token')
 
   const handleScrollButtonClick = () => {
     if (!containerRef.current) return
