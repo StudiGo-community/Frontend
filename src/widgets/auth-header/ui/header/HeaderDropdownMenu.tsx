@@ -14,7 +14,7 @@ import {
 import { DropdownMenu } from '@/shared/ui/DropdownMenu'
 import { Avatar } from '@/shared/ui/Avatar'
 import { Accordion } from '@/shared/ui/Accordion'
-import { useLogoutMutation } from '@/features/auth/logout/hook/useLogoutMutation'
+import { useLogoutMutation } from '@/features/auth-logout/hook/useLogoutMutation'
 
 export const HeaderDropdownMenu = () => {
   const { mutate: doLogout } = useLogoutMutation()

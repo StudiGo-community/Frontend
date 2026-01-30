@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useTokenStore } from '@/entities/token/store/token-store'
 import Header from '@/widgets/auth-header/ui/header'
+import { useTokenStore } from '@/entities/session/store/token-store'
 
 export const HeaderWrapper = () => {
   const [initialized, setInitialized] = useState(false)
