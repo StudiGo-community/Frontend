@@ -1,7 +1,7 @@
 import Image from 'next/image'
-import { Eye, Heart, MessageSquare } from 'lucide-react'
 import { Post } from '@/entities/post/model/mockData'
 import Link from 'next/link'
+import PostStats from './PostStats'
 
 interface PostCardProps {
   post: Post
@@ -11,7 +11,7 @@ export default function PostCard({ post }: PostCardProps) {
   return (
     <li>
       <Link
-        href={`/post/${post.id}`}
+        href={`/community/${post.id}`}
         className="group hover:bg-brand-gray-50 hover:bg-brand-gray-100/35 flex items-center justify-between rounded-lg px-2 py-4 transition-all"
       >
         <div className="flex min-w-0 flex-1 flex-col gap-2">
@@ -40,20 +40,11 @@ export default function PostCard({ post }: PostCardProps) {
           </h3>
 
           {/* 하단 */}
-          <div className="text-brand-gray-400 flex items-center gap-4 text-base">
-            <span className="flex items-center gap-1">
-              <Eye size={14} strokeWidth={2} />
-              {post.views.toLocaleString()}
-            </span>
-            <span className="flex items-center gap-1">
-              <Heart size={14} strokeWidth={2} />
-              {post.likes.toLocaleString()}
-            </span>
-            <span className="flex items-center gap-1">
-              <MessageSquare size={14} strokeWidth={2} />
-              {post.comments.toLocaleString()}
-            </span>
-          </div>
+          <PostStats
+            viewCount={post.views}
+            likeCount={post.likes}
+            commentCount={post.comments}
+          />
         </div>
 
         {/* 썸네일 */}
