@@ -4,7 +4,7 @@ export const AuthorSchema = z
   .object({
     id: z.number().int().positive(),
     nickname: z.string(),
-    profile_image_url: z.url(),
+    profile_image_url: z.url().nullable(),
   })
   .transform((author) => ({
     id: author.id,

@@ -1,6 +1,10 @@
 import z from 'zod'
 import { AuthorSchema } from '@/entities/post/model/author.schema'
 import { CommentSchema } from '@/entities/post/model/comment.schema'
+import {
+  POST_CATEGORIES,
+  URL_MAX_LENGTH,
+} from '@/entities/post/model/constants'
 
 // 베이스
 // id, title, content, category, author, like_count, comment_count, is_liked, created_at, updated_at
@@ -9,7 +13,7 @@ const PostBaseSchema = z.object({
   id: z.number().int().positive(),
   title: z.string(),
   content: z.string(),
-  category: z.enum(['Free', 'Recruit', 'Study']),
+  category: z.enum(POST_CATEGORIES),
   author: AuthorSchema,
   like_count: z.number().int().nonnegative(),
   comment_count: z.number().int().nonnegative(),
@@ -19,16 +23,16 @@ const PostBaseSchema = z.object({
 })
 
 // 이미지 파츠
-const ImageSchema = z.object({
+export const ImageSchema = z.object({
   id: z.number().int().positive(),
-  url: z.url(),
+  url: z.url().max(URL_MAX_LENGTH),
   order: z.number().int().nonnegative(),
 })
 
 // 목록의 단일 포스트
 export const PostListItemSchema = PostBaseSchema.extend({
   blinded_reason: z.string().nullable(), // 옵셔널이면 nullish로 바꾸기
-  thumbnail_image: z.url(),
+  thumbnail_image: z.url().max(URL_MAX_LENGTH),
 }).transform((post) => ({
   id: post.id,
   title: post.title,
