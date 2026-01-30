@@ -11,11 +11,7 @@ export const CommentSchema = z
   })
   .transform((comment) => ({
     id: comment.id,
-    author: {
-      id: comment.author.id,
-      nickname: comment.author.nickname,
-      profileImageUrl: comment.author.profile_image_url,
-    },
+    author: comment.author,
     content: comment.content,
     taggedNicknames: comment.tagged_nicknames,
     createdAt: new Date(comment.created_at),
