@@ -1,5 +1,9 @@
-import { http, HttpResponse } from 'msw'
-import { CHAT_ROOMS, MESSAGES } from '@/shared/api/mocks/data/chat-data'
+import { http, HttpResponse, ws } from 'msw'
+import {
+  CHAT_ROOMS,
+  MESSAGES,
+  SOCKET_MESSAGES,
+} from '@/shared/api/mocks/data/chat-data'
 
 // ---------- 채팅방 목록 조회 ----------
 const getChatRoomList = http.get(
@@ -77,6 +81,34 @@ const getChatMessageList = http.get(
   }
 )
 
-const chatHandlers = [getChatRoomList, enterChatRoom, getChatMessageList]
+// ---------- 채팅 웹소켓 이벤트 수신 ----------
+const protocol = globalThis.location?.protocol === 'https' ? 'wss' : 'ws'
+const url = `${protocol}://${process.env.NEXT_PUBLIC_WS_HOST}/ws/chat/rooms/:roomId`
+const chat = ws.link(url)
+
+const chatSocketHandlers = [
+  chat.addEventListener('connection', ({ client }) => {
+    console.log('✨ 웹소켓 연결 완료!')
+
+    SOCKET_MESSAGES.forEach(async (message, index) => {
+      await new Promise((resolve) =>
+        setTimeout(resolve, 1000 * index + 1)
+      ).then(() =>
+        client.send(JSON.stringify({ type: 'NEW_MESSAGE', payload: message }))
+      )
+    })
+
+    client.addEventListener('close', () => {
+      console.log('✨ 웹소켓 연결 종료!')
+    })
+  }),
+]
+
+const chatHandlers = [
+  getChatRoomList,
+  enterChatRoom,
+  getChatMessageList,
+  ...chatSocketHandlers,
+]
 
 export { chatHandlers }
