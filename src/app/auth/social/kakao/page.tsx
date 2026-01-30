@@ -1,4 +1,4 @@
-import { SocialCallback } from '@/features/auth'
+import { SocialCallback } from '@/features/auth-social/SocialCallback'
 import { Suspense } from 'react'
 
 export default function KakaoSocialPage() {

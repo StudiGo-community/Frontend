@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { QueryClientProvider } from '@tanstack/react-query'
 
 import { getQueryClient } from '@/shared/api/query-client'
-import { setupAuthInterceptors } from '@/features/auth/lib/setup-auth-interceptors'
+import { setupAuthInterceptors } from '@/features/auth-login/lib/setup-auth-interceptors'
 
 interface ProvidersProps {
   children: React.ReactNode
