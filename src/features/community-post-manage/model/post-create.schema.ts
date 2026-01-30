@@ -3,7 +3,7 @@ import { AuthorSchema } from '@/entities/post/model/author.schema'
 import {
   PostFormBaseSchema,
   PostResponseBaseRawSchema,
-} from '@/features/community-post-management/model/base.schema'
+} from '@/features/community-post-manage/model/base.schema'
 import { POST_STATUS } from '@/entities/post/model/constants'
 
 // 요청

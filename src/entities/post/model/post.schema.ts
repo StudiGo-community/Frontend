@@ -29,6 +29,31 @@ export const ImageSchema = z.object({
   order: z.number().int().nonnegative(),
 })
 
+// 조립
+// 상세
+// images, view_count, comments 추가
+export const PostDetailSchema = PostBaseSchema.extend({
+  images: z.array(ImageSchema),
+  view_count: z.number().int().nonnegative(),
+  comments: z.array(CommentSchema),
+}).transform((post) => ({
+  id: post.id,
+  title: post.title,
+  content: post.content,
+  category: post.category,
+  author: post.author,
+  likeCount: post.like_count,
+  commentCount: post.comment_count,
+  isLiked: post.is_liked,
+  createdAt: new Date(post.created_at),
+  updatedAt: new Date(post.updated_at),
+  images: post.images,
+  viewCount: post.view_count,
+  comments: post.comments,
+}))
+
+export type PostDetail = z.infer<typeof PostDetailSchema>
+
 // 목록의 단일 포스트
 export const PostListItemSchema = PostBaseSchema.extend({
   blinded_reason: z.string().nullable(), // 옵셔널이면 nullish로 바꾸기
@@ -58,27 +83,3 @@ export const PostListSchema = z.object({
 })
 
 export type PostList = z.infer<typeof PostListSchema>
-
-// 상세
-// images, view_count, comments 추가
-export const PostDetailSchema = PostBaseSchema.extend({
-  images: z.array(ImageSchema),
-  view_count: z.number().int().nonnegative(),
-  comments: z.array(CommentSchema),
-}).transform((post) => ({
-  id: post.id,
-  title: post.title,
-  content: post.content,
-  category: post.category,
-  author: post.author,
-  likeCount: post.like_count,
-  commentCount: post.comment_count,
-  isLiked: post.is_liked,
-  createdAt: new Date(post.created_at),
-  updatedAt: new Date(post.updated_at),
-  images: post.images,
-  viewCount: post.view_count,
-  comments: post.comments,
-}))
-
-export type PostDetail = z.infer<typeof PostDetailSchema>
