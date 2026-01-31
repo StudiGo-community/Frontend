@@ -1,8 +1,14 @@
+import { useTokenStore } from '@/entities/session/store/token-store'
+import { useSessionStore } from '@/entities/session/store/session-store'
+
 export const clearAuthClientState = () => {
-  localStorage.removeItem('studigo_access_token')
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('studigo_access_token')
+    sessionStorage.clear()
+  }
 
-  sessionStorage.clear()
+  useTokenStore.getState().clearAccessToken()
+  useSessionStore.getState().clearUser()
 
-  // TODO: API 연동 시 토큰 키 이름이 바뀌면 수정
   // TODO: refresh token을 localStorage에 저장하게 되면 여기서 같이 삭제
 }

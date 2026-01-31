@@ -12,11 +12,20 @@ import { zodResolver } from '@hookform/resolvers/zod'
 
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input'
-import { useTokenStore } from '@/entities/session/store/token-store'
 
 import { useLoginMutation } from '../hooks/useLoginMutation'
+import { applyLoginSession } from '@/entities/session/lib/apply-login-session'
+import type { SessionUser } from '@/entities/session/model/types'
 
 const SAVED_EMAIL_KEY = 'studigo.saved_login_email'
+
+const passwordRule = z
+  .string()
+  .min(1, '비밀번호를 입력해주세요.')
+  .min(8, '비밀번호는 8자 이상이어야 합니다.')
+  .max(20, '비밀번호는 20자 이하여야 합니다.')
+  .regex(/[0-9]/, '숫자를 포함해야 합니다.')
+  .regex(/[^A-Za-z0-9]/, '특수문자를 포함해야 합니다.')
 
 const loginFormSchema = z
   .object({
@@ -24,15 +33,7 @@ const loginFormSchema = z
       .string()
       .min(1, '이메일을 입력해주세요.')
       .email('이메일 형식에 맞춰 작성해주세요.'),
-    password: z
-      .string()
-      .min(1, '비밀번호를 입력해주세요.')
-      .min(8, '비밀번호는 8자 이상이어야 합니다.')
-      .max(20, '비밀번호는 20자 이하이어야 합니다.')
-      .regex(
-        /^(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*]).+$/,
-        '영문 소문자, 숫자, 특수문자(!@#$%^&*)를 모두 포함해야 합니다.'
-      ),
+    password: passwordRule,
     remember: z.boolean().optional(),
   })
   .superRefine(({ password, email }, ctx) => {
@@ -69,8 +70,6 @@ export default function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const next = searchParams.get('next')
-
-  const setAccessToken = useTokenStore((s) => s.setAccessToken)
 
   const {
     register,
@@ -122,19 +121,17 @@ export default function LoginForm() {
   }, [remember, email])
 
   const onErrorCallback = (error: AxiosError) => {
-    if (error.message) {
-      if (error.message === 'LOGIN_ERROR_400') {
-        toast.error('이메일과 비밀번호를 확인해주세요.')
-        return true
-      }
-      if (error.message === 'LOGIN_ERROR_403') {
-        toast.error('탈퇴한 계정입니다')
-        return true
-      }
-      if (error.message === 'LOGIN_ERROR_429') {
-        toast.error('로그인 시도 횟수를 초과했습니다')
-        return true
-      }
+    if (error.message === 'LOGIN_ERROR_400') {
+      toast.error('이메일과 비밀번호를 확인해주세요.')
+      return true
+    }
+    if (error.message === 'LOGIN_ERROR_403') {
+      toast.error('탈퇴한 계정입니다')
+      return true
+    }
+    if (error.message === 'LOGIN_ERROR_429') {
+      toast.error('로그인 시도 횟수를 초과했습니다')
+      return true
     }
     return false
   }
@@ -157,7 +154,21 @@ export default function LoginForm() {
       return
     }
 
-    setAccessToken(response.accessToken)
+    const sessionUser: SessionUser = {
+      id: response.user.id,
+      email: response.user.email,
+      nickname: response.user.nickname,
+      name: response.user.name,
+      role: response.user.role,
+      status: response.user.status,
+      provider: response.user.provider,
+      profileImageUrl: response.user.profileImageUrl ?? null,
+    }
+
+    applyLoginSession({
+      accessToken: response.accessToken,
+      user: sessionUser,
+    })
 
     toast.success(`${response.user.nickname}님, 환영합니다!`)
     const redirectPath = next ? decodeURIComponent(next) : '/'
