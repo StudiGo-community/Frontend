@@ -1,10 +1,10 @@
-import { useChatSocketContext } from '@/features/chat-message-subscribe/model/ChatSocketProvider'
 import { useCallback, useEffect } from 'react'
 import { ChatSocketEventSchema } from '@/features/chat-message-subscribe/model/schema'
 import useMessageCacheHandler from '@/features/chat-message-subscribe/model/useMessageCacheHandler'
+import { useChatSocketStore } from '@/features/chat-message-subscribe/model/store'
 
 function useMessageSubscribe(roomId: number | null, accessToken: string) {
-  const { connect } = useChatSocketContext()
+  const { connect } = useChatSocketStore()
   const { handleNewMessage } = useMessageCacheHandler()
 
   // 수신 데이터 파싱 → 이벤트 타입에 따라 적절한 캐시 업데이트 함수 실행
