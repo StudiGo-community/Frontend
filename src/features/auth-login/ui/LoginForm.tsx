@@ -4,8 +4,9 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { AxiosError } from 'axios'
 import { toast } from 'sonner'
+import { useEffect } from 'react'
 
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 
@@ -14,6 +15,8 @@ import { Input } from '@/shared/ui/input'
 import { useTokenStore } from '@/entities/session/store/token-store'
 
 import { useLoginMutation } from '../hooks/useLoginMutation'
+
+const SAVED_EMAIL_KEY = 'studigo.saved_login_email'
 
 const loginFormSchema = z
   .object({
@@ -27,7 +30,7 @@ const loginFormSchema = z
       .min(8, '비밀번호는 8자 이상이어야 합니다.')
       .max(20, '비밀번호는 20자 이하이어야 합니다.')
       .regex(
-        /^(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])/,
+        /^(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*]).+$/,
         '영문 소문자, 숫자, 특수문자(!@#$%^&*)를 모두 포함해야 합니다.'
       ),
     remember: z.boolean().optional(),
@@ -72,11 +75,51 @@ export default function LoginForm() {
   const {
     register,
     handleSubmit,
+    setValue,
+    control,
     formState: { errors, isValid, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
     mode: 'onChange',
+    defaultValues: {
+      email: '',
+      password: '',
+      remember: false,
+    },
   })
+
+  const remember = useWatch({ control, name: 'remember' })
+  const email = useWatch({ control, name: 'email' })
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const raw = localStorage.getItem(SAVED_EMAIL_KEY)
+    if (!raw) return
+
+    try {
+      const parsed = JSON.parse(raw) as { email: string; remember: boolean }
+      if (parsed.remember && parsed.email) {
+        setValue('email', parsed.email, { shouldValidate: true })
+        setValue('remember', true)
+      }
+    } catch {
+      localStorage.removeItem(SAVED_EMAIL_KEY)
+    }
+  }, [setValue])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    if (remember && email) {
+      localStorage.setItem(
+        SAVED_EMAIL_KEY,
+        JSON.stringify({ email, remember: true })
+      )
+    } else {
+      localStorage.removeItem(SAVED_EMAIL_KEY)
+    }
+  }, [remember, email])
 
   const onErrorCallback = (error: AxiosError) => {
     if (error.message) {
