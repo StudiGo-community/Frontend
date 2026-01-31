@@ -1,17 +1,19 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { AxiosError } from 'axios'
+import { toast } from 'sonner'
+
+import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input'
+import { useTokenStore } from '@/entities/session/store/token-store'
 
 import { useLoginMutation } from '../hooks/useLoginMutation'
-
-const SAVED_EMAIL_KEY = 'studigo.saved_login_email'
 
 const loginFormSchema = z
   .object({
@@ -61,58 +63,63 @@ const loginFormSchema = z
 type LoginFormValues = z.infer<typeof loginFormSchema>
 
 export default function LoginForm() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const next = searchParams.get('next')
+
+  const setAccessToken = useTokenStore((s) => s.setAccessToken)
+
   const {
     register,
     handleSubmit,
-    setValue,
-    control,
     formState: { errors, isValid, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
     mode: 'onChange',
-    defaultValues: {
-      email: '',
-      password: '',
-      remember: false,
+  })
+
+  const onErrorCallback = (error: AxiosError) => {
+    if (error.message) {
+      if (error.message === 'LOGIN_ERROR_400') {
+        toast.error('이메일과 비밀번호를 확인해주세요.')
+        return true
+      }
+      if (error.message === 'LOGIN_ERROR_403') {
+        toast.error('탈퇴한 계정입니다')
+        return true
+      }
+      if (error.message === 'LOGIN_ERROR_429') {
+        toast.error('로그인 시도 횟수를 초과했습니다')
+        return true
+      }
+    }
+    return false
+  }
+
+  const { mutateAsync } = useLoginMutation({
+    onError: (error: AxiosError) => {
+      onErrorCallback(error)
     },
   })
 
-  useEffect(() => {
-    const raw = localStorage.getItem(SAVED_EMAIL_KEY)
-    if (!raw) return
-    try {
-      const parsed: { email: string; remember: boolean } = JSON.parse(raw)
-      if (parsed.remember) {
-        setValue('email', parsed.email, { shouldValidate: true })
-        setValue('remember', true)
-      }
-    } catch {
-      localStorage.removeItem(SAVED_EMAIL_KEY)
-    }
-  }, [setValue])
-
-  const remember = useWatch({ control, name: 'remember' })
-  const email = useWatch({ control, name: 'email' })
-
-  useEffect(() => {
-    if (remember && email) {
-      localStorage.setItem(
-        SAVED_EMAIL_KEY,
-        JSON.stringify({ email, remember: true })
-      )
-    } else if (!remember) {
-      localStorage.removeItem(SAVED_EMAIL_KEY)
-    }
-  }, [remember, email])
-
-  const loginMutation = useLoginMutation()
-
-  function onSubmit(values: LoginFormValues) {
-    loginMutation.mutate({
+  const onSubmit = async (values: LoginFormValues) => {
+    const response = await mutateAsync({
       email: values.email,
       password: values.password,
       remember_me: values.remember ?? false,
     })
+
+    if (!response.accessToken || !response.user) {
+      toast.error('로그인에 실패했어요. 잠시 후 다시 시도해주세요.')
+      return
+    }
+
+    setAccessToken(response.accessToken)
+
+    toast.success(`${response.user.nickname}님, 환영합니다!`)
+    const redirectPath = next ? decodeURIComponent(next) : '/'
+    router.replace(redirectPath)
+    router.refresh()
   }
 
   const isDisabled = !isValid || isSubmitting

@@ -21,6 +21,9 @@ export const setupAuthInterceptors = () => {
       config.headers = config.headers ?? {}
       config.headers.Authorization = `Bearer ${accessToken}`
     }
+
+    config.withCredentials = true
+
     return config
   })
 
