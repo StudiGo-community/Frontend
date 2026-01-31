@@ -5,18 +5,24 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import axios, { AxiosError } from 'axios'
-import { DropdownMenu } from '@/shared/ui/DropdownMenu'
 import { postSchema, type PostFormData } from '@/shared/api/schema/postSchema'
 import TipTapEditor from '@/features/community/post/components/editor/TipTapEditor'
 import { Button } from '@/shared/ui/Button'
 import { cn } from '@/shared/lib/cn'
-import { ChevronDown } from 'lucide-react'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/ui/Select'
 
 const CATEGORY_OPTIONS = [
-  { label: 'Free', value: 'Free' },
-  { label: 'Travel', value: 'Travel' },
-  { label: 'Movie', value: 'Movie' },
-  { label: 'TEST', value: 'TEST' },
+  { label: '자유게시판', value: 'FREE' },
+  { label: '모집게시판', value: 'RECRUIT' },
+  { label: '학습게시판', value: 'STUDY' },
 ]
 
 export default function PostForm({
@@ -39,8 +45,6 @@ export default function PostForm({
       images: [],
     },
   })
-
-  const currentCategory = methods.watch('category')
 
   const mutation = useMutation({
     mutationFn: async (formData: PostFormData) =>
@@ -69,48 +73,29 @@ export default function PostForm({
         className="bg-brand-white mx-auto flex max-w-300 flex-col gap-4 pt-4 pb-32"
       >
         <div className="flex flex-col gap-4">
-          <div className="w-64">
-            <DropdownMenu>
-              <DropdownMenu.Trigger asChild>
-                <button
-                  type="button"
-                  className={cn(
-                    'bg-brand-gray-100 rounded-brand-base hover:border-brand-gray-300 flex w-full items-center justify-between border p-3 text-left transition-all outline-none',
-                    methods.formState.errors.category && 'border-brand-error'
-                  )}
-                >
-                  <span
-                    className={cn(
-                      !methods.watch('category') && 'text-brand-gray-400'
-                    )}
-                  >
-                    {currentCategory || '카테고리를 선택해 주세요.'}{' '}
-                  </span>
-                  <ChevronDown className="text-brand-gray-400 size-4" />
-                </button>
-              </DropdownMenu.Trigger>
-
-              <DropdownMenu.Content className="w-64 rounded-md border bg-white p-1 shadow-lg">
+          {/* TODO: 새로 만드는 폼에 옮겨가기 */}
+          <Select>
+            <SelectTrigger className="min-h-12 w-full cursor-pointer border-2 pr-2 pl-4 text-base sm:max-w-60">
+              <SelectValue placeholder="카테고리를 선택해 주세요." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel className="border-brand-gray-100 border-b px-3 py-2 text-base">
+                  카테고리
+                </SelectLabel>
                 {CATEGORY_OPTIONS.map((opt) => (
-                  <DropdownMenu.Item
+                  <SelectItem
                     key={opt.value}
-                    onSelect={() =>
-                      methods.setValue(
-                        'category',
-                        opt.value as PostFormData['category'],
-                        {
-                          shouldValidate: true,
-                        }
-                      )
-                    }
-                    className="hover:bg-brand-gray-50 cursor-pointer px-3 py-2 text-sm outline-none"
+                    value={opt.value}
+                    onSelect={() => {}}
+                    className="hover:bg-brand-gray-50 cursor-pointer px-4 py-2 text-base outline-none"
                   >
                     {opt.label}
-                  </DropdownMenu.Item>
+                  </SelectItem>
                 ))}
-              </DropdownMenu.Content>
-            </DropdownMenu>
-          </div>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
 
           <input
             {...methods.register('title')}
