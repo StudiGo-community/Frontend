@@ -1,14 +1,15 @@
-import { ErrorResponseSchema } from '@/shared/api/error-schema'
 import z from 'zod'
+import { ErrorResponseSchema } from '@/shared/api/error-schema'
 
 export const NicknameCheckRequestSchema = z.object({
-  nickname: z.string().min(1),
+  nickname: z.string().min(1, '닉네임을 입력해주세요.'),
 })
 export type NicknameCheckRequest = z.infer<typeof NicknameCheckRequestSchema>
 
 export const NicknameCheckResponseSchema = z.object({
-  available: z.boolean(),
   message: z.string(),
+  check_token: z.string(),
+  expires_in: z.number(),
 })
 export type NicknameCheckResponse = z.infer<typeof NicknameCheckResponseSchema>
 
