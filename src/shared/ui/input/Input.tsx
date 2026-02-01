@@ -135,4 +135,4 @@ const getInternalType = (
   }
 }
 
-export { Input }
+export { Input, inputGroupVariants }
