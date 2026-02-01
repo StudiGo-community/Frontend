@@ -1,3 +1,3 @@
-import { Input } from '@/shared/ui/input/Input'
+import { Input, inputGroupVariants } from '@/shared/ui/input/Input'
 
-export { Input }
+export { Input, inputGroupVariants }
