@@ -2,7 +2,6 @@
 
 import ReceivedMessage from '@/entities/message/ui/ReceivedMessage'
 import SentMessage from '@/entities/message/ui/SentMessage'
-import { useChatStore } from '@/entities/chat-room/model/store'
 import { useMemo } from 'react'
 import Loading from '@/shared/ui/Loading'
 import Error from '@/shared/ui/Error'
@@ -14,12 +13,15 @@ import { useChatMessageList } from '@/entities/message/api/queries'
 import useInfiniteScroll from '@/features/chat-message-scroll/lib/useInfiniteScroll'
 import useMessageSubscribe from '@/features/chat-message-subscribe/model/useMessageSubscribe'
 
+interface MessageListProps {
+  roomId: number
+}
+
 // TODO: 유저 정보 스토어에 저장된 것 불러오기
 const userId = 1
 const MESSAGE_STATUS_LAYOUT = 'h-full flex flex-1 items-center justify-center'
 
-function MessageList() {
-  const roomId = useChatStore((state) => state.enteredRoomId)
+function MessageList({ roomId }: MessageListProps) {
   const {
     data,
     isLoading,

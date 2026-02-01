@@ -2,13 +2,15 @@
 
 import { EllipsisVerticalIcon, UserIcon } from 'lucide-react'
 import Image from 'next/image'
-import { useChatStore } from '@/entities/chat-room/model/store'
 import { useChatRoomList } from '@/entities/chat-room/api/queries'
 
-function ChatHeader() {
-  const currentRoomId = useChatStore((state) => state.enteredRoomId)
+interface ChatHeaderProps {
+  roomId: number
+}
+
+function ChatHeader({ roomId }: ChatHeaderProps) {
   const { data } = useChatRoomList()
-  const currentRoom = data?.rooms.find((room) => room.id === currentRoomId)
+  const currentRoom = data?.rooms.find((room) => room.id === roomId)
 
   return (
     <div className="border-b-brand-gray-200 flex max-w-239 items-center border-b py-2.5">

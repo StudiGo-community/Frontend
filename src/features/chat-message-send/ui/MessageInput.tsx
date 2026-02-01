@@ -1,6 +1,5 @@
 'use client'
 
-import { useChatStore } from '@/entities/chat-room/model/store'
 import { useSendChatMessage } from '@/entities/message/api/queries'
 import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/ui/Button'
@@ -12,8 +11,11 @@ import useMessageCacheHandler from '@/entities/message/model/useMessageCacheHand
 import { type SendMessage } from '@/entities/message/model/schema'
 import { useSessionStore } from '@/entities/session/store/session-store'
 
-function MessageInput() {
-  const enteredRoomId = useChatStore((state) => state.enteredRoomId)
+interface MessageInputProps {
+  roomId: number
+}
+
+function MessageInput({ roomId }: MessageInputProps) {
   const user = useSessionStore((state) => state.user)
   const { handleNewMessage } = useMessageCacheHandler()
 
@@ -22,7 +24,7 @@ function MessageInput() {
 
     const { nickname, profileImageUrl } = user
     handleNewMessage(
-      enteredRoomId,
+      roomId,
       mapSendMessageToMessage(data, nickname, profileImageUrl)
     )
   }
@@ -34,7 +36,7 @@ function MessageInput() {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (!enteredRoomId) {
+    if (!roomId) {
       toast.error('예기치 않은 오류가 발생했습니다.')
       return
     }
@@ -44,10 +46,7 @@ function MessageInput() {
     const content = String(formData.get('content')).trim()
     if (!content) return
 
-    mutate(
-      { roomId: enteredRoomId, content },
-      { onSuccess: () => form.reset() }
-    )
+    mutate({ roomId: roomId, content }, { onSuccess: () => form.reset() })
   }
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.nativeEvent.isComposing) return
