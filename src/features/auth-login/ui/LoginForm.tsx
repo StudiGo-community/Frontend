@@ -1,7 +1,11 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { AxiosError } from 'axios'
+import { toast } from 'sonner'
 import { useEffect } from 'react'
+
 import { useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -10,8 +14,18 @@ import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input'
 
 import { useLoginMutation } from '../hooks/useLoginMutation'
+import { applyLoginSession } from '@/entities/session/lib/apply-login-session'
+import type { SessionUser } from '@/entities/session/model/types'
 
 const SAVED_EMAIL_KEY = 'studigo.saved_login_email'
+
+const passwordRule = z
+  .string()
+  .min(1, '비밀번호를 입력해주세요.')
+  .min(8, '비밀번호는 8자 이상이어야 합니다.')
+  .max(20, '비밀번호는 20자 이하여야 합니다.')
+  .regex(/[0-9]/, '숫자를 포함해야 합니다.')
+  .regex(/[^A-Za-z0-9]/, '특수문자를 포함해야 합니다.')
 
 const loginFormSchema = z
   .object({
@@ -19,15 +33,7 @@ const loginFormSchema = z
       .string()
       .min(1, '이메일을 입력해주세요.')
       .email('이메일 형식에 맞춰 작성해주세요.'),
-    password: z
-      .string()
-      .min(1, '비밀번호를 입력해주세요.')
-      .min(8, '비밀번호는 8자 이상이어야 합니다.')
-      .max(20, '비밀번호는 20자 이하이어야 합니다.')
-      .regex(
-        /^(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])/,
-        '영문 소문자, 숫자, 특수문자(!@#$%^&*)를 모두 포함해야 합니다.'
-      ),
+    password: passwordRule,
     remember: z.boolean().optional(),
   })
   .superRefine(({ password, email }, ctx) => {
@@ -61,6 +67,10 @@ const loginFormSchema = z
 type LoginFormValues = z.infer<typeof loginFormSchema>
 
 export default function LoginForm() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const next = searchParams.get('next')
+
   const {
     register,
     handleSubmit,
@@ -77,12 +87,18 @@ export default function LoginForm() {
     },
   })
 
+  const remember = useWatch({ control, name: 'remember' })
+  const email = useWatch({ control, name: 'email' })
+
   useEffect(() => {
+    if (typeof window === 'undefined') return
+
     const raw = localStorage.getItem(SAVED_EMAIL_KEY)
     if (!raw) return
+
     try {
-      const parsed: { email: string; remember: boolean } = JSON.parse(raw)
-      if (parsed.remember) {
+      const parsed = JSON.parse(raw) as { email: string; remember: boolean }
+      if (parsed.remember && parsed.email) {
         setValue('email', parsed.email, { shouldValidate: true })
         setValue('remember', true)
       }
@@ -91,28 +107,73 @@ export default function LoginForm() {
     }
   }, [setValue])
 
-  const remember = useWatch({ control, name: 'remember' })
-  const email = useWatch({ control, name: 'email' })
-
   useEffect(() => {
+    if (typeof window === 'undefined') return
+
     if (remember && email) {
       localStorage.setItem(
         SAVED_EMAIL_KEY,
         JSON.stringify({ email, remember: true })
       )
-    } else if (!remember) {
+    } else {
       localStorage.removeItem(SAVED_EMAIL_KEY)
     }
   }, [remember, email])
 
-  const loginMutation = useLoginMutation()
+  const onErrorCallback = (error: AxiosError) => {
+    if (error.message === 'LOGIN_ERROR_400') {
+      toast.error('이메일과 비밀번호를 확인해주세요.')
+      return true
+    }
+    if (error.message === 'LOGIN_ERROR_403') {
+      toast.error('탈퇴한 계정입니다')
+      return true
+    }
+    if (error.message === 'LOGIN_ERROR_429') {
+      toast.error('로그인 시도 횟수를 초과했습니다')
+      return true
+    }
+    return false
+  }
 
-  function onSubmit(values: LoginFormValues) {
-    loginMutation.mutate({
+  const { mutateAsync } = useLoginMutation({
+    onError: (error: AxiosError) => {
+      onErrorCallback(error)
+    },
+  })
+
+  const onSubmit = async (values: LoginFormValues) => {
+    const response = await mutateAsync({
       email: values.email,
       password: values.password,
       remember_me: values.remember ?? false,
     })
+
+    if (!response.accessToken || !response.user) {
+      toast.error('로그인에 실패했어요. 잠시 후 다시 시도해주세요.')
+      return
+    }
+
+    const sessionUser: SessionUser = {
+      id: response.user.id,
+      email: response.user.email,
+      nickname: response.user.nickname,
+      name: response.user.name,
+      role: response.user.role,
+      status: response.user.status,
+      provider: response.user.provider,
+      profileImageUrl: response.user.profileImageUrl ?? null,
+    }
+
+    applyLoginSession({
+      accessToken: response.accessToken,
+      user: sessionUser,
+    })
+
+    toast.success(`${response.user.nickname}님, 환영합니다!`)
+    const redirectPath = next ? decodeURIComponent(next) : '/'
+    router.replace(redirectPath)
+    router.refresh()
   }
 
   const isDisabled = !isValid || isSubmitting
