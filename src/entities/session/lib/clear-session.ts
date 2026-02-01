@@ -4,7 +4,7 @@ import { useSessionStore } from '@/entities/session/store/session-store'
 export const clearAuthClientState = () => {
   if (typeof window !== 'undefined') {
     localStorage.removeItem('studigo_access_token')
-    sessionStorage.clear()
+    sessionStorage.removeItem('studigo_session_user')
   }
 
   useTokenStore.getState().clearAccessToken()
