@@ -12,13 +12,14 @@ import { cn } from '@/shared/lib/cn'
 import { useChatMessageList } from '@/entities/message/api/queries'
 import useInfiniteScroll from '@/features/chat-message-scroll/lib/useInfiniteScroll'
 import useMessageSubscribe from '@/features/chat-message-subscribe/model/useMessageSubscribe'
+import { useSessionStore } from '@/entities/session/store/session-store'
+import { useTokenStore } from '@/entities/session/store/token-store'
+import useTts from '@/features/chat-message-tts/lib/useTts'
 
 interface MessageListProps {
   roomId: number
 }
 
-// TODO: 유저 정보 스토어에 저장된 것 불러오기
-const userId = 1
 const MESSAGE_STATUS_LAYOUT = 'h-full flex flex-1 items-center justify-center'
 
 function MessageList({ roomId }: MessageListProps) {
@@ -43,8 +44,12 @@ function MessageList({ roomId }: MessageListProps) {
     isEnabled,
     fetchNextPage
   )
-  // TODO: 로그인 구현 이후 엑세스 토큰 스토어에서 가져와서 사용하기
-  useMessageSubscribe(isSuccess ? roomId : null, 'access_token')
+
+  const user = useSessionStore((state) => state.user)
+  const accessToken = useTokenStore((state) => state.accessToken)
+  useMessageSubscribe(isSuccess ? roomId : null, accessToken)
+
+  const { speak } = useTts()
 
   const handleScrollButtonClick = () => {
     if (!containerRef.current) return
@@ -57,7 +62,7 @@ function MessageList({ roomId }: MessageListProps) {
   return (
     <div className="relative h-[calc(100vh-22rem)]">
       {isLoading && <Loading className={cn(MESSAGE_STATUS_LAYOUT)} />}
-      {error && (
+      {!user && error && (
         <Error
           className={cn(MESSAGE_STATUS_LAYOUT)}
           message={
@@ -78,10 +83,14 @@ function MessageList({ roomId }: MessageListProps) {
           ref={containerRef}
         >
           {messages.map((message) =>
-            message.sender.id === userId ? (
+            message.sender.id === user?.id ? (
               <SentMessage key={message.id} message={message} />
             ) : (
-              <ReceivedMessage key={message.id} message={message} />
+              <ReceivedMessage
+                key={message.id}
+                message={message}
+                onPlayTts={speak}
+              />
             )
           )}
           {isFetchingNextPage && <Loading />}

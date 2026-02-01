@@ -3,7 +3,10 @@ import { ChatSocketEventSchema } from '@/features/chat-message-subscribe/model/s
 import useMessageCacheHandler from '@/entities/message/model/useMessageCacheHandler'
 import { useChatSocketStore } from '@/features/chat-message-subscribe/model/store'
 
-function useMessageSubscribe(roomId: number | null, accessToken: string) {
+function useMessageSubscribe(
+  roomId: number | null,
+  accessToken: string | null
+) {
   const { connect } = useChatSocketStore()
   const { handleNewMessage } = useMessageCacheHandler()
 
