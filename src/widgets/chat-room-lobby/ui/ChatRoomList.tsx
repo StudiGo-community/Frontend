@@ -25,7 +25,7 @@ function ChatRoomList() {
     )
   return (
     <div>
-      <ul className="grid">
+      <ul className="flex flex-col">
         {chatRooms.map((chatRoom) => (
           <ChatRoomItem key={chatRoom.id} chatRoom={chatRoom} />
         ))}
