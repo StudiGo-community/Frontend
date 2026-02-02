@@ -1,17 +1,39 @@
 'use client'
 
-import { EllipsisVerticalIcon, UserIcon } from 'lucide-react'
+import { LogOutIcon, UserIcon } from 'lucide-react'
 import Image from 'next/image'
 import { useChatRoomList } from '@/entities/chat-room/api/queries'
+import Loading from '@/shared/ui/Loading'
+import Error from '@/shared/ui/Error'
+import { Button } from '@/shared/ui/Button'
 
 interface ChatHeaderProps {
   enteredRoomId: number
 }
 
+const HEADER_STATUS_LAYOUT = 'border-b-brand-gray-200 border-b py-9'
+
 function ChatHeader({ enteredRoomId }: ChatHeaderProps) {
-  const { data } = useChatRoomList()
+  const { data, isLoading, error } = useChatRoomList()
   const currentRoom = data?.rooms.find((room) => room.id === enteredRoomId)
 
+  if (isLoading) return <Loading className={HEADER_STATUS_LAYOUT} />
+  if (error)
+    return (
+      <Error
+        className={HEADER_STATUS_LAYOUT}
+        message={
+          error.response?.data.detail ?? '채팅방 정보를 불러오지 못했습니다.'
+        }
+      />
+    )
+  if (!isLoading && !currentRoom)
+    return (
+      <Error
+        className={HEADER_STATUS_LAYOUT}
+        message="채팅방 정보를 찾을 수 없습니다."
+      />
+    )
   return (
     <div className="border-b-brand-gray-200 flex max-w-239 items-center border-b py-2.5">
       <div className="relative mr-3 size-19">
@@ -21,6 +43,7 @@ function ChatHeader({ enteredRoomId }: ChatHeaderProps) {
           className="object-cover"
           fill
           sizes="76px"
+          priority
         />
       </div>
       <div className="flex flex-1 flex-col items-start">
@@ -30,10 +53,16 @@ function ChatHeader({ enteredRoomId }: ChatHeaderProps) {
           <span>{currentRoom?.participantCount} 참여중</span>
         </div>
       </div>
-      {/* TODO: 채팅방 퇴장 API 연결할 때 클릭하면 메뉴 나오게 만들기 */}
-      <button type="button" className="p-2">
-        <EllipsisVerticalIcon className="text-brand-gray-400" size={30} />
-      </button>
+      {/* TODO: 채팅방 퇴장 API 연결하기 */}
+      <Button
+        type="button"
+        variant="secondary"
+        size="sm"
+        className="bg-brand-black/80 mt-1 self-start"
+        aria-label="채팅방 퇴장"
+      >
+        <LogOutIcon className="" />
+      </Button>
     </div>
   )
 }
