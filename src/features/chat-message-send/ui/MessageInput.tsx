@@ -4,12 +4,13 @@ import { useSendChatMessage } from '@/entities/message/api/queries'
 import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/ui/Button'
 import { inputGroupVariants } from '@/shared/ui/input'
-import React from 'react'
+import { useRef } from 'react'
 import { toast } from 'sonner'
 import { mapSendMessageToMessage } from '@/features/chat-message-send/model/mapper'
 import useMessageCacheHandler from '@/entities/message/model/useMessageCacheHandler'
 import { type SendMessage } from '@/entities/message/model/schema'
 import { useSessionStore } from '@/entities/session/store/session-store'
+import { LoaderCircleIcon } from 'lucide-react'
 
 interface MessageInputProps {
   enteredRoomId: number
@@ -18,6 +19,7 @@ interface MessageInputProps {
 function MessageInput({ enteredRoomId }: MessageInputProps) {
   const user = useSessionStore((state) => state.user)
   const { handleNewMessage } = useMessageCacheHandler()
+  const formRef = useRef<HTMLFormElement>(null)
 
   const handleSubmitSuccess = (data: SendMessage) => {
     if (!user) return
@@ -27,6 +29,12 @@ function MessageInput({ enteredRoomId }: MessageInputProps) {
       enteredRoomId,
       mapSendMessageToMessage(data, nickname, profileImageUrl)
     )
+
+    const form = formRef.current
+    if (!form) return
+
+    form.reset()
+    setTimeout(() => form.querySelector('textarea')?.focus(), 100)
   }
   const { mutate, isPending } = useSendChatMessage({
     onSuccess: (data) => handleSubmitSuccess(data.message),
@@ -36,7 +44,7 @@ function MessageInput({ enteredRoomId }: MessageInputProps) {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (!enteredRoomId) {
+    if (!enteredRoomId || !user) {
       toast.error('예기치 않은 오류가 발생했습니다.')
       return
     }
@@ -46,10 +54,7 @@ function MessageInput({ enteredRoomId }: MessageInputProps) {
     const content = String(formData.get('content')).trim()
     if (!content) return
 
-    mutate(
-      { roomId: enteredRoomId, content },
-      { onSuccess: () => form.reset() }
-    )
+    mutate({ roomId: enteredRoomId, content })
   }
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.nativeEvent.isComposing) return
@@ -61,6 +66,7 @@ function MessageInput({ enteredRoomId }: MessageInputProps) {
 
   return (
     <form
+      ref={formRef}
       onSubmit={handleSubmit}
       className="border-t-brand-gray-200 flex flex-col gap-4 border-t"
     >
@@ -68,8 +74,7 @@ function MessageInput({ enteredRoomId }: MessageInputProps) {
         onKeyDown={handleKeyDown}
         className={cn(
           inputGroupVariants({ variant: 'default', size: 'md' }),
-          'resize-none border-none px-3 focus:outline-none',
-          { 'bg-brand-gray-100 animate-pulse': isPending }
+          'resize-none border-none px-3 focus:outline-none'
         )}
         name="content"
         placeholder="메세지를 입력해주세요."
@@ -81,7 +86,13 @@ function MessageInput({ enteredRoomId }: MessageInputProps) {
         className="text-md self-end px-8 font-light"
         disabled={isPending}
       >
-        전송
+        {isPending ? (
+          <div className="animate-spin">
+            <LoaderCircleIcon />
+          </div>
+        ) : (
+          <span>전송</span>
+        )}
       </Button>
     </form>
   )
