@@ -2,7 +2,6 @@
 
 import { useEditor, EditorContent } from '@tiptap/react'
 import { extensions } from './Extensions'
-import { Markdown } from 'tiptap-markdown'
 import { useEffect } from 'react'
 import Toolbar from './Toolbar'
 
@@ -14,7 +13,7 @@ export default function TipTapEditor({
   onChange: (val: string) => void
 }) {
   const editor = useEditor({
-    extensions: [...extensions, Markdown],
+    extensions: [...extensions],
     content,
     immediatelyRender: false,
     editorProps: {

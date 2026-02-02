@@ -24,6 +24,7 @@ import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/ui/Button'
 import { useRouter } from 'next/navigation'
 import { Field, FieldError } from '@/shared/ui/Field'
+import TextEditor from './TextEditor'
 
 const CATEGORY_OPTIONS = POST_CATEGORIES.map((category) => ({
   value: category,
@@ -122,15 +123,16 @@ export default function PostForm() {
         control={form.control}
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid}>
-            {/* <TipTapEditor content={field.value} onChange={field.onChange} /> */}
-            <Input
+            {/* TODO: {...field} 수동 연결? */}
+            <TextEditor {...field} aria-invalid={fieldState.invalid} />
+            {/* <Input
               {...field}
               aria-invalid={fieldState.invalid}
               className={cn(
                 'border-brand-gray-200 mb-7 h-140 w-full rounded-lg border-2',
                 fieldState.error && 'border-brand-error! mb-0'
               )}
-            />
+            /> */}
             {fieldState.error && <FieldError errors={[fieldState.error]} />}
           </Field>
         )}

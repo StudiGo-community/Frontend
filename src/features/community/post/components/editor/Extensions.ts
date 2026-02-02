@@ -1,5 +1,4 @@
 import StarterKit from '@tiptap/starter-kit'
-import { Markdown } from 'tiptap-markdown'
 import Placeholder from '@tiptap/extension-placeholder'
 import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
@@ -12,10 +11,10 @@ export const extensions = [
     blockquote: {},
     horizontalRule: {},
   }),
-  Markdown.configure({
-    html: false,
-    tightLists: true,
-  }),
+  // Markdown.configure({
+  //   html: false,
+  //   tightLists: true,
+  // }),
   Placeholder.configure({
     placeholder: '내용을 입력하세요.',
   }),
