@@ -4,15 +4,13 @@ import ChatRoomItem from '@/widgets/chat-room-list/ui/ChatRoomItem'
 import { useSearchParams } from 'next/navigation'
 import Loading from '@/shared/ui/Loading'
 import Error from '@/shared/ui/Error'
-import { type ChatRoom } from '@/entities/chat-room/model/schema'
 import { useChatRoomList } from '@/entities/chat-room/api/queries'
 
 function ChatRoomList() {
-  const { data, isLoading, error } = useChatRoomList()
   const searchParams = useSearchParams()
+  const sort = searchParams.get('sort') ?? 'desc'
+  const { data, isLoading, error } = useChatRoomList(sort)
   const chatRooms = data?.rooms ?? []
-  const order = searchParams.get('order')
-  const orderedChatRooms = getOrderedChatRooms(chatRooms, order)
 
   if (isLoading) return <Loading />
   if (error)
@@ -27,7 +25,7 @@ function ChatRoomList() {
   return (
     <div>
       <ul className="grid">
-        {orderedChatRooms.map((chatRoom) => (
+        {chatRooms.map((chatRoom) => (
           <ChatRoomItem key={chatRoom.id} chatRoom={chatRoom} />
         ))}
       </ul>
@@ -36,11 +34,3 @@ function ChatRoomList() {
 }
 
 export default ChatRoomList
-
-const getOrderedChatRooms = (chatRooms: ChatRoom[], order: string | null) =>
-  [...chatRooms].sort((roomA, roomB) => {
-    const timeA = roomA.lastMessageAt.getTime()
-    const timeB = roomB.lastMessageAt.getTime()
-
-    return order === 'asc' ? timeA - timeB : timeB - timeA
-  })

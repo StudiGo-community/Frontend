@@ -8,8 +8,24 @@ import {
 // ---------- 채팅방 목록 조회 ----------
 const getChatRoomList = http.get(
   `${process.env.NEXT_PUBLIC_API_BASE_URL}/chat`,
-  async () => {
-    return HttpResponse.json({ rooms: CHAT_ROOMS })
+  async ({ request }) => {
+    const url = new URL(request.url)
+    const sort = url.searchParams.get('sort') ?? 'desc'
+
+    if (sort === 'desc')
+      return HttpResponse.json({
+        rooms: CHAT_ROOMS.sort(
+          ({ last_message_at: a }, { last_message_at: b }) =>
+            new Date(b).getTime() - new Date(a).getTime()
+        ),
+      })
+    if (sort === 'asc')
+      return HttpResponse.json({
+        rooms: CHAT_ROOMS.sort(
+          ({ last_message_at: a }, { last_message_at: b }) =>
+            new Date(a).getTime() - new Date(b).getTime()
+        ),
+      })
     // await new Promise(() => setTimeout(() => {}, 30000)).then(() => {
     //   return HttpResponse.json({ rooms: CHAT_ROOMS })
     // })

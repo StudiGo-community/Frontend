@@ -6,8 +6,10 @@ import {
 } from '@/entities/chat-room/model/schema'
 
 // ---------- 채팅방 목록 조회 ----------
-export const getChatRoomList = async (): Promise<ChatRoomListResponse> => {
-  const response = await api.get('/chat')
+export const getChatRoomList = async (
+  sort: string
+): Promise<ChatRoomListResponse> => {
+  const response = await api.get('/chat', { params: { sort } })
   return ChatRoomListResponseSchema.parse(response.data)
 }
 
