@@ -96,7 +96,7 @@ function MessageList({ enteredRoomId }: MessageListProps) {
           {isFetchingNextPage && <Loading />}
         </ul>
       )}
-      {messages && (
+      {!error && messages && (
         <Button
           type="button"
           className="absolute right-7 bottom-3 z-10 flex size-6 items-center justify-center rounded-full p-5 opacity-80 md:right-8 md:bottom-4"

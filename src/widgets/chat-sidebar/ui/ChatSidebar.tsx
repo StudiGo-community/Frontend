@@ -39,52 +39,53 @@ function ChatSidebar({ enteredRoomId }: ChatSidebarProps) {
             message="채팅방 정보를 찾을 수 없습니다."
           />
         )}
-        {chatRooms?.map((chatRoom) => (
-          <li key={chatRoom.id}>
-            <button
-              type="button"
-              className={cn(
-                'flex w-full items-center px-4 py-2 transition-colors',
-                'hover:bg-brand-light',
-                {
-                  'bg-brand-side hover:bg-brand-side':
-                    chatRoom.id === enteredRoomId,
-                }
-              )}
-              onClick={() => handleClick(chatRoom.id)}
-              aria-label={`${chatRoom.name} 채팅방으로 이동`}
-            >
-              <div className="relative mr-2 size-10">
-                <Image
-                  src={`/images/chat/chat-room-thumbnail-${chatRoom.id}.webp`}
-                  alt={`${chatRoom.name} 채팅방 썸네일`}
-                  className="object-cover"
-                  fill
-                  sizes="40px"
-                />
-              </div>
-              <div className="flex flex-1 flex-col items-start">
-                <span
-                  className={cn(
-                    'text-brand-gray-400 mb-1 text-sm font-semibold',
-                    { 'text-brand-white': chatRoom.id === enteredRoomId }
-                  )}
-                >
-                  {chatRoom.name}
-                </span>
-                <div
-                  className={cn(
-                    'text-brand-gray-200 flex items-center gap-1 text-xs font-medium',
-                    { 'text-brand-white/80': chatRoom.id === enteredRoomId }
-                  )}
-                >
-                  <UserIcon size={14} strokeWidth={2} />
-                  <span>{chatRoom.participantCount} 참여중</span>
+        {!error &&
+          chatRooms?.map((chatRoom) => (
+            <li key={chatRoom.id}>
+              <button
+                type="button"
+                className={cn(
+                  'flex w-full items-center px-4 py-2 transition-colors',
+                  'hover:bg-brand-light',
+                  {
+                    'bg-brand-side hover:bg-brand-side':
+                      chatRoom.id === enteredRoomId,
+                  }
+                )}
+                onClick={() => handleClick(chatRoom.id)}
+                aria-label={`${chatRoom.name} 채팅방으로 이동`}
+              >
+                <div className="relative mr-2 size-10">
+                  <Image
+                    src={`/images/chat/chat-room-thumbnail-${chatRoom.id}.webp`}
+                    alt={`${chatRoom.name} 채팅방 썸네일`}
+                    className="object-cover"
+                    fill
+                    sizes="40px"
+                  />
                 </div>
-              </div>
-            </button>
-          </li>
-        ))}
+                <div className="flex flex-1 flex-col items-start">
+                  <span
+                    className={cn(
+                      'text-brand-gray-400 mb-1 text-sm font-semibold',
+                      { 'text-brand-white': chatRoom.id === enteredRoomId }
+                    )}
+                  >
+                    {chatRoom.name}
+                  </span>
+                  <div
+                    className={cn(
+                      'text-brand-gray-200 flex items-center gap-1 text-xs font-medium',
+                      { 'text-brand-white/80': chatRoom.id === enteredRoomId }
+                    )}
+                  >
+                    <UserIcon size={14} strokeWidth={2} />
+                    <span>{chatRoom.participantCount} 참여중</span>
+                  </div>
+                </div>
+              </button>
+            </li>
+          ))}
       </ul>
     </aside>
   )
