@@ -25,7 +25,7 @@ const CATEGORY_OPTIONS = [
   { label: '학습게시판', value: 'STUDY' },
 ]
 
-export default function PostForm({
+export default function OldPostForm({
   initialData,
   isEditing,
 }: {
