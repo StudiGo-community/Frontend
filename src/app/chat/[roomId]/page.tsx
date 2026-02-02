@@ -26,8 +26,8 @@ async function ChatDetails({
   return (
     <div className="mx-auto flex max-w-300 gap-8 pt-8">
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <ChatSidebar roomId={parsedRoomId} />
-        <ChatWindow roomId={parsedRoomId} />
+        <ChatSidebar enteredRoomId={parsedRoomId} />
+        <ChatWindow enteredRoomId={parsedRoomId} />
       </HydrationBoundary>
     </div>
   )

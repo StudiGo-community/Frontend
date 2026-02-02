@@ -17,12 +17,12 @@ import { useTokenStore } from '@/entities/session/store/token-store'
 import useTts from '@/features/chat-message-tts/lib/useTts'
 
 interface MessageListProps {
-  roomId: number
+  enteredRoomId: number
 }
 
 const MESSAGE_STATUS_LAYOUT = 'h-full flex flex-1 items-center justify-center'
 
-function MessageList({ roomId }: MessageListProps) {
+function MessageList({ enteredRoomId }: MessageListProps) {
   const {
     data,
     isLoading,
@@ -32,7 +32,7 @@ function MessageList({ roomId }: MessageListProps) {
     isEnabled,
     isSuccess,
     fetchNextPage,
-  } = useChatMessageList(roomId)
+  } = useChatMessageList(enteredRoomId)
   const messages = useMemo(
     () => data?.pages.flatMap((page) => page.messages),
     [data?.pages]
@@ -47,7 +47,7 @@ function MessageList({ roomId }: MessageListProps) {
 
   const user = useSessionStore((state) => state.user)
   const accessToken = useTokenStore((state) => state.accessToken)
-  useMessageSubscribe(isSuccess ? roomId : null, accessToken)
+  useMessageSubscribe(isSuccess ? enteredRoomId : null, accessToken)
 
   const { speak } = useTts()
 

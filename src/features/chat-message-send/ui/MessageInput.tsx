@@ -12,10 +12,10 @@ import { type SendMessage } from '@/entities/message/model/schema'
 import { useSessionStore } from '@/entities/session/store/session-store'
 
 interface MessageInputProps {
-  roomId: number
+  enteredRoomId: number
 }
 
-function MessageInput({ roomId }: MessageInputProps) {
+function MessageInput({ enteredRoomId }: MessageInputProps) {
   const user = useSessionStore((state) => state.user)
   const { handleNewMessage } = useMessageCacheHandler()
 
@@ -24,7 +24,7 @@ function MessageInput({ roomId }: MessageInputProps) {
 
     const { nickname, profileImageUrl } = user
     handleNewMessage(
-      roomId,
+      enteredRoomId,
       mapSendMessageToMessage(data, nickname, profileImageUrl)
     )
   }
@@ -36,7 +36,7 @@ function MessageInput({ roomId }: MessageInputProps) {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (!roomId) {
+    if (!enteredRoomId) {
       toast.error('예기치 않은 오류가 발생했습니다.')
       return
     }
@@ -46,7 +46,10 @@ function MessageInput({ roomId }: MessageInputProps) {
     const content = String(formData.get('content')).trim()
     if (!content) return
 
-    mutate({ roomId: roomId, content }, { onSuccess: () => form.reset() })
+    mutate(
+      { roomId: enteredRoomId, content },
+      { onSuccess: () => form.reset() }
+    )
   }
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.nativeEvent.isComposing) return

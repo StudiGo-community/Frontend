@@ -5,12 +5,12 @@ import Image from 'next/image'
 import { useChatRoomList } from '@/entities/chat-room/api/queries'
 
 interface ChatHeaderProps {
-  roomId: number
+  enteredRoomId: number
 }
 
-function ChatHeader({ roomId }: ChatHeaderProps) {
+function ChatHeader({ enteredRoomId }: ChatHeaderProps) {
   const { data } = useChatRoomList()
-  const currentRoom = data?.rooms.find((room) => room.id === roomId)
+  const currentRoom = data?.rooms.find((room) => room.id === enteredRoomId)
 
   return (
     <div className="border-b-brand-gray-200 flex max-w-239 items-center border-b py-2.5">

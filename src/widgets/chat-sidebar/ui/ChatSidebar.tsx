@@ -6,10 +6,10 @@ import Image from 'next/image'
 import { useChatRoomList } from '@/entities/chat-room/api/queries'
 
 interface ChatSidebarProps {
-  roomId: number
+  enteredRoomId: number
 }
 
-function ChatSidebar({ roomId }: ChatSidebarProps) {
+function ChatSidebar({ enteredRoomId }: ChatSidebarProps) {
   const { data } = useChatRoomList()
   const chatRooms = data?.rooms
 
@@ -18,17 +18,17 @@ function ChatSidebar({ roomId }: ChatSidebarProps) {
       <ul className="grid gap-1">
         {chatRooms?.map((chatRoom) => (
           <li key={chatRoom.id}>
-            {/*TODO: 클릭하면 다른 채팅방으로 이동하는 로직 추가*/}
             <button
               type="button"
               className={cn(
                 'flex w-full items-center px-4 py-2 transition-colors',
                 'hover:bg-brand-light',
                 {
-                  'bg-brand-side hover:bg-brand-side': chatRoom.id === roomId,
+                  'bg-brand-side hover:bg-brand-side':
+                    chatRoom.id === enteredRoomId,
                 }
               )}
-              aria-label={`${chatRoom.name} 채팅방으로 이동 버튼`}
+              aria-label={`${chatRoom.name} 채팅방으로 이동`}
             >
               <div className="relative mr-2 size-10">
                 <Image
@@ -43,7 +43,7 @@ function ChatSidebar({ roomId }: ChatSidebarProps) {
                 <span
                   className={cn(
                     'text-brand-gray-400 mb-1 text-sm font-semibold',
-                    { 'text-brand-white': chatRoom.id === roomId }
+                    { 'text-brand-white': chatRoom.id === enteredRoomId }
                   )}
                 >
                   {chatRoom.name}
@@ -51,7 +51,7 @@ function ChatSidebar({ roomId }: ChatSidebarProps) {
                 <div
                   className={cn(
                     'text-brand-gray-200 flex items-center gap-1 text-xs font-medium',
-                    { 'text-brand-white/80': chatRoom.id === roomId }
+                    { 'text-brand-white/80': chatRoom.id === enteredRoomId }
                   )}
                 >
                   <UserIcon size={14} strokeWidth={2} />
