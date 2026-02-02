@@ -2,7 +2,7 @@
 
 import { UserIcon } from 'lucide-react'
 import Image from 'next/image'
-import { formatRelativeDateTime } from '@/widgets/chat-room-list/lib/formatter'
+import { formatRelativeDateTime } from '@/widgets/chat-room-lobby/lib/formatter'
 import { cn } from '@/shared/lib/cn'
 import { useChatStore } from '@/entities/chat-room/model/store'
 import { toast } from 'sonner'

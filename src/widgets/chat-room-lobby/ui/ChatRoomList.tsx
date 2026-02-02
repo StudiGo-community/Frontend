@@ -1,6 +1,6 @@
 'use client'
 
-import ChatRoomItem from '@/widgets/chat-room-list/ui/ChatRoomItem'
+import ChatRoomItem from '@/widgets/chat-room-lobby/ui/ChatRoomItem'
 import { useSearchParams } from 'next/navigation'
 import Loading from '@/shared/ui/Loading'
 import Error from '@/shared/ui/Error'
@@ -12,10 +12,11 @@ function ChatRoomList() {
   const { data, isLoading, error } = useChatRoomList(sort)
   const chatRooms = data?.rooms ?? []
 
-  if (isLoading) return <Loading />
+  if (isLoading) return <Loading className="mt-18" />
   if (error)
     return (
       <Error
+        className="mt-18"
         message={
           error.response?.data.detail ??
           '채팅방 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.'
