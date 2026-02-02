@@ -1,11 +1,33 @@
+import { getChatRoomList } from '@/entities/chat-room/api/api'
 import ChatRoomSortButton from '@/features/chat-room-sort/ui/ChatRoomSortButton'
+import { chatKeys } from '@/shared/api/query-keys'
 import { ChatRoomList } from '@/widgets/chat-room-list'
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from '@tanstack/react-query'
 import Image from 'next/image'
 import { Suspense } from 'react'
 
-function Chat() {
+async function Chat({
+  searchParams,
+}: {
+  searchParams: Promise<{ sort: string }>
+}) {
+  const searchParam = await searchParams
+  const sort = searchParam.sort ?? 'desc'
+  const queryClient = new QueryClient()
+
+  await queryClient.prefetchQuery({
+    queryKey: chatKeys.roomList(sort),
+    queryFn: () => getChatRoomList(sort),
+    staleTime: 60 * 1000,
+  })
+
   return (
     <div className="mt-14 mb-35.5">
+      {/* 배너 이미지 */}
       <section className="relative mb-12.5 aspect-8/1">
         <Image
           src="/images/chat/chat-banner.webp"
@@ -16,6 +38,7 @@ function Chat() {
           sizes="100vw"
         />
       </section>
+      {/* 채팅방 목록 */}
       <section className="mx-auto max-w-300 px-4">
         <h1 className="text-brand-black text-3xl font-black">실시간 채팅방</h1>
         <Suspense
@@ -32,7 +55,9 @@ function Chat() {
               <ChatRoomSortButton />
             </div>
           </div>
-          <ChatRoomList />
+          <HydrationBoundary state={dehydrate(queryClient)}>
+            <ChatRoomList />
+          </HydrationBoundary>
         </Suspense>
       </section>
     </div>
