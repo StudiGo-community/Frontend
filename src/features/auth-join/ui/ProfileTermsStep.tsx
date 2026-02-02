@@ -53,11 +53,13 @@ export function ProfileTermsStep(props: {
             inputMode="numeric"
             autoComplete="tel"
           />
+
           <Button
             type="button"
             size="reg"
             variant="secondary"
             className="h-12 w-24"
+            disabled
           >
             인증
           </Button>
@@ -75,6 +77,11 @@ export function ProfileTermsStep(props: {
           label="(필수) 서비스 이용을 위한 필수 동의사항"
           checked={formValue.agree.terms}
           onChange={(checked) => props.onToggleAgree('terms', checked)}
+        />
+        <CheckRow
+          label="(필수) 개인정보 처리방침 동의"
+          checked={formValue.agree.privacy}
+          onChange={(checked) => props.onToggleAgree('privacy', checked)}
         />
         <CheckRow
           label="(선택) 마케팅 정보 수신 동의"

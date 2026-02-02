@@ -1,129 +1,261 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import { useMutation } from '@tanstack/react-query'
+import { isAxiosError } from 'axios'
+import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
+
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input'
 import type { JoinFormState } from '@/features/auth-join/ui/JoinFunnel'
+import {
+  checkEmail,
+  sendEmailCode,
+  verifyEmailCode,
+} from '@/features/auth-join/api/email-auth-api'
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const LETTER_REGEX = /[A-Za-z]/
-const NUMBER_REGEX = /[0-9]/
-const SPECIAL_REGEX = /[^A-Za-z0-9]/
-
-function isValidEmail(email: string) {
-  return EMAIL_REGEX.test(email)
+type ApiErrorBody = {
+  detail?: string
+  error_detail?: string
+  error_code?: string
+  retry_after?: number
 }
 
-function passwordChecks(password: string) {
-  return {
-    min8: password.length >= 8,
-    combo:
-      LETTER_REGEX.test(password) &&
-      NUMBER_REGEX.test(password) &&
-      SPECIAL_REGEX.test(password),
-  }
-}
-
-export function EmailPasswordStep(props: {
-  value: JoinFormState
-  onChange: (patch: Partial<JoinFormState>) => void
-}) {
-  const formValue = props.value
-
-  const emailTouched = formValue.email.length > 0
-  const emailOk = isValidEmail(formValue.email)
-
-  const password = formValue.password
-  const passwordTouched = password.length > 0
-  const passwordRule = passwordChecks(password)
-
-  const passwordRuleClass = (ok: boolean) => {
-    if (!passwordTouched) return 'text-brand-gray-300'
-    return ok ? '!text-brand-green' : '!text-brand-error'
-  }
-
-  const passwordConfirmTouched = formValue.passwordConfirm.length > 0
-  const passwordConfirmOk =
-    formValue.passwordConfirm.length > 0 &&
-    formValue.passwordConfirm === formValue.password
-
+function getErrorMessage(error: unknown, fallback: string) {
+  if (!isAxiosError<ApiErrorBody>(error)) return fallback
   return (
-    <div className="space-y-5">
-      <Field label="이메일">
-        <div className="flex gap-2">
-          <Input
-            type="email"
-            size="sm"
-            placeholder="이메일을 입력해주세요."
-            value={formValue.email}
-            onChange={(e) => props.onChange({ email: e.target.value })}
-            autoComplete="email"
-          />
-          <Button
-            type="button"
-            size="reg"
-            variant="secondary"
-            className="h-12 w-24"
-          >
-            인증
-          </Button>
-        </div>
-
-        {emailTouched && !emailOk && (
-          <p className="text-brand-error mt-1 text-sm">
-            이메일 형식에 맞춰 작성해주세요.
-          </p>
-        )}
-      </Field>
-
-      <Field label="비밀번호">
-        <Input
-          type="password"
-          size="sm"
-          placeholder="비밀번호를 입력해주세요."
-          value={formValue.password}
-          onChange={(e) => props.onChange({ password: e.target.value })}
-          autoComplete="new-password"
-        />
-
-        <ul className="mt-2 space-y-1 text-xs">
-          <li className={passwordRuleClass(passwordRule.min8)}>✓ 최소 8글자</li>
-          <li className={passwordRuleClass(passwordRule.combo)}>
-            ✓ 영문, 숫자, 특수문자 조합
-          </li>
-        </ul>
-      </Field>
-
-      <Field label="비밀번호 확인">
-        <Input
-          type="password"
-          size="sm"
-          placeholder="비밀번호를 한 번 더 입력해주세요."
-          value={formValue.passwordConfirm}
-          onChange={(e) => props.onChange({ passwordConfirm: e.target.value })}
-          autoComplete="new-password"
-        />
-
-        {passwordConfirmTouched && !passwordConfirmOk && (
-          <p className="text-brand-error mt-1 text-sm">
-            비밀번호가 일치하지 않습니다.
-          </p>
-        )}
-        {passwordConfirmOk && (
-          <p className="text-brand-green mt-1 text-sm">
-            비밀번호가 일치합니다.
-          </p>
-        )}
-      </Field>
-    </div>
+    error.response?.data?.detail ??
+    error.response?.data?.error_detail ??
+    fallback
   )
 }
 
-function Field(props: { label: string; children: ReactNode }) {
+const EMAIL_REGEX = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/
+
+interface EmailPasswordStepProps {
+  value: JoinFormState
+  onChange: (patch: Partial<JoinFormState>) => void
+}
+
+export function EmailPasswordStep({ value, onChange }: EmailPasswordStepProps) {
+  const PASSWORD_RULE_TEXT =
+    '영문/숫자/특수문자 조합 8자 이상으로 입력해 주세요.'
+
+  const [emailCheckError, setEmailCheckError] = useState<string | null>(null)
+
+  const isEmailFormatValid =
+    value.email.length === 0 || EMAIL_REGEX.test(value.email)
+
+  const isCodeSent = useMemo(
+    () => Boolean(value.emailRequestId),
+    [value.emailRequestId]
+  )
+
+  const isConfirmTouched = value.passwordConfirm.length > 0
+  const isPasswordMismatch =
+    isConfirmTouched && value.password !== value.passwordConfirm
+  const isPasswordMatch =
+    isConfirmTouched && value.password === value.passwordConfirm
+
+  const checkEmailMut = useMutation({
+    mutationFn: () => checkEmail(value.email),
+    onSuccess: (data) => {
+      onChange({ emailCheckToken: data.check_token })
+      setEmailCheckError(null)
+      toast.success(data.message || '사용 가능한 이메일입니다.')
+    },
+    onError: (e: unknown) => {
+      onChange({ emailCheckToken: '' })
+
+      const msg = getErrorMessage(e, '이미 가입된 이메일입니다.')
+      setEmailCheckError(msg)
+      toast.error(msg)
+    },
+  })
+
+  const sendCodeMut = useMutation({
+    mutationFn: () =>
+      sendEmailCode({
+        email: value.email,
+        check_token: value.emailCheckToken,
+      }),
+    onSuccess: (data) => {
+      onChange({
+        emailRequestId: data.request_id,
+        emailCode: '',
+        emailVerified: false,
+        emailVerifyToken: '',
+      })
+      toast.success('인증코드를 발송했어요.')
+    },
+    onError: (e: unknown) =>
+      toast.error(getErrorMessage(e, '인증코드 발송 실패')),
+  })
+
+  const verifyCodeMut = useMutation({
+    mutationFn: () =>
+      verifyEmailCode({
+        email: value.email,
+        request_id: value.emailRequestId,
+        verification_code: value.emailCode,
+      }),
+    onSuccess: (data) => {
+      onChange({
+        emailVerified: true,
+        emailVerifyToken: data.email_verify_token,
+      })
+      toast.success('이메일 인증 완료')
+    },
+    onError: (e: unknown) =>
+      toast.error(getErrorMessage(e, '인증코드 확인 실패')),
+  })
+
+  const canCheckEmail =
+    Boolean(value.email) && isEmailFormatValid && !checkEmailMut.isPending
+
+  const canSendCode =
+    Boolean(value.email) &&
+    Boolean(value.emailCheckToken) &&
+    !sendCodeMut.isPending
+
+  const canVerify =
+    Boolean(value.email) &&
+    Boolean(value.emailCode) &&
+    Boolean(value.emailRequestId) &&
+    !verifyCodeMut.isPending
+
+  const authButtonLabel = value.emailVerified
+    ? '인증완료'
+    : isCodeSent
+      ? '확인'
+      : '인증코드 발송'
+
+  const onClickAuthButton = () => {
+    if (value.emailVerified) return
+    if (!isCodeSent) {
+      sendCodeMut.mutate()
+      return
+    }
+    verifyCodeMut.mutate()
+  }
+
   return (
-    <div className="space-y-1">
-      <label className="text-brand-gray-500 text-sm">{props.label}</label>
-      {props.children}
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <label className="text-sm">이메일</label>
+        <div className="flex gap-2">
+          <Input
+            value={value.email}
+            onChange={(e) => {
+              setEmailCheckError(null)
+
+              onChange({
+                email: e.target.value,
+
+                emailCheckToken: '',
+                emailRequestId: '',
+                emailCode: '',
+                emailVerified: false,
+                emailVerifyToken: '',
+              })
+            }}
+            placeholder="example@email.com"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            disabled={!canCheckEmail}
+            onClick={() => checkEmailMut.mutate()}
+          >
+            중복확인
+          </Button>
+        </div>
+
+        {value.email.length > 0 && !isEmailFormatValid && (
+          <p className="text-brand-error text-xs">
+            올바른 이메일 형식으로 입력해 주세요.
+          </p>
+        )}
+
+        {value.emailCheckToken && !emailCheckError && isEmailFormatValid && (
+          <p className="text-brand-green text-xs">사용 가능한 이메일입니다.</p>
+        )}
+
+        {emailCheckError && (
+          <p className="text-brand-error text-xs">{emailCheckError}</p>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label className="text-sm">이메일 인증</label>
+        <div className="flex gap-2">
+          <Input
+            value={value.emailCode}
+            onChange={(e) => onChange({ emailCode: e.target.value })}
+            placeholder="인증코드 입력"
+            disabled={!isCodeSent || value.emailVerified}
+          />
+
+          <Button
+            type="button"
+            variant="outline"
+            disabled={
+              value.emailVerified
+                ? true
+                : isCodeSent
+                  ? !canVerify
+                  : !canSendCode
+            }
+            onClick={onClickAuthButton}
+          >
+            {authButtonLabel}
+          </Button>
+        </div>
+
+        {value.emailVerified && (
+          <p className="text-brand-green text-xs">인증 완료</p>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label className="text-sm">비밀번호</label>
+        <Input
+          type="password"
+          value={value.password}
+          onChange={(e) => onChange({ password: e.target.value })}
+        />
+
+        <p className="text-brand-gray-400 text-xs">{PASSWORD_RULE_TEXT}</p>
+
+        {isPasswordMismatch && (
+          <p className="text-brand-error text-xs">
+            비밀번호가 일치하지 않아요.
+          </p>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label className="text-sm">비밀번호 확인</label>
+        <Input
+          type="password"
+          value={value.passwordConfirm}
+          onChange={(e) => onChange({ passwordConfirm: e.target.value })}
+          className={
+            isPasswordMismatch
+              ? 'border-brand-error focus-visible:ring-brand-error'
+              : undefined
+          }
+        />
+
+        {isPasswordMismatch && (
+          <p className="text-brand-error text-xs">
+            비밀번호가 일치하지 않아요.
+          </p>
+        )}
+        {isPasswordMatch && (
+          <p className="text-brand-green text-xs">비밀번호가 일치해요.</p>
+        )}
+      </div>
     </div>
   )
 }

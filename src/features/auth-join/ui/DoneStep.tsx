@@ -47,7 +47,6 @@ function InfoRow(props: { label: string; value?: string }) {
   return (
     <div className="flex items-center justify-between py-1">
       <span className="text-brand-gray-400">{props.label}</span>
-
       <span className="text-brand-black font-medium">{props.value || '-'}</span>
     </div>
   )

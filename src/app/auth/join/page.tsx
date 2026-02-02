@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { JoinFunnel } from '@/features/auth-join/ui'
 
 export default function Page() {
@@ -12,7 +13,11 @@ export default function Page() {
         </header>
 
         <div className="mt-8">
-          <JoinFunnel />
+          <Suspense
+            fallback={<div className="py-10 text-center">로딩중...</div>}
+          >
+            <JoinFunnel />
+          </Suspense>
         </div>
       </section>
     </main>

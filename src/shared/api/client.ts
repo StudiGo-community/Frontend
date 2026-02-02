@@ -7,3 +7,5 @@ export const api = axios.create({
   },
   withCredentials: true,
 })
+
+export const apiClient = api

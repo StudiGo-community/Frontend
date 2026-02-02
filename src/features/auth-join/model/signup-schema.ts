@@ -11,7 +11,6 @@ const PasswordSchema = z
 export const SignupRequestSchema = z
   .object({
     email: EmailSchema,
-    email_verification_token: z.string().min(1, '이메일 인증을 완료해주세요.'),
 
     password: PasswordSchema,
     password_confirm: z.string(),
@@ -21,12 +20,14 @@ export const SignupRequestSchema = z
 
     gender: z.enum(['M', 'F']).optional(),
     phone: z.string().optional(),
-    phone_verification_token: z.string().optional(),
-    birthdate: z.string().optional(),
+    birthday: z.string().optional(),
 
-    terms_agreed: z.boolean(),
-    privacy_agreed: z.boolean(),
-    marketing_agreed: z.boolean().optional(),
+    agree_terms: z.boolean(),
+    agree_privacy: z.boolean(),
+    agree_marketing: z.boolean(),
+
+    nickname_check_token: z.string().min(1, '닉네임 중복 확인을 완료해주세요.'),
+    email_verify_token: z.string().min(1, '이메일 인증을 완료해주세요.'),
   })
   .superRefine((v, ctx) => {
     if (v.password !== v.password_confirm) {
@@ -36,17 +37,17 @@ export const SignupRequestSchema = z
         message: '비밀번호가 일치하지 않습니다.',
       })
     }
-    if (!v.terms_agreed) {
+    if (!v.agree_terms) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ['terms_agreed'],
+        path: ['agree_terms'],
         message: '이용약관에 동의해주세요.',
       })
     }
-    if (!v.privacy_agreed) {
+    if (!v.agree_privacy) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ['privacy_agreed'],
+        path: ['agree_privacy'],
         message: '개인정보처리방침에 동의해주세요.',
       })
     }
