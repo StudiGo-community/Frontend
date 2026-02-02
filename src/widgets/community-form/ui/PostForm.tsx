@@ -40,12 +40,14 @@ export default function PostForm() {
     defaultValues: {
       title: '',
       content: '',
-      category: undefined, // thumbnailUrl: null,
+      category: undefined,
+      // thumbnailUrl: null,
       // images: [],
     },
   })
 
   const onSubmit = (data: PostCreateForm) => {
+    // data.content = content
     console.log(data)
   }
 
@@ -61,7 +63,11 @@ export default function PostForm() {
         control={form.control}
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid}>
-            <Select {...field} onValueChange={field.onChange}>
+            <Select
+              {...field}
+              value={field.value || ''}
+              onValueChange={field.onChange}
+            >
               <SelectTrigger
                 aria-invalid={fieldState.invalid}
                 className={cn(
@@ -123,16 +129,11 @@ export default function PostForm() {
         control={form.control}
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid}>
-            {/* TODO: {...field} 수동 연결? */}
-            <TextEditor {...field} aria-invalid={fieldState.invalid} />
-            {/* <Input
+            <TextEditor
               {...field}
               aria-invalid={fieldState.invalid}
-              className={cn(
-                'border-brand-gray-200 mb-7 h-140 w-full rounded-lg border-2',
-                fieldState.error && 'border-brand-error! mb-0'
-              )}
-            /> */}
+              className={cn(fieldState.error && 'border-brand-error mb-0')}
+            />
             {fieldState.error && <FieldError errors={[fieldState.error]} />}
           </Field>
         )}

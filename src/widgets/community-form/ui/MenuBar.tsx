@@ -35,6 +35,7 @@ export default function MenuBar() {
 
   return (
     <div className="flex flex-wrap items-center gap-2 border-b-2 pb-4">
+      {/* 히스토리 */}
       <MenuButton
         onClick={() => editor.chain().focus().undo().run()}
         disabled={!editorState.canUndo}
@@ -50,6 +51,7 @@ export default function MenuBar() {
 
       <Separator orientation="vertical" className="mx-2 h-8" />
 
+      {/* 스타일 초기화 */}
       <MenuButton
         onClick={() => {
           editor.chain().focus().unsetAllMarks().run()
@@ -61,6 +63,7 @@ export default function MenuBar() {
 
       <Separator orientation="vertical" className="mx-2 h-8" />
 
+      {/* 텍스트 스타일 */}
       <MenuButton
         onClick={() => editor.chain().focus().toggleBold().run()}
         disabled={!editorState.canBold}
@@ -101,6 +104,7 @@ export default function MenuBar() {
 
       <Separator orientation="vertical" className="mx-2 h-8" />
 
+      {/* 노드 */}
       <MenuButton
         onClick={() => editor.chain().focus().toggleBulletList().run()}
         isActive={editorState.isBulletList}
@@ -122,6 +126,7 @@ export default function MenuBar() {
 
       <Separator orientation="vertical" className="mx-2 h-8" />
 
+      {/* 헤딩 */}
       <MenuButton
         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
         isActive={editorState.isHeading1}
@@ -141,8 +146,11 @@ export default function MenuBar() {
         <Heading3 />
       </MenuButton>
 
+      {/* 정렬? (왼쪽, 가운데, 오른쪽) */}
+
       <Separator orientation="vertical" className="mx-2 h-8" />
 
+      {/* 구분선 */}
       <MenuButton
         onClick={() => editor.chain().focus().setHorizontalRule().run()}
       >
