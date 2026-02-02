@@ -3,11 +3,13 @@
 import { cn } from '@/shared/lib/cn'
 import { UserIcon } from 'lucide-react'
 import Image from 'next/image'
-import { useChatStore } from '@/entities/chat-room/model/store'
 import { useChatRoomList } from '@/entities/chat-room/api/queries'
 
-function ChatSidebar() {
-  const currentRoomId = useChatStore((state) => state.enteredRoomId)
+interface ChatSidebarProps {
+  roomId: number
+}
+
+function ChatSidebar({ roomId }: ChatSidebarProps) {
   const { data } = useChatRoomList()
   const chatRooms = data?.rooms
 
@@ -23,8 +25,7 @@ function ChatSidebar() {
                 'flex w-full items-center px-4 py-2 transition-colors',
                 'hover:bg-brand-light',
                 {
-                  'bg-brand-side hover:bg-brand-side':
-                    chatRoom.id === currentRoomId,
+                  'bg-brand-side hover:bg-brand-side': chatRoom.id === roomId,
                 }
               )}
               aria-label={`${chatRoom.name} 채팅방으로 이동 버튼`}
@@ -42,7 +43,7 @@ function ChatSidebar() {
                 <span
                   className={cn(
                     'text-brand-gray-400 mb-1 text-sm font-semibold',
-                    { 'text-brand-white': chatRoom.id === currentRoomId }
+                    { 'text-brand-white': chatRoom.id === roomId }
                   )}
                 >
                   {chatRoom.name}
@@ -50,7 +51,7 @@ function ChatSidebar() {
                 <div
                   className={cn(
                     'text-brand-gray-200 flex items-center gap-1 text-xs font-medium',
-                    { 'text-brand-white/80': chatRoom.id === currentRoomId }
+                    { 'text-brand-white/80': chatRoom.id === roomId }
                   )}
                 >
                   <UserIcon size={14} strokeWidth={2} />
