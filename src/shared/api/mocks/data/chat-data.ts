@@ -35,15 +35,25 @@ export const CHAT_ROOMS = [
 ]
 
 const MESSAGE_COUNT = 100
-const MESSAGE_CONTENTS = [
+const KO_MESSAGE_CONTENTS = [
   '안녕하세용',
   '반갑습니당',
-  'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Aliquam rerum dolorum, perspiciatis culpa atque dolore libero itaque voluptates id odio nisi velit officiis, tempore reiciendis, hic commodi explicabo dolores nihil!',
+  '교육은 세상을 바꾸기 위해 사용할 수 있는 가장 강력한 무기입니다. 이 채팅이 모두가 재미있고 효율적으로 스페인어를 배우는 데 도움이 되기를 바랍니다.',
   '오늘 점심은 뭘 먹을까요?',
   '어제 눈이 왔는데 눈사람을 못 만들었어요...',
   '눈사람은 동글동글... 동글동글하다 동글동글한...',
-  '펄이 먹고 싶어서 밀크티를 시켰는데 펄이 없었어요. 그래서 그냥 먹었어요..',
+  '펄이 먹고 싶어서 밀크티를 시켰는데 펄이 없었어요. 그래서 그냥 먹었어요...',
   '오늘은 진짜 일찍 자야지!!!!!!',
+]
+const ES_MESSAGE_CONTENTS = [
+  '¡Holaaa!',
+  '¡Un gusto!',
+  'La educación es el arma más poderosa que puedes usar para cambiar el mundo. Espero que este chat ayude a todos a aprender español de una manera divertida y eficiente.',
+  '¿Qué comemos hoy para el almuerzo?',
+  'Ayer nevó, pero no pude hacer un muñeco de nieve...',
+  'Los muñecos de nieve son redonditos... redonditos, muy redonditos...',
+  'Pedí té con leche porque quería perlas, pero no traía nada. Así que me lo tomé así...',
+  '¡¡¡Hoy sí que me voy a dormir temprano!!!',
 ]
 
 export const MESSAGES = Array.from({ length: MESSAGE_COUNT }, (_, i) => {
@@ -57,7 +67,8 @@ export const MESSAGES = Array.from({ length: MESSAGE_COUNT }, (_, i) => {
       nickname: userId === 1 ? '나' : '다른유저',
       profile_image_url: null,
     },
-    content: MESSAGE_CONTENTS[i % MESSAGE_CONTENTS.length],
+    ko_content: KO_MESSAGE_CONTENTS[i % KO_MESSAGE_CONTENTS.length],
+    es_content: ES_MESSAGE_CONTENTS[i % ES_MESSAGE_CONTENTS.length],
     status: 'SENT',
     created_at: new Date(Date.now() - i * 60000).toISOString(),
   }
@@ -75,7 +86,8 @@ export const SOCKET_MESSAGES = Array.from(
       nickname: '웹소켓',
       profile_image_url: null,
     },
-    content: `웹소켓에서 수신한 ${i + 1}번째 메세지 입니다.`,
+    ko_content: `웹소켓에서 수신한 ${i + 1}번째 메세지 입니다.`,
+    es_content: `Este es el mensaje número ${i + 1} recibido por WebSocket.`,
     status: 'SENT',
     created_at: new Date(
       new Date(MESSAGES[0].created_at).getTime() + (i + 1) * 60000

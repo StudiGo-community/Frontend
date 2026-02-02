@@ -22,7 +22,7 @@ function SentMessage({ message }: SentMessageProps) {
           }
         )}
       >
-        {isBlindMessage ? '블라인드 처리된 메시지입니다.' : message.content}
+        {isBlindMessage ? '블라인드 처리된 메시지입니다.' : message.esContent}
       </span>
     </li>
   )

@@ -15,8 +15,8 @@ function useTts() {
       utterance.voice = voice
     }
     utterance.lang = isKorean ? 'ko-KR' : 'es-ES'
-    utterance.rate = 1.1
-    utterance.pitch = 0.8
+    utterance.rate = isKorean ? 1.3 : 1.0
+    utterance.pitch = isKorean ? 0.8 : 1.0
 
     speechSynthesis.speak(utterance)
   }
