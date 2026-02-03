@@ -1,11 +1,12 @@
 'use client'
 
-import { LogOutIcon, UserIcon } from 'lucide-react'
+import { Loader2Icon, LogOutIcon, UserIcon } from 'lucide-react'
 import Image from 'next/image'
 import { useChatRoomList } from '@/entities/chat-room/api/queries'
 import Loading from '@/shared/ui/Loading'
 import Error from '@/shared/ui/Error'
 import { Button } from '@/shared/ui/Button'
+import useExitChat from '@/features/chat-room-exit/lib/useExitChat'
 
 interface ChatHeaderProps {
   enteredRoomId: number
@@ -15,6 +16,7 @@ const HEADER_STATUS_LAYOUT = 'border-b-brand-gray-200 border-b py-9'
 
 function ChatHeader({ enteredRoomId }: ChatHeaderProps) {
   const { data, isLoading, error } = useChatRoomList()
+  const { exit, isExitPending } = useExitChat()
   const currentRoom = data?.rooms.find((room) => room.id === enteredRoomId)
 
   if (isLoading) return <Loading className={HEADER_STATUS_LAYOUT} />
@@ -53,15 +55,20 @@ function ChatHeader({ enteredRoomId }: ChatHeaderProps) {
           <span>{currentRoom?.participantCount} 참여중</span>
         </div>
       </div>
-      {/* TODO: 채팅방 퇴장 API 연결하기 */}
       <Button
         type="button"
         variant="secondary"
         size="sm"
         className="bg-brand-black/80 mt-1 self-start"
+        onClick={() => exit(enteredRoomId)}
         aria-label="채팅방 퇴장"
+        disabled={isExitPending}
       >
-        <LogOutIcon className="" />
+        {isExitPending ? (
+          <Loader2Icon className="animate-spin" />
+        ) : (
+          <LogOutIcon />
+        )}
       </Button>
     </div>
   )
