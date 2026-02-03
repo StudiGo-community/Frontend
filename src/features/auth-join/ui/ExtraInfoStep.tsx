@@ -1,147 +1,141 @@
 'use client'
 
-import type { ChangeEvent, ReactNode } from 'react'
-import { Button } from '@/shared/ui/Button'
+import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
+import { isAxiosError } from 'axios'
+
+import type {
+  GenderUI,
+  JoinFormState,
+} from '@/features/auth-join/ui/JoinFunnel'
 import { Input } from '@/shared/ui/input'
+import { Button } from '@/shared/ui/Button'
 import { Dropdown } from '@/shared/ui/dropdown/Dropdown'
-import type { JoinFormState } from '@/features/auth-join/ui/JoinFunnel'
+import { useNicknameCheckMutation } from '@/features/auth-join/api/use-nickname-check-mutation'
 
-const NICKNAME_REGEX = /^[가-힣a-zA-Z0-9]+$/
-
-const BANNED_WORDS = [
-  '씨발',
-  '개새끼',
-  '관리자',
-  '운영진',
-  '씨',
-  '개새',
-] as const
-
-function nicknameChecks(nickname: string) {
-  const lower = nickname.toLowerCase()
-
-  return {
-    length: nickname.length >= 2 && nickname.length <= 12,
-    charset: NICKNAME_REGEX.test(nickname),
-    banned: BANNED_WORDS.some((word) => lower.includes(word.toLowerCase())),
-  }
+interface ApiErrorBody {
+  detail?: string
+  error_detail?: string
 }
 
-function formatBirth(input: string) {
-  const digits = input.replace(/\D/g, '').slice(0, 8)
-
-  const year = digits.slice(0, 4)
-  const month = digits.slice(4, 6)
-  const day = digits.slice(6, 8)
-
-  if (digits.length <= 4) return year
-  if (digits.length <= 6) return `${year}-${month}`
-  return `${year}-${month}-${day}`
-}
-
-export function ExtraInfoStep(props: {
-  value: JoinFormState
-  onChange: (patch: Partial<JoinFormState>) => void
-}) {
-  const formValue = props.value
-
-  const nickname = formValue.nickname
-  const nicknameTouched = nickname.length > 0
-  const nicknameRule = nicknameChecks(nickname)
-
-  const nicknameOk =
-    nicknameRule.length && nicknameRule.charset && !nicknameRule.banned
-
-  const ruleClass = (ok: boolean) => {
-    if (!nicknameTouched) return 'text-brand-gray-300'
-    return ok ? '!text-brand-green' : '!text-brand-error'
-  }
-
-  const onBirthChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const next = formatBirth(e.target.value)
-    props.onChange({ birth: next })
-  }
-
+const getErrorMessage = (error: unknown, fallback: string) => {
+  if (!isAxiosError<ApiErrorBody>(error)) return fallback
   return (
-    <div className="space-y-5">
-      <Field label="닉네임">
-        <div className="flex gap-2">
-          <Input
-            size="sm"
-            placeholder="닉네임을 입력해주세요."
-            value={nickname}
-            onChange={(e) => props.onChange({ nickname: e.target.value })}
-          />
-          <Button
-            type="button"
-            size="reg"
-            variant="secondary"
-            className="h-12 w-28"
-            disabled={!nicknameOk}
-          >
-            중복 확인
-          </Button>
-        </div>
-
-        <ul className="mt-2 space-y-1 text-xs">
-          <li className={ruleClass(nicknameRule.length)}>
-            ✓ 최소 2글자, 최대 12글자
-          </li>
-          <li className={ruleClass(nicknameRule.charset)}>
-            ✓ 한글, 영문, 숫자만 사용 가능(공백 및 특수문자 불가)
-          </li>
-          <li className={ruleClass(!nicknameRule.banned)}>
-            ✓ 금지어 포함 불가
-          </li>
-        </ul>
-
-        {nicknameTouched && nicknameRule.banned && (
-          <p className="text-brand-error mt-1 text-sm">
-            사용할 수 없는 단어가 포함되어 있습니다.
-          </p>
-        )}
-
-        {nicknameTouched && nicknameOk && (
-          <p className="text-brand-green mt-1 text-sm">
-            사용 가능한 닉네임입니다.
-          </p>
-        )}
-      </Field>
-
-      <Field label="생년월일">
-        <Input
-          size="sm"
-          placeholder="YYYY-MM-DD"
-          value={formValue.birth}
-          onChange={onBirthChange}
-          inputMode="numeric"
-        />
-      </Field>
-
-      <Field label="성별">
-        <Dropdown
-          value={formValue.gender}
-          onValueChange={(value) => props.onChange({ gender: value })}
-        >
-          <Dropdown.Trigger size="lg">
-            <Dropdown.Value placeholder="성별을 선택해주세요." />
-          </Dropdown.Trigger>
-
-          <Dropdown.Content>
-            <Dropdown.Item value="MALE">남성</Dropdown.Item>
-            <Dropdown.Item value="FEMALE">여성</Dropdown.Item>
-          </Dropdown.Content>
-        </Dropdown>
-      </Field>
-    </div>
+    error.response?.data?.detail ??
+    error.response?.data?.error_detail ??
+    fallback
   )
 }
 
-function Field(props: { label: string; children: ReactNode }) {
+export interface ExtraInfoStepProps {
+  value: JoinFormState
+  onChange: (patch: Partial<JoinFormState>) => void
+}
+
+export const ExtraInfoStep = ({ value, onChange }: ExtraInfoStepProps) => {
+  const [nicknameErrorMessage, setNicknameErrorMessage] = useState<
+    string | null
+  >(null)
+
+  const canCheckNickname = useMemo(() => {
+    return Boolean(value.nickname) && !value.nicknameVerified
+  }, [value.nickname, value.nicknameVerified])
+
+  const nicknameCheckMutation = useNicknameCheckMutation(value.nickname)
+
+  const today = useMemo(() => new Date().toISOString().slice(0, 10), [])
+
   return (
-    <div className="space-y-1">
-      <label className="text-brand-gray-500 text-sm">{props.label}</label>
-      {props.children}
+    <div className="flex flex-col gap-4">
+      <div>
+        <label className="text-sm">닉네임</label>
+
+        <div className="mt-1 flex gap-2">
+          <Input
+            value={value.nickname}
+            onChange={(event) => {
+              setNicknameErrorMessage(null)
+              onChange({
+                nickname: event.target.value,
+                nicknameVerified: false,
+                nicknameCheckToken: '',
+              })
+            }}
+            placeholder="닉네임을 입력해 주세요"
+          />
+
+          <Button
+            type="button"
+            variant="outline"
+            disabled={!canCheckNickname || nicknameCheckMutation.isPending}
+            onClick={async () => {
+              try {
+                const data = await nicknameCheckMutation.mutateAsync()
+                onChange({
+                  nicknameVerified: true,
+                  nicknameCheckToken: data.check_token,
+                })
+                setNicknameErrorMessage(null)
+                toast.success(data.message || '사용 가능한 닉네임입니다.')
+              } catch (error: unknown) {
+                onChange({ nicknameVerified: false, nicknameCheckToken: '' })
+                const message = getErrorMessage(
+                  error,
+                  '이미 사용 중인 닉네임입니다.'
+                )
+                setNicknameErrorMessage(message)
+                toast.error(message)
+              }
+            }}
+          >
+            중복확인
+          </Button>
+        </div>
+
+        {value.nicknameVerified && !nicknameErrorMessage && (
+          <p className="text-brand-green mt-1 text-xs">
+            사용 가능한 닉네임입니다.
+          </p>
+        )}
+        {nicknameErrorMessage && (
+          <p className="text-brand-error mt-1 text-xs">
+            {nicknameErrorMessage}
+          </p>
+        )}
+      </div>
+
+      <div>
+        <label className="text-sm">생년월일</label>
+        <div className="mt-1">
+          <Input
+            type="date"
+            value={value.birth}
+            max={today}
+            onChange={(event) => onChange({ birth: event.target.value })}
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="text-sm">성별</label>
+        <div className="mt-1">
+          <Dropdown
+            value={value.gender || undefined}
+            onValueChange={(selectedValue) =>
+              onChange({ gender: selectedValue as GenderUI })
+            }
+          >
+            <Dropdown.Trigger size="md">
+              <Dropdown.Value placeholder="성별을 선택해 주세요" />
+            </Dropdown.Trigger>
+
+            <Dropdown.Content>
+              <Dropdown.Item value="MALE">남성</Dropdown.Item>
+              <Dropdown.Item value="FEMALE">여성</Dropdown.Item>
+            </Dropdown.Content>
+          </Dropdown>
+        </div>
+      </div>
     </div>
   )
 }

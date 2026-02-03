@@ -12,11 +12,14 @@ export interface FunnelProps {
   children: Array<ReactElement<StepProps>>
 }
 
-export function Step({ children }: StepProps): ReactElement {
+export const Step = ({ children }: StepProps): ReactElement => {
   return <>{children}</>
 }
 
-export function Funnel({ step, children }: FunnelProps): ReactElement | null {
+export const Funnel = ({
+  step,
+  children,
+}: FunnelProps): ReactElement | null => {
   const target = children.find((child) => child.props.name === step)
   if (!target) return null
   return <>{target.props.children}</>

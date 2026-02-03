@@ -7,8 +7,9 @@ export const NicknameCheckRequestSchema = z.object({
 export type NicknameCheckRequest = z.infer<typeof NicknameCheckRequestSchema>
 
 export const NicknameCheckResponseSchema = z.object({
-  available: z.boolean(),
   message: z.string(),
+  check_token: z.string(),
+  expires_in: z.number(),
 })
 export type NicknameCheckResponse = z.infer<typeof NicknameCheckResponseSchema>
 

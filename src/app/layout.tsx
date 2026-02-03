@@ -5,6 +5,7 @@ import Footer from '@/shared/ui/Footer'
 import { Toaster } from '@/shared/ui/Toaster'
 import Providers from '@/app/providers'
 import { HeaderWrapper } from '@/widgets/auth-header/ui/HeaderWrapper'
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 
 export const metadata: Metadata = {
   title: 'StudiGo',
@@ -25,14 +26,16 @@ const RootLayout = ({
   return (
     <html lang="ko" className={`${pretendard.variable} antialiased`}>
       <body className="font-pretendard flex min-h-screen flex-col">
-        <Providers>
-          <HeaderWrapper />
-          <main className="mx-auto w-full max-w-7xl flex-1 space-y-6 px-4 py-10">
-            {children}
-          </main>
-          <Footer />
-          <Toaster position="top-right" duration={1500} />
-        </Providers>
+        <NuqsAdapter>
+          <Providers>
+            <HeaderWrapper />
+            <main className="mx-auto w-full max-w-7xl flex-1 space-y-6 px-4 py-10">
+              {children}
+            </main>
+            <Footer />
+            <Toaster position="top-right" duration={1500} />
+          </Providers>
+        </NuqsAdapter>
       </body>
     </html>
   )
