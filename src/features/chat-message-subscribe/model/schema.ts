@@ -8,34 +8,36 @@ export const ChatSocketEventTypeSchema = z.enum([
 
 export type ChatSocketEventType = z.infer<typeof ChatSocketEventTypeSchema>
 
-// ---------- NEW_MESSAGE ----------
-export const ChatSocketNewMessageEventSchema = z
-  .object({
-    type: ChatSocketEventTypeSchema,
-    message: ChatMessageSchema,
-  })
-  .transform((data) => ({
-    type: data.type,
-    message: data.message,
-  }))
+export const ChatSocketEventSchema = z.discriminatedUnion('type', [
+  // ---------- NEW_MESSAGE ----------
+  z
+    .object({ type: z.literal('NEW_MESSAGE'), message: ChatMessageSchema })
+    .transform((data) => ({
+      type: data.type,
+      message: data.message,
+    })),
+  // ---------- MESSAGE_DELETED ----------
+  z
+    .object({
+      type: z.literal('MESSAGE_DELETED'),
+      room_id: z.number(),
+      message_id: z.number(),
+    })
+    .transform((data) => ({
+      type: data.type,
+      roomId: data.room_id,
+      messageId: data.message_id,
+    })),
+])
 
-export type ChatSocketNewMessageEvent = z.infer<
-  typeof ChatSocketNewMessageEventSchema
+export type ChatSocketEvent = z.infer<typeof ChatSocketEventSchema>
+
+export type ChatSocketNewMessageEvent = Extract<
+  ChatSocketEvent,
+  { type: 'NEW_MESSAGE' }
 >
 
-// ---------- MESSAGE_DELETED ----------
-export const ChatSocketMessageDeletedEventSchema = z
-  .object({
-    type: ChatSocketEventTypeSchema,
-    room_id: z.number(),
-    message_id: z.number(),
-  })
-  .transform((data) => ({
-    type: data.type,
-    roomId: data.room_id,
-    messageId: data.message_id,
-  }))
-
-export type ChatSocketMessageDeletedEvent = z.infer<
-  typeof ChatSocketMessageDeletedEventSchema
+export type ChatSocketMessageDeletedEvent = Extract<
+  ChatSocketEvent,
+  { type: 'MESSAGE_DELETED' }
 >
