@@ -55,16 +55,17 @@ const ES_MESSAGE_CONTENTS = [
   'Pedí té con leche porque quería perlas, pero no traía nada. Así que me lo tomé así...',
   '¡¡¡Hoy sí que me voy a dormir temprano!!!',
 ]
+const USER_ID = 3
 
 export const MESSAGES = Array.from({ length: MESSAGE_COUNT }, (_, i) => {
-  const userId = Math.floor(Math.random() * 2) + 1
+  const userId = Math.floor(Math.random() * 10) + 1
 
   return {
     id: i + 1,
     sender_user_id: userId,
     sender: {
       id: userId,
-      nickname: userId === 1 ? '나' : '다른유저',
+      nickname: userId === USER_ID ? '나' : '다른유저',
       profile_image_url: null,
     },
     ko_content: KO_MESSAGE_CONTENTS[i % KO_MESSAGE_CONTENTS.length],
@@ -80,9 +81,9 @@ export const SOCKET_MESSAGES = Array.from(
   { length: SOCKET_MESSAGE_COUNT },
   (_, i) => ({
     id: MESSAGES.length + i + 1,
-    sender_user_id: 3,
+    sender_user_id: USER_ID + 1,
     sender: {
-      id: 3,
+      id: USER_ID + 1,
       nickname: '웹소켓',
       profile_image_url: null,
     },

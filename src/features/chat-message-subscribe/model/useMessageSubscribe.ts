@@ -8,7 +8,7 @@ function useMessageSubscribe(
   accessToken: string | null
 ) {
   const { connect } = useChatSocketStore()
-  const { handleNewMessage } = useMessageCacheHandler()
+  const { handleNewMessage, handleMessageDeleted } = useMessageCacheHandler()
 
   // 수신 데이터 파싱 → 이벤트 타입에 따라 적절한 캐시 업데이트 함수 실행
   const handleSocketMessage = useCallback(
@@ -16,17 +16,21 @@ function useMessageSubscribe(
       try {
         const data = JSON.parse(event.data)
         const parsedData = ChatSocketEventSchema.parse(data)
-        const { type, payload } = parsedData
+        const { type } = parsedData
 
         switch (type) {
           case 'NEW_MESSAGE':
-            handleNewMessage(roomId, payload)
+            handleNewMessage(roomId, parsedData.message)
+            break
+          case 'MESSAGE_DELETED':
+            handleMessageDeleted(roomId, parsedData.messageId)
+            break
         }
       } catch (error) {
         console.error(`[Socket Error] 채팅방 번호: ${roomId}\n`, error)
       }
     },
-    [handleNewMessage, roomId]
+    [handleMessageDeleted, handleNewMessage, roomId]
   )
 
   useEffect(() => {
