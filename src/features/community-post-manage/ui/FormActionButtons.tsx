@@ -28,7 +28,7 @@ export default function FormActionButtons({
         disabled={isSubmitting}
         className="disabled:bg-brand-gray-200 text-md bg-brand-black px-10 py-6 font-bold text-white transition-all"
       >
-        등록하기
+        {isSubmitting ? '등록 중...' : '등록하기'}
       </Button>
     </div>
   )

@@ -31,6 +31,12 @@ export function menuBarStateSelector(ctx: EditorStateSnapshot<Editor>) {
     isHeading1: ctx.editor.isActive('heading', { level: 1 }) ?? false,
     isHeading2: ctx.editor.isActive('heading', { level: 2 }) ?? false,
     isHeading3: ctx.editor.isActive('heading', { level: 3 }) ?? false,
+
+    // 정렬
+    isAlignLeft: ctx.editor.isActive({ textAlign: 'left' }) ?? false,
+    isAlignCenter: ctx.editor.isActive({ textAlign: 'center' }) ?? false,
+    isAlignRight: ctx.editor.isActive({ textAlign: 'right' }) ?? false,
+    isAlignJustify: ctx.editor.isActive({ textAlign: 'justify' }) ?? false,
   }
 }
 

@@ -5,6 +5,10 @@ import { menuBarStateSelector } from './menuBarState'
 import MenuButton from './MenuButton'
 import { Separator } from '@/shared/ui/Separator'
 import {
+  AlignCenter,
+  AlignJustify,
+  AlignLeft,
+  AlignRight,
   Bold,
   Eraser,
   Heading1,
@@ -13,6 +17,7 @@ import {
   Highlighter,
   ImageIcon,
   Italic,
+  // Link,
   List,
   ListOrdered,
   Minus,
@@ -23,6 +28,7 @@ import {
   UnderlineIcon,
   Undo2,
 } from 'lucide-react'
+import HyperLink from '@/shared/ui/text-editor/HyperLink'
 
 export default function MenuBar() {
   const { editor, isReady } = useTiptap()
@@ -145,7 +151,33 @@ export default function MenuBar() {
         <Heading3 />
       </MenuButton>
 
-      {/* 정렬? (왼쪽, 가운데, 오른쪽) */}
+      <Separator orientation="vertical" className="mx-2 h-8" />
+
+      {/* 정렬 */}
+      <MenuButton
+        onClick={() => editor.chain().focus().setTextAlign('left').run()}
+        isActive={editorState.isAlignLeft}
+      >
+        <AlignLeft />
+      </MenuButton>
+      <MenuButton
+        onClick={() => editor.chain().focus().setTextAlign('center').run()}
+        isActive={editorState.isAlignCenter}
+      >
+        <AlignCenter />
+      </MenuButton>
+      <MenuButton
+        onClick={() => editor.chain().focus().setTextAlign('right').run()}
+        isActive={editorState.isAlignRight}
+      >
+        <AlignRight />
+      </MenuButton>
+      <MenuButton
+        onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+        isActive={editorState.isAlignJustify}
+      >
+        <AlignJustify />
+      </MenuButton>
 
       <Separator orientation="vertical" className="mx-2 h-8" />
 
@@ -159,7 +191,7 @@ export default function MenuBar() {
       <Separator orientation="vertical" className="mx-2 h-8" />
 
       {/* 링크 (스타터키트에 있음), 이미지, 유튜브 추가 */}
-      {/* TODO: 링크 추가 */}
+      <HyperLink editor={editor} />
 
       {/* TODO: 이미지 업로드 기능 추가 */}
       <MenuButton

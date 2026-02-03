@@ -1,12 +1,30 @@
+import { ComponentProps, useEffect } from 'react'
+import { cva } from 'class-variance-authority'
 import { Tiptap, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Highlight from '@tiptap/extension-highlight'
+import TextAlign from '@tiptap/extension-text-align'
 import Image from '@tiptap/extension-image'
 import Youtube from '@tiptap/extension-youtube'
+import Placeholder from '@tiptap/extension-placeholder'
 import { cn } from '@/shared/lib/cn'
-import MenuBar from './MenuBar'
-import WordCount from './WordCount'
-import { ComponentProps, useEffect } from 'react'
+import MenuBar from '@/shared/ui/text-editor/MenuBar'
+import WordCount from '@/shared/ui/text-editor/WordCount'
+import { linkConfigure } from '@/shared/ui/text-editor/HyperLink'
+
+const editorContentStyles = cva([
+  // 기본
+  'min-h-140 max-w-none px-4 py-8',
+  'prose dark:prose-invert',
+  'focus:outline-none',
+
+  // Placeholder
+  '[&_.is-editor-empty:first-child::before]:text-brand-gray-300',
+  '[&_.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]',
+  '[&_.is-editor-empty:first-child::before]:float-left',
+  '[&_.is-editor-empty:first-child::before]:h-0',
+  '[&_.is-editor-empty:first-child::before]:pointer-events-none',
+])
 
 interface TextEditorProps extends Omit<ComponentProps<'div'>, 'onChange'> {
   value?: string
@@ -29,15 +47,21 @@ export default function TextEditor({
           class: 'bg-brand-side py-[3px]',
         },
       }),
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
+      linkConfigure,
       Image,
       Youtube,
+      Placeholder.configure({
+        placeholder: '내용을 입력하세요...',
+      }),
     ],
     content: value,
     immediatelyRender: false,
     editorProps: {
       attributes: {
-        class:
-          'min-h-140 py-8 px-4 focus:outline-none prose dark:prose-invert max-w-none',
+        class: editorContentStyles(),
       },
     },
     // 텍스트 에디터 내부에서 내용 변경할 때
