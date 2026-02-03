@@ -41,3 +41,10 @@ export const ChatRoomEnterResponseSchema = z.object({
 })
 
 export type ChatRoomEnterResponse = z.infer<typeof ChatRoomEnterResponseSchema>
+
+// ---------- 채팅방 퇴장 ----------
+export const ChatRoomExitResponseSchema = z.object({
+  message: z.string(),
+})
+
+export type ChatRoomExitResponse = z.infer<typeof ChatRoomExitResponseSchema>
