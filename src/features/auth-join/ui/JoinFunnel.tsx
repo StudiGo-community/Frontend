@@ -115,7 +115,7 @@ const toGender = (value: GenderUI | ''): SignupGender | undefined => {
   return undefined
 }
 
-const canProceedStep = (step: StepName, form: JoinFormState) => {
+const canGoNext = (step: StepName, form: JoinFormState) => {
   if (step === 'emailPassword') {
     return Boolean(
       form.email &&
@@ -146,11 +146,12 @@ const canProceedStep = (step: StepName, form: JoinFormState) => {
   return false
 }
 
-const getAllowedStep = (
+const maxAllowedStep = (
   form: JoinFormState
 ): Exclude<StepName, 'start' | 'done'> => {
-  if (!canProceedStep('emailPassword', form)) return 'emailPassword'
-  if (!canProceedStep('profileTerms', form)) return 'profileTerms'
+  if (!canGoNext('emailPassword', form)) return 'emailPassword'
+  if (!canGoNext('profileTerms', form)) return 'profileTerms'
+  if (!canGoNext('extraInfo', form)) return 'extraInfo'
   return 'extraInfo'
 }
 
@@ -189,7 +190,6 @@ export const JoinFunnel = () => {
   const currentStep = (stepParam ?? 'start') as StepName
 
   const [form, setForm] = useState<JoinFormState>(INITIAL_JOIN_FORM_STATE)
-
   const [isHydrated, setIsHydrated] = useState(false)
 
   const isSubmittingRef = useRef(false)
@@ -218,7 +218,7 @@ export const JoinFunnel = () => {
     })
   }
 
-  const resetToStart = () => {
+  const goStartAndClear = () => {
     clearStoredJoinState()
     setForm(INITIAL_JOIN_FORM_STATE)
     setStepParam('start', { history: 'replace' })
@@ -237,12 +237,13 @@ export const JoinFunnel = () => {
     if (stored) {
       setForm(stored.form)
 
-      const allowed = getAllowedStep(stored.form)
-      const storedIndex = STEP_ORDER.indexOf(stored.step)
-      const allowedIndex = STEP_ORDER.indexOf(allowed)
+      const allowed = maxAllowedStep(stored.form)
+      const desired =
+        STEP_ORDER.indexOf(stored.step) > STEP_ORDER.indexOf(allowed)
+          ? allowed
+          : stored.step
 
-      const normalizedStep = storedIndex > allowedIndex ? allowed : stored.step
-      setStepParam(normalizedStep, { history: 'replace' })
+      setStepParam(desired, { history: 'replace' })
       setIsHydrated(true)
       return
     }
@@ -250,7 +251,7 @@ export const JoinFunnel = () => {
     setForm(INITIAL_JOIN_FORM_STATE)
     setStepParam('start', { history: 'replace' })
     setIsHydrated(true)
-    // 최초 마운트 시에만 세션스토리지 복구
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -258,12 +259,10 @@ export const JoinFunnel = () => {
     if (!isHydrated) return
     if (currentStep === 'start' || currentStep === 'done') return
 
-    const allowed = getAllowedStep(form)
-    const currentIndex = STEP_ORDER.indexOf(currentStep)
-    const allowedIndex = STEP_ORDER.indexOf(allowed)
+    const allowed = maxAllowedStep(form)
 
     const normalizedStep =
-      currentIndex > allowedIndex
+      STEP_ORDER.indexOf(currentStep) > STEP_ORDER.indexOf(allowed)
         ? allowed
         : (currentStep as StoredJoinState['step'])
 
@@ -274,7 +273,7 @@ export const JoinFunnel = () => {
     if (!isHydrated) return
     if (currentStep === 'start' || currentStep === 'done') return
 
-    const allowed = getAllowedStep(form)
+    const allowed = maxAllowedStep(form)
     const currentIndex = STEP_ORDER.indexOf(currentStep)
     const allowedIndex = STEP_ORDER.indexOf(allowed)
 
@@ -284,16 +283,16 @@ export const JoinFunnel = () => {
     }
   }, [isHydrated, currentStep, form, setStepParam])
 
-  const goNext = () => {
+  const next = () => {
     const currentIndex = STEP_ORDER.indexOf(currentStep)
     const nextStep =
       STEP_ORDER[Math.min(currentIndex + 1, STEP_ORDER.length - 1)]
     setStepParam(nextStep, { history: 'push' })
   }
 
-  const goPrev = () => {
+  const prev = () => {
     if (currentStep === 'emailPassword') {
-      resetToStart()
+      goStartAndClear()
       return
     }
     const currentIndex = STEP_ORDER.indexOf(currentStep)
@@ -302,24 +301,15 @@ export const JoinFunnel = () => {
   }
 
   const canProceedNext = useMemo(
-    () => canProceedStep(currentStep, form),
+    () => canGoNext(currentStep, form),
     [currentStep, form]
   )
 
   const signupEmailMutation = useSignupEmailMutation()
 
-  const submitJoin = async () => {
+  const onClickSubmit = async () => {
     if (signupEmailMutation.isPending) return
     if (isSubmittingRef.current) return
-
-    if (!form.emailVerifyToken) {
-      toast.error('이메일 인증을 완료해주세요.')
-      return
-    }
-    if (!form.nicknameCheckToken) {
-      toast.error('닉네임 중복확인을 완료해주세요.')
-      return
-    }
 
     isSubmittingRef.current = true
 
@@ -349,6 +339,7 @@ export const JoinFunnel = () => {
       clearStoredJoinState()
       setStepParam('done', { history: 'replace' })
     } catch (error: unknown) {
+      console.error('[signup error]', error)
       toast.error(getErrorMessage(error, '회원가입에 실패했습니다.'))
     } finally {
       isSubmittingRef.current = false
@@ -363,7 +354,6 @@ export const JoinFunnel = () => {
             onKakao={() => {}}
             onGoogle={() => {}}
             onStartEmail={() => {
-              // start에서 이메일 회원가입 시작은 항상 초기화 정책 유지
               clearStoredJoinState()
               setForm(INITIAL_JOIN_FORM_STATE)
               setStepParam('emailPassword', { history: 'push' })
@@ -398,21 +388,17 @@ export const JoinFunnel = () => {
             variant="outline"
             className="h-12 w-30"
             disabled={signupEmailMutation.isPending}
-            onClick={goPrev}
+            onClick={prev}
           >
             이전
           </Button>
 
           <Button
-            className={`h-12 flex-1 ${
-              !canProceedNext || signupEmailMutation.isPending
-                ? 'pointer-events-none opacity-50'
-                : ''
-            }`}
+            className="h-12 flex-1"
             disabled={!canProceedNext || signupEmailMutation.isPending}
             onClick={() => {
-              if (currentStep === 'extraInfo') void submitJoin()
-              else goNext()
+              if (currentStep === 'extraInfo') void onClickSubmit()
+              else next()
             }}
           >
             {currentStep === 'extraInfo'
