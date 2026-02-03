@@ -1,15 +1,13 @@
-import PostForm from '@/features/community/post/components/PostForm'
+import PostForm from '@/features/community-post-manage/ui/PostForm'
 
-export default function PostCreate() {
+export default async function Page() {
   return (
-    <div className="min-h-screen bg-white">
-      <div className="mx-auto max-w-300 px-6 py-8">
-        <header className="mb-0 flex items-center justify-between border-b pb-6">
-          <h1 className="text-brand-black text-3xl font-black">게시글 작성</h1>
-        </header>
+    <>
+      <h1 className="text-brand-black border-brand-gray-200 mt-4 border-b pb-6 text-4xl font-extrabold">
+        게시글 작성
+      </h1>
 
-        <PostForm />
-      </div>
-    </div>
+      <PostForm />
+    </>
   )
 }
