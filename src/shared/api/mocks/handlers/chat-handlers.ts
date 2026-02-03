@@ -143,7 +143,7 @@ const chatSocketHandlers = [
       await new Promise((resolve) =>
         setTimeout(resolve, 1000 * index + 1)
       ).then(() =>
-        client.send(JSON.stringify({ type: 'NEW_MESSAGE', payload: message }))
+        client.send(JSON.stringify({ type: 'NEW_MESSAGE', message }))
       )
     })
 

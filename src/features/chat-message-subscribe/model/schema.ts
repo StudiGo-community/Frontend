@@ -5,14 +5,17 @@ export const ChatSocketEventTypeSchema = z.enum(['NEW_MESSAGE'])
 
 export type ChatSocketEventType = z.infer<typeof ChatSocketEventTypeSchema>
 
-export const ChatSocketEventSchema = z
+// ---------- NEW_MESSAGE ----------
+export const ChatSocketNewMessageEventSchema = z
   .object({
     type: ChatSocketEventTypeSchema,
-    payload: ChatMessageSchema,
+    message: ChatMessageSchema,
   })
   .transform((data) => ({
     type: data.type,
-    payload: data.payload,
+    message: data.message,
   }))
 
-export type ChatSocketEvent = z.infer<typeof ChatSocketEventSchema>
+export type ChatSocketNewMessageEvent = z.infer<
+  typeof ChatSocketNewMessageEventSchema
+>

@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react'
-import { ChatSocketEventSchema } from '@/features/chat-message-subscribe/model/schema'
+import { ChatSocketNewMessageEventSchema } from '@/features/chat-message-subscribe/model/schema'
 import useMessageCacheHandler from '@/entities/message/model/useMessageCacheHandler'
 import { useChatSocketStore } from '@/features/chat-message-subscribe/model/store'
 
@@ -15,12 +15,12 @@ function useMessageSubscribe(
     (event: MessageEvent) => {
       try {
         const data = JSON.parse(event.data)
-        const parsedData = ChatSocketEventSchema.parse(data)
-        const { type, payload } = parsedData
+        const parsedData = ChatSocketNewMessageEventSchema.parse(data)
+        const { type, message } = parsedData
 
         switch (type) {
           case 'NEW_MESSAGE':
-            handleNewMessage(roomId, payload)
+            handleNewMessage(roomId, message)
         }
       } catch (error) {
         console.error(`[Socket Error] 채팅방 번호: ${roomId}\n`, error)
