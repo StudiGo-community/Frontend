@@ -7,7 +7,7 @@ function useMessageSubscribe(
   roomId: number | null,
   accessToken: string | null
 ) {
-  const { connect } = useChatSocketStore()
+  const connect = useChatSocketStore((state) => state.connect)
   const { handleNewMessage, handleMessageDeleted } = useMessageCacheHandler()
 
   // 수신 데이터 파싱 → 이벤트 타입에 따라 적절한 캐시 업데이트 함수 실행
@@ -34,8 +34,7 @@ function useMessageSubscribe(
   )
 
   useEffect(() => {
-    if (!roomId) return
-    if (!accessToken) return
+    if (!roomId || !accessToken) return
 
     const socket = connect(roomId, accessToken)
     socket.addEventListener('message', handleSocketMessage)
