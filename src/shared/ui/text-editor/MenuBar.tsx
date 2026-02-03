@@ -1,6 +1,5 @@
 'use client'
 
-// TODO: 컴포넌트 분리 후 경로 수정
 import { useTiptap, useTiptapState } from '@tiptap/react'
 import { menuBarStateSelector } from './menuBarState'
 import MenuButton from './MenuButton'

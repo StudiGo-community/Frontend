@@ -1,8 +1,8 @@
 'use client'
 
+import { ReactNode } from 'react'
 import { cn } from '@/shared/lib/cn'
 import { Button } from '@/shared/ui/Button'
-import { ReactNode } from 'react'
 
 interface MenuButtonProps {
   children: ReactNode

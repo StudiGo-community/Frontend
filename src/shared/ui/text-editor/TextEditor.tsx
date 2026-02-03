@@ -3,10 +3,10 @@ import StarterKit from '@tiptap/starter-kit'
 import Highlight from '@tiptap/extension-highlight'
 import Image from '@tiptap/extension-image'
 import Youtube from '@tiptap/extension-youtube'
+import { cn } from '@/shared/lib/cn'
 import MenuBar from './MenuBar'
 import WordCount from './WordCount'
-import { ComponentProps } from 'react'
-import { cn } from '@/shared/lib/cn'
+import { ComponentProps, useEffect } from 'react'
 
 interface TextEditorProps extends Omit<ComponentProps<'div'>, 'onChange'> {
   value?: string
@@ -40,6 +40,7 @@ export default function TextEditor({
           'min-h-140 py-8 px-4 focus:outline-none prose dark:prose-invert max-w-none',
       },
     },
+    // 텍스트 에디터 내부에서 내용 변경할 때
     onUpdate: ({ editor }) => {
       if (editor.isEmpty) {
         onChange?.('')
@@ -52,6 +53,15 @@ export default function TextEditor({
       onBlur?.()
     },
   })
+
+  // 텍스트 에디터 외부에서 변경한 내용을 안에 적용할 때
+  useEffect(() => {
+    if (!editor) return
+
+    if (value === '' && !editor.isEmpty) {
+      editor.commands.setContent('')
+    }
+  }, [editor, value])
 
   const isInvalid = props['aria-invalid'] === true
 

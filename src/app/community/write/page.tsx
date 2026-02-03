@@ -1,4 +1,4 @@
-import PostForm from '@/widgets/community-form/ui/PostForm'
+import PostForm from '@/features/community-post-manage/ui/PostForm'
 
 export default async function Page() {
   return (
