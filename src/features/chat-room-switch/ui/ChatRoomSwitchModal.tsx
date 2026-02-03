@@ -2,7 +2,7 @@ import { type ChatRoom } from '@/entities/chat-room/model/schema'
 import { useChatStore } from '@/entities/chat-room/model/store'
 import { cn } from '@/shared/lib/cn'
 import { Button, ButtonVariants } from '@/shared/ui/Button'
-import { Modal, ModalClose } from '@/shared/ui/Modal'
+import { Modal, ModalClose, ModalDescription } from '@/shared/ui/Modal'
 import useSwitchChat from '@/features/chat-room-switch/lib/useSwitchChat'
 
 interface ChatRoomSwitchModalProps {
@@ -32,9 +32,11 @@ function ChatRoomSwitchModal({
         </strong>
         에 입장하시겠습니까?
       </span>
-      <span className="text-brand-gray-500 mb-8 text-sm font-medium">
-        입장 시 현재 이용 중인 채팅방에서 퇴장 처리됩니다.
-      </span>
+      <ModalDescription className="text-brand-gray-500 mb-8 text-sm font-medium">
+        <span className="text-brand-gray-500 mb-8 text-sm font-medium">
+          입장 시 현재 이용 중인 채팅방에서 퇴장 처리됩니다.
+        </span>
+      </ModalDescription>
       <div className="flex gap-2">
         <ModalClose
           className={cn(
