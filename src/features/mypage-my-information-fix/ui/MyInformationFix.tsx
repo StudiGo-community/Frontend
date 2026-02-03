@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 import { Input } from '@/shared/ui/input'
 import { Button } from '@/shared/ui/Button'
@@ -9,7 +10,17 @@ import { cn } from '@/shared/lib/cn'
 
 type UserRole = 'user' | 'admin' | 'instructor'
 
+type MyInfoDraft = {
+  nickname: string
+  marketingAgree: boolean
+  profileImage?: string | null // dataURL or null
+}
+
+const MYINFO_STORAGE_KEY = 'studigo_myinfo_draft'
+
 export function MyInformationFix() {
+  const router = useRouter()
+
   const fileRef = React.useRef<HTMLInputElement>(null)
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null)
 
@@ -21,12 +32,50 @@ export function MyInformationFix() {
   const phoneValue = '01012345678'
   const [marketingAgree, setMarketingAgree] = React.useState(true)
 
-  // TODO: globals.css의 실제 클래스명에 맞게 여기만 바꿔주면 됨
+  const [isPasswordEditing, setIsPasswordEditing] = React.useState(false)
+
+  const [currentPassword] = React.useState('***************')
+  const [newPassword, setNewPassword] = React.useState('')
+  const [newPasswordConfirm, setNewPasswordConfirm] = React.useState('')
+
+  const hasTypedNewPw = isPasswordEditing && newPassword.length > 0
+
+  const isMin8 = newPassword.length >= 8
+  const hasLetter = /[A-Za-z]/.test(newPassword)
+  const hasNumber = /\d/.test(newPassword)
+  const hasSpecial = /[^A-Za-z0-9]/.test(newPassword)
+  const isComboOk = hasLetter && hasNumber && hasSpecial
+
+  const ruleTextColor = (ok: boolean) => {
+    if (!hasTypedNewPw) return 'text-brand-gray-300'
+    return ok ? 'text-brand-green' : 'text-brand-main'
+  }
+
+  const isPasswordMismatch =
+    isPasswordEditing &&
+    newPasswordConfirm.length > 0 &&
+    newPassword !== newPasswordConfirm
+
   const profileBorderClass = {
     user: 'border-brand-green',
     admin: 'border-brand-purple',
     instructor: 'border-brand-blue',
   }[userRole]
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    try {
+      const raw = localStorage.getItem(MYINFO_STORAGE_KEY)
+      if (!raw) return
+      const saved = JSON.parse(raw) as MyInfoDraft
+
+      if (typeof saved.nickname === 'string') setNickname(saved.nickname)
+      if (typeof saved.marketingAgree === 'boolean')
+        setMarketingAgree(saved.marketingAgree)
+      if (typeof saved.profileImage === 'string' || saved.profileImage === null)
+        setPreviewUrl(saved.profileImage ?? null)
+    } catch {}
+  }, [])
 
   const handleClickUpload = () => {
     fileRef.current?.click()
@@ -36,26 +85,50 @@ export function MyInformationFix() {
     const file = e.target.files?.[0]
     if (!file) return
 
-    const url = URL.createObjectURL(file)
-    setPreviewUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev)
-      return url
-    })
+    if (file.size > 5 * 1024 * 1024) {
+      alert('최대 5MB까지 업로드 가능합니다.')
+      if (fileRef.current) fileRef.current.value = ''
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = typeof reader.result === 'string' ? reader.result : null
+      setPreviewUrl(result)
+    }
+    reader.readAsDataURL(file)
   }
 
   const handleClickResetImage = () => {
-    setPreviewUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev)
-      return null
-    })
+    setPreviewUrl(null)
     if (fileRef.current) fileRef.current.value = ''
   }
 
-  React.useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl)
+  const togglePasswordEdit = () => {
+    setIsPasswordEditing((prev) => {
+      const next = !prev
+      if (!next) {
+        setNewPassword('')
+        setNewPasswordConfirm('')
+      }
+      return next
+    })
+  }
+
+  const handleSave = () => {
+    const payload: MyInfoDraft = {
+      nickname,
+      marketingAgree,
+      profileImage: previewUrl ?? null,
     }
-  }, [previewUrl])
+
+    try {
+      localStorage.setItem(MYINFO_STORAGE_KEY, JSON.stringify(payload))
+    } catch {}
+
+    router.push('/mypage')
+    router.refresh()
+  }
 
   return (
     <main className="bg-brand-white w-full">
@@ -146,20 +219,36 @@ export function MyInformationFix() {
               variant="secondary"
               size="md"
               className="min-w-32"
-              onClick={() => {
-                // TODO: 닉네임 중복 확인 API 연결
-                alert('중복 확인 (UI 더미)')
-              }}
+              onClick={() => alert('중복 확인 (UI 더미)')}
             >
               중복 확인
             </Button>
           </div>
 
-          <div className="text-brand-gray-300 mt-3 text-xs leading-5">
-            <p>✓ 최소 2글자 최대 12글자</p>
-            <p>✓ 한글,영문, 숫자만 사용 가능(특수문자, 공백 불가)</p>
-            <p>✓ 금지어 포함 불가</p>
-          </div>
+          {(() => {
+            const hasTyped = nickname.length > 0
+
+            const isLengthOk = nickname.length >= 2 && nickname.length <= 12
+            const isCharOk = /^[A-Za-z0-9가-힣]+$/.test(nickname)
+            const isBannedOk = true // TODO: 금지어 체크 API 연결 전까지는 true
+
+            const ruleTextColor = (ok: boolean) => {
+              if (!hasTyped) return 'text-brand-gray-300'
+              return ok ? 'text-brand-green' : 'text-brand-main'
+            }
+
+            return (
+              <div className="mt-3 text-xs leading-5">
+                <p className={ruleTextColor(isLengthOk)}>
+                  ✓ 최소 2글자 최대 12글자
+                </p>
+                <p className={ruleTextColor(isCharOk)}>
+                  ✓ 한글, 영문, 숫자만 사용 가능 (특수문자, 공백 불가)
+                </p>
+                <p className={ruleTextColor(isBannedOk)}>✓ 금지어 포함 불가</p>
+              </div>
+            )
+          })()}
         </div>
 
         <div className="mt-8">
@@ -202,7 +291,7 @@ export function MyInformationFix() {
           <div className="flex items-end gap-4">
             <div className="flex-1">
               <p className="text-brand-gray-400 mb-2 text-sm">기존 비밀번호</p>
-              <Input type="password" value="***************" readOnly />
+              <Input type="password" value={currentPassword} readOnly />
             </div>
 
             <Button
@@ -210,14 +299,54 @@ export function MyInformationFix() {
               variant="secondary"
               size="md"
               className="min-w-32"
-              onClick={() => {
-                // TODO: 비밀번호 변경 플로우 연결(모달/페이지 등)
-                alert('비밀번호 변경 (UI 더미)')
-              }}
+              onClick={togglePasswordEdit}
             >
-              비밀번호 변경
+              {isPasswordEditing ? '변경 취소' : '비밀번호 변경'}
             </Button>
           </div>
+
+          {isPasswordEditing && (
+            <div className="mt-6 grid grid-cols-1 gap-6">
+              <div>
+                <p className="text-brand-gray-400 mb-2 text-sm">
+                  새로운 비밀번호
+                </p>
+
+                <Input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="새로운 비밀번호를 입력해주세요."
+                />
+
+                <div className="mt-3 text-sm leading-6">
+                  <p className={cn(ruleTextColor(isMin8))}>✓ 최소 8글자</p>
+                  <p className={cn(ruleTextColor(isComboOk))}>
+                    ✓ 영문, 숫자, 특수문자 조합
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-brand-gray-400 mb-2 text-sm">
+                  새로운 비밀번호 확인
+                </p>
+
+                <Input
+                  type="password"
+                  value={newPasswordConfirm}
+                  onChange={(e) => setNewPasswordConfirm(e.target.value)}
+                  placeholder="비밀번호를 한 번 더 입력해주세요."
+                />
+
+                {isPasswordMismatch && (
+                  <p className="text-brand-main mt-2 text-sm">
+                    비밀번호가 일치하지 않습니다.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="mt-12">
@@ -229,15 +358,17 @@ export function MyInformationFix() {
               <div className="text-sm leading-6">
                 <p className="text-brand-black font-medium">마케팅 수신 동의</p>
               </div>
+
               <input
                 type="checkbox"
                 checked={marketingAgree}
                 onChange={(e) => setMarketingAgree(e.target.checked)}
                 className={cn(
-                  'border-brand-gray-300 mt-1 ml-10 h-4 w-4 rounded border',
+                  'border-brand-gray-300 mt-0.5 ml-2 h-4 w-4 rounded border',
                   'accent-brand-main'
                 )}
               />
+
               <div className="text-brand-gray-400 text-sm leading-6">
                 <p>
                   스터디고 스페셜한 소식을 이메일, 문자, 카카오 알림톡 등 다양한
@@ -258,10 +389,7 @@ export function MyInformationFix() {
           <button
             type="button"
             className="text-brand-gray-300 text-sm underline underline-offset-4"
-            onClick={() => {
-              // TODO: 회원탈퇴 페이지/모달 연결
-              alert('회원탈퇴 (UI 더미)')
-            }}
+            onClick={() => alert('회원탈퇴 (UI 더미)')}
           >
             회원탈퇴
           </button>
@@ -271,10 +399,7 @@ export function MyInformationFix() {
             variant="primary"
             size="reg"
             className="min-w-44"
-            onClick={() => {
-              // TODO: 저장 API 연결
-              alert('내 정보 저장하기 (UI 더미)')
-            }}
+            onClick={handleSave}
           >
             내 정보 저장하기
           </Button>
