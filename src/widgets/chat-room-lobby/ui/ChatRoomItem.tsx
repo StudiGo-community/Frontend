@@ -10,9 +10,9 @@ import {
   type ChatRoom,
   type ChatRoomEnterResponse,
 } from '@/entities/chat-room/model/schema'
-import { useEnterChatRoom } from '@/features/chat-room-enter/api/queries'
 import { useTokenStore } from '@/entities/session/store/token-store'
 import { useRouter } from 'next/navigation'
+import { useEnterChatRoom } from '@/entities/chat-room/api/queries'
 
 interface ChatRoomItemProps {
   chatRoom: ChatRoom

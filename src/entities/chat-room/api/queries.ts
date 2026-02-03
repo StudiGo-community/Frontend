@@ -1,8 +1,16 @@
-import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
+import {
+  useQuery,
+  useMutation,
+  type UseQueryOptions,
+  type UseMutationOptions,
+} from '@tanstack/react-query'
 import { AxiosError } from 'axios'
-import { type ChatRoomListResponse } from '@/entities/chat-room/model/schema'
+import {
+  type ChatRoomListResponse,
+  type ChatRoomEnterResponse,
+} from '@/entities/chat-room/model/schema'
 import { type BasicErrorResponse } from '@/shared/model/error-schema'
-import { getChatRoomList } from '@/entities/chat-room/api/api'
+import { getChatRoomList, enterChatRoom } from '@/entities/chat-room/api/api'
 import { chatKeys } from '@/shared/api/query-keys'
 
 // ---------- 채팅방 목록 조회 ----------
@@ -18,6 +26,23 @@ export const useChatRoomList = (
   return useQuery({
     queryKey: chatKeys.roomList(sort),
     queryFn: () => getChatRoomList(sort),
+    ...options,
+  })
+}
+
+// ---------- 채팅방 입장 ----------
+type EnterChatRoomMutationOptions = Omit<
+  UseMutationOptions<
+    ChatRoomEnterResponse,
+    AxiosError<BasicErrorResponse>,
+    number
+  >,
+  'mutationFn'
+>
+
+export const useEnterChatRoom = (options?: EnterChatRoomMutationOptions) => {
+  return useMutation({
+    mutationFn: enterChatRoom,
     ...options,
   })
 }
