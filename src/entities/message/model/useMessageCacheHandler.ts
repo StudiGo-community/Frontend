@@ -11,7 +11,7 @@ function useMessageCacheHandler() {
 
   // NEW_MESSAGE 타입 이벤트 핸들러
   const handleNewMessage = useCallback(
-    (roomId: number | null, message: Message) => {
+    (roomId: number | null, newMessage: Message) => {
       if (!roomId) return
 
       queryClient.setQueryData<InfiniteData<ChatMessageListResponse>>(
@@ -21,13 +21,13 @@ function useMessageCacheHandler() {
 
           const newPages = [...prev.pages]
           const isExistMessage = newPages[0].messages.some(
-            (message) => message.id === message.id
+            (message) => message.id === newMessage.id
           )
           // 기존에 존재하던 메세지인지 검증 → 가장 최신 페이지에 수신한 메세지 추가
           if (isExistMessage) return prev
           newPages[0] = {
             ...newPages[0],
-            messages: [message, ...newPages[0].messages],
+            messages: [newMessage, ...newPages[0].messages],
           }
 
           return {
@@ -40,7 +40,39 @@ function useMessageCacheHandler() {
     [queryClient]
   )
 
-  return { handleNewMessage }
+  // MESSAGE_DELETED 타입 이벤트 핸들러
+  const handleMessageDeleted = useCallback(
+    (roomId: number | null, deletedMessageId: number) => {
+      if (!roomId) return
+
+      queryClient.setQueryData<InfiniteData<ChatMessageListResponse>>(
+        chatKeys.messageList(roomId),
+        (prev) => {
+          if (!prev) return prev
+
+          const newPages = prev.pages.map((page) => ({
+            ...page,
+            messages: page.messages.map((message) => {
+              if (message.id === deletedMessageId)
+                return {
+                  ...message,
+                  status: 'DELETED_BY_ADMIN' as const,
+                }
+              return message
+            }),
+          }))
+
+          return {
+            ...prev,
+            pages: newPages,
+          }
+        }
+      )
+    },
+    [queryClient]
+  )
+
+  return { handleNewMessage, handleMessageDeleted }
 }
 
 export default useMessageCacheHandler
