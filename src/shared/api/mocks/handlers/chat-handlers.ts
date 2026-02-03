@@ -130,6 +130,22 @@ const sendChatMessage = http.post(
   }
 )
 
+// ---------- 채팅방 퇴장 ----------
+const exitChatRoom = http.post(
+  `${process.env.NEXT_PUBLIC_API_BASE_URL}/chat/:roomId/exit`,
+  ({ params }) => {
+    const { roomId } = params
+    const parsedRoomId = Number(roomId)
+
+    if (![1, 2, 3, 4].includes(parsedRoomId))
+      return HttpResponse.json(
+        { detail: '채팅방을 찾을 수 없습니다.' },
+        { status: 404 }
+      )
+    return HttpResponse.json({ message: '채팅방에서 퇴장했습니다.' })
+  }
+)
+
 // ---------- 채팅 웹소켓 이벤트 수신 ----------
 const protocol = globalThis.location?.protocol === 'https' ? 'wss' : 'ws'
 const url = `${protocol}://${process.env.NEXT_PUBLIC_WS_HOST}/ws/chat/rooms/:roomId`
@@ -137,9 +153,11 @@ const chat = ws.link(url)
 
 const chatSocketHandlers = [
   chat.addEventListener('connection', async ({ client }) => {
+    // 웹소켓 연결 성공
     console.log('✨ 웹소켓 연결 완료!')
 
     // 새로운 메세지
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const [_, message] of SOCKET_MESSAGES.entries()) {
       await new Promise((resolve) => setTimeout(resolve, 500)).then(() =>
         client.send(JSON.stringify({ type: 'NEW_MESSAGE', message }))
@@ -159,6 +177,7 @@ const chatSocketHandlers = [
       )
     )
 
+    // 웹소켓 연결 종료
     client.addEventListener('close', () => {
       console.log('✨ 웹소켓 연결 종료!')
     })
@@ -170,6 +189,7 @@ const chatHandlers = [
   enterChatRoom,
   getChatMessageList,
   sendChatMessage,
+  exitChatRoom,
   ...chatSocketHandlers,
 ]
 
