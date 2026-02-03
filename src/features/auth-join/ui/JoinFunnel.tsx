@@ -1,21 +1,21 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useMutation } from '@tanstack/react-query'
-import { toast } from 'sonner'
 import { isAxiosError } from 'axios'
-import { useQueryState, parseAsStringLiteral } from 'nuqs'
+import { parseAsStringLiteral, useQueryState } from 'nuqs'
+import { toast } from 'sonner'
 
 import { Button } from '@/shared/ui/Button'
 import { Funnel, Step } from '@/features/auth-join/ui/Funnel'
-import { StartStep } from '@/features/auth-join/ui/StartStep'
-import { EmailPasswordStep } from '@/features/auth-join/ui/EmailPasswordStep'
-import { ProfileTermsStep } from '@/features/auth-join/ui/ProfileTermsStep'
-import { ExtraInfoStep } from '@/features/auth-join/ui/ExtraInfoStep'
 import { DoneStep } from '@/features/auth-join/ui/DoneStep'
-import {
-  signupEmail,
-  type SignupGender,
+import { EmailPasswordStep } from '@/features/auth-join/ui/EmailPasswordStep'
+import { ExtraInfoStep } from '@/features/auth-join/ui/ExtraInfoStep'
+import { ProfileTermsStep } from '@/features/auth-join/ui/ProfileTermsStep'
+import { StartStep } from '@/features/auth-join/ui/StartStep'
+import { useSignupEmailMutation } from '@/features/auth-join/api/use-signup-email-mutation'
+import type {
+  SignupEmailRequest,
+  SignupGender,
 } from '@/features/auth-join/api/signup-api'
 
 export type StepName =
@@ -52,6 +52,18 @@ export interface JoinFormState {
   gender: GenderUI | ''
 }
 
+interface StoredJoinState {
+  v: 1
+  step: Exclude<StepName, 'start' | 'done'>
+  form: JoinFormState
+  savedAt: number
+}
+
+interface ApiErrorBody {
+  detail?: string
+  error_detail?: string
+}
+
 const STEP_ORDER = [
   'start',
   'emailPassword',
@@ -59,6 +71,8 @@ const STEP_ORDER = [
   'extraInfo',
   'done',
 ] as const
+
+const JOIN_SESSION_KEY = 'studigo_join_funnel_v1'
 
 const INITIAL_JOIN_FORM_STATE: JoinFormState = {
   email: '',
@@ -84,18 +98,7 @@ const INITIAL_JOIN_FORM_STATE: JoinFormState = {
   gender: '',
 }
 
-const JOIN_SESSION_KEY = 'studigo_join_funnel_v1'
-
-type StoredJoinState = {
-  v: 1
-  step: Exclude<StepName, 'start' | 'done'>
-  form: JoinFormState
-  savedAt: number
-}
-
-type ApiErrorBody = { detail?: string; error_detail?: string }
-
-function getErrorMessage(error: unknown, fallback: string) {
+const getErrorMessage = (error: unknown, fallback: string) => {
   if (!isAxiosError<ApiErrorBody>(error)) return fallback
   return (
     error.response?.data?.detail ??
@@ -104,17 +107,15 @@ function getErrorMessage(error: unknown, fallback: string) {
   )
 }
 
-function toGender(value: GenderUI | ''): SignupGender | undefined {
+const stripPhone = (phone: string) => phone.replace(/\D/g, '')
+
+const toGender = (value: GenderUI | ''): SignupGender | undefined => {
   if (value === 'MALE') return 'M'
   if (value === 'FEMALE') return 'F'
   return undefined
 }
 
-function stripPhone(phone: string) {
-  return phone.replace(/\D/g, '')
-}
-
-function canGoNext(step: StepName, form: JoinFormState) {
+const canProceedStep = (step: StepName, form: JoinFormState) => {
   if (step === 'emailPassword') {
     return Boolean(
       form.email &&
@@ -125,29 +126,35 @@ function canGoNext(step: StepName, form: JoinFormState) {
       form.emailVerifyToken
     )
   }
+
   if (step === 'profileTerms') {
     return Boolean(
       form.name && form.phone && form.agree.terms && form.agree.privacy
     )
   }
+
   if (step === 'extraInfo') {
     return Boolean(
-      form.nickname && form.birth && form.gender && form.nicknameVerified
+      form.nickname &&
+      form.birth &&
+      form.gender &&
+      form.nicknameVerified &&
+      form.nicknameCheckToken
     )
   }
+
   return false
 }
 
-function maxAllowedStep(
+const getAllowedStep = (
   form: JoinFormState
-): Exclude<StepName, 'start' | 'done'> {
-  if (!canGoNext('emailPassword', form)) return 'emailPassword'
-  if (!canGoNext('profileTerms', form)) return 'profileTerms'
-  if (!canGoNext('extraInfo', form)) return 'extraInfo'
+): Exclude<StepName, 'start' | 'done'> => {
+  if (!canProceedStep('emailPassword', form)) return 'emailPassword'
+  if (!canProceedStep('profileTerms', form)) return 'profileTerms'
   return 'extraInfo'
 }
 
-function loadStored(): StoredJoinState | null {
+const loadStoredJoinState = (): StoredJoinState | null => {
   try {
     const raw = sessionStorage.getItem(JOIN_SESSION_KEY)
     if (!raw) return null
@@ -160,38 +167,32 @@ function loadStored(): StoredJoinState | null {
   }
 }
 
-function saveStored(step: StoredJoinState['step'], form: JoinFormState) {
+const saveStoredJoinState = (
+  step: StoredJoinState['step'],
+  form: JoinFormState
+) => {
   const payload: StoredJoinState = { v: 1, step, form, savedAt: Date.now() }
   sessionStorage.setItem(JOIN_SESSION_KEY, JSON.stringify(payload))
 }
 
-function clearStored() {
+const clearStoredJoinState = () => {
   sessionStorage.removeItem(JOIN_SESSION_KEY)
 }
 
-function getNavigationType():
-  | 'reload'
-  | 'navigate'
-  | 'back_forward'
-  | 'prerender'
-  | 'unknown' {
-  const entry = performance.getEntriesByType('navigation')[0] as
-    | PerformanceNavigationTiming
-    | undefined
-  return entry?.type ?? 'unknown'
-}
-
-export function JoinFunnel() {
+export const JoinFunnel = () => {
   const stepParser = useMemo(
     () => parseAsStringLiteral(STEP_ORDER).withDefault('start'),
     []
   )
+
   const [stepParam, setStepParam] = useQueryState('step', stepParser)
   const currentStep = (stepParam ?? 'start') as StepName
 
   const [form, setForm] = useState<JoinFormState>(INITIAL_JOIN_FORM_STATE)
+
   const [isHydrated, setIsHydrated] = useState(false)
-  const didInit = useRef(false)
+
+  const isSubmittingRef = useRef(false)
 
   const updateJoinForm = (patch: Partial<JoinFormState>) => {
     setForm((prev) => ({ ...prev, ...patch }))
@@ -205,6 +206,7 @@ export function JoinFunnel() {
           agree: { all: value, terms: value, privacy: value, marketing: value },
         }
       }
+
       const nextAgree = { ...prev.agree, [key]: value }
       return {
         ...prev,
@@ -216,35 +218,35 @@ export function JoinFunnel() {
     })
   }
 
-  useEffect(() => {
-    if (didInit.current) return
-    didInit.current = true
+  const resetToStart = () => {
+    clearStoredJoinState()
+    setForm(INITIAL_JOIN_FORM_STATE)
+    setStepParam('start', { history: 'replace' })
+  }
 
-    const navType = getNavigationType()
-    const stored = loadStored()
+  useEffect(() => {
+    const stored = loadStoredJoinState()
 
     if (currentStep === 'start') {
-      clearStored()
+      clearStoredJoinState()
       setForm(INITIAL_JOIN_FORM_STATE)
       setIsHydrated(true)
       return
     }
 
-    if (navType === 'reload' && stored) {
+    if (stored) {
       setForm(stored.form)
 
-      const allowed = maxAllowedStep(stored.form)
-      const desired =
-        STEP_ORDER.indexOf(stored.step) > STEP_ORDER.indexOf(allowed)
-          ? allowed
-          : stored.step
+      const allowed = getAllowedStep(stored.form)
+      const storedIndex = STEP_ORDER.indexOf(stored.step)
+      const allowedIndex = STEP_ORDER.indexOf(allowed)
 
-      setStepParam(desired, { history: 'replace' })
+      const normalizedStep = storedIndex > allowedIndex ? allowed : stored.step
+      setStepParam(normalizedStep, { history: 'replace' })
       setIsHydrated(true)
       return
     }
 
-    clearStored()
     setForm(INITIAL_JOIN_FORM_STATE)
     setStepParam('start', { history: 'replace' })
     setIsHydrated(true)
@@ -256,92 +258,102 @@ export function JoinFunnel() {
     if (!isHydrated) return
     if (currentStep === 'start' || currentStep === 'done') return
 
-    const allowed = maxAllowedStep(form)
+    const allowed = getAllowedStep(form)
+    const currentIndex = STEP_ORDER.indexOf(currentStep)
+    const allowedIndex = STEP_ORDER.indexOf(allowed)
+
     const normalizedStep =
-      STEP_ORDER.indexOf(currentStep) > STEP_ORDER.indexOf(allowed)
+      currentIndex > allowedIndex
         ? allowed
         : (currentStep as StoredJoinState['step'])
 
-    saveStored(normalizedStep, form)
-  }, [currentStep, form, isHydrated])
+    saveStoredJoinState(normalizedStep, form)
+  }, [isHydrated, currentStep, form])
 
   useEffect(() => {
     if (!isHydrated) return
     if (currentStep === 'start' || currentStep === 'done') return
 
-    const allowed = maxAllowedStep(form)
-    const curIdx = STEP_ORDER.indexOf(currentStep)
-    const allowedIdx = STEP_ORDER.indexOf(allowed)
-    if (curIdx > allowedIdx) {
+    const allowed = getAllowedStep(form)
+    const currentIndex = STEP_ORDER.indexOf(currentStep)
+    const allowedIndex = STEP_ORDER.indexOf(allowed)
+
+    if (currentIndex > allowedIndex) {
       setStepParam(allowed, { history: 'replace' })
       toast.message('이전 단계 입력이 필요합니다.')
     }
-  }, [currentStep, form, setStepParam, isHydrated])
+  }, [isHydrated, currentStep, form, setStepParam])
 
-  useEffect(() => {
-    return () => {
-      clearStored()
-    }
-  }, [])
-
-  const goStartAndClear = () => {
-    clearStored()
-    setForm(INITIAL_JOIN_FORM_STATE)
-    setStepParam('start', { history: 'replace' })
-  }
-
-  const next = () => {
-    const idx = STEP_ORDER.indexOf(currentStep)
-    const nextStep = STEP_ORDER[Math.min(idx + 1, STEP_ORDER.length - 1)]
+  const goNext = () => {
+    const currentIndex = STEP_ORDER.indexOf(currentStep)
+    const nextStep =
+      STEP_ORDER[Math.min(currentIndex + 1, STEP_ORDER.length - 1)]
     setStepParam(nextStep, { history: 'push' })
   }
 
-  const prev = () => {
+  const goPrev = () => {
     if (currentStep === 'emailPassword') {
-      goStartAndClear()
+      resetToStart()
       return
     }
-
-    const idx = STEP_ORDER.indexOf(currentStep)
-    const prevStep = STEP_ORDER[Math.max(idx - 1, 0)]
+    const currentIndex = STEP_ORDER.indexOf(currentStep)
+    const prevStep = STEP_ORDER[Math.max(currentIndex - 1, 0)]
     setStepParam(prevStep, { history: 'push' })
   }
 
-  const signupMut = useMutation({
-    mutationFn: () =>
-      signupEmail({
-        email: form.email,
-        password: form.password,
-        password_confirm: form.passwordConfirm,
-
-        nickname: form.nickname,
-        name: form.name,
-        gender: toGender(form.gender),
-
-        phone: stripPhone(form.phone),
-        birthday: form.birth || undefined,
-
-        agree_terms: form.agree.terms,
-        agree_privacy: form.agree.privacy,
-        agree_marketing: form.agree.marketing,
-
-        email_verify_token: form.emailVerifyToken,
-        nickname_check_token: form.nicknameCheckToken,
-      }),
-    onSuccess: () => {
-      toast.success('회원가입이 완료되었습니다.')
-      clearStored()
-      setStepParam('done', { history: 'replace' })
-    },
-    onError: (error: unknown) => {
-      toast.error(getErrorMessage(error, '회원가입에 실패했습니다.'))
-    },
-  })
-
   const canProceedNext = useMemo(
-    () => canGoNext(currentStep, form),
+    () => canProceedStep(currentStep, form),
     [currentStep, form]
   )
+
+  const signupEmailMutation = useSignupEmailMutation()
+
+  const submitJoin = async () => {
+    if (signupEmailMutation.isPending) return
+    if (isSubmittingRef.current) return
+
+    if (!form.emailVerifyToken) {
+      toast.error('이메일 인증을 완료해주세요.')
+      return
+    }
+    if (!form.nicknameCheckToken) {
+      toast.error('닉네임 중복확인을 완료해주세요.')
+      return
+    }
+
+    isSubmittingRef.current = true
+
+    const payload: SignupEmailRequest = {
+      email: form.email,
+      password: form.password,
+      password_confirm: form.passwordConfirm,
+
+      nickname: form.nickname,
+      name: form.name,
+      gender: toGender(form.gender),
+
+      phone: stripPhone(form.phone),
+      birthday: form.birth || undefined,
+
+      agree_terms: form.agree.terms,
+      agree_privacy: form.agree.privacy,
+      agree_marketing: form.agree.marketing,
+
+      email_verify_token: form.emailVerifyToken,
+      nickname_check_token: form.nicknameCheckToken,
+    }
+
+    try {
+      await signupEmailMutation.mutateAsync(payload)
+      toast.success('회원가입이 완료되었습니다.')
+      clearStoredJoinState()
+      setStepParam('done', { history: 'replace' })
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, '회원가입에 실패했습니다.'))
+    } finally {
+      isSubmittingRef.current = false
+    }
+  }
 
   return (
     <div className="w-full">
@@ -350,9 +362,12 @@ export function JoinFunnel() {
           <StartStep
             onKakao={() => {}}
             onGoogle={() => {}}
-            onStartEmail={() =>
+            onStartEmail={() => {
+              // start에서 이메일 회원가입 시작은 항상 초기화 정책 유지
+              clearStoredJoinState()
+              setForm(INITIAL_JOIN_FORM_STATE)
               setStepParam('emailPassword', { history: 'push' })
-            }
+            }}
           />
         </Step>
 
@@ -382,25 +397,26 @@ export function JoinFunnel() {
           <Button
             variant="outline"
             className="h-12 w-30"
-            disabled={signupMut.isPending}
-            onClick={prev}
+            disabled={signupEmailMutation.isPending}
+            onClick={goPrev}
           >
             이전
           </Button>
 
           <Button
             className={`h-12 flex-1 ${
-              !canProceedNext || signupMut.isPending
+              !canProceedNext || signupEmailMutation.isPending
                 ? 'pointer-events-none opacity-50'
                 : ''
             }`}
+            disabled={!canProceedNext || signupEmailMutation.isPending}
             onClick={() => {
-              if (currentStep === 'extraInfo') signupMut.mutate()
-              else next()
+              if (currentStep === 'extraInfo') void submitJoin()
+              else goNext()
             }}
           >
             {currentStep === 'extraInfo'
-              ? signupMut.isPending
+              ? signupEmailMutation.isPending
                 ? '가입 중...'
                 : '회원가입'
               : '다음'}

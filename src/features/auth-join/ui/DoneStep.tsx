@@ -3,9 +3,11 @@
 import { Button } from '@/shared/ui/Button'
 import type { JoinFormState } from '@/features/auth-join/ui/JoinFunnel'
 
-export function DoneStep(props: { value: JoinFormState }) {
-  const formValue = props.value
+export interface DoneStepProps {
+  value: JoinFormState
+}
 
+export const DoneStep = ({ value }: DoneStepProps) => {
   return (
     <div className="text-center">
       <div className="border-brand-green text-brand-green mx-auto mb-5 flex size-12 items-center justify-center rounded-full border-2">
@@ -24,9 +26,9 @@ export function DoneStep(props: { value: JoinFormState }) {
       </p>
 
       <div className="bg-brand-gray-100 mt-8 rounded-md p-4 text-sm">
-        <InfoRow label="이메일" value={formValue.email} />
-        <InfoRow label="닉네임" value={formValue.nickname} />
-        <InfoRow label="이름" value={formValue.name} />
+        <InfoRow label="이메일" value={value.email} />
+        <InfoRow label="닉네임" value={value.nickname} />
+        <InfoRow label="이름" value={value.name} />
       </div>
 
       <Button
@@ -43,11 +45,16 @@ export function DoneStep(props: { value: JoinFormState }) {
   )
 }
 
-function InfoRow(props: { label: string; value?: string }) {
+interface InfoRowProps {
+  label: string
+  value?: string
+}
+
+const InfoRow = ({ label, value }: InfoRowProps) => {
   return (
     <div className="flex items-center justify-between py-1">
-      <span className="text-brand-gray-400">{props.label}</span>
-      <span className="text-brand-black font-medium">{props.value || '-'}</span>
+      <span className="text-brand-gray-400">{label}</span>
+      <span className="text-brand-black font-medium">{value || '-'}</span>
     </div>
   )
 }

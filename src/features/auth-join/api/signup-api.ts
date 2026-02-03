@@ -8,10 +8,12 @@ import {
 
 export type SignupGender = 'M' | 'F'
 
-export async function signupEmail(
+export type SignupEmailRequest = SignupRequest
+
+export const signupEmail = async (
   payload: SignupRequest
-): Promise<SignupResponse> {
+): Promise<SignupResponse> => {
   const body = SignupRequestSchema.parse(payload)
-  const res = await api.post('/auth/signup', body) // ✅ 필요시 '/auth/signup/email' 로 변경
+  const res = await api.post('/auth/signup/email', body) // ✅ 필요시 '/auth/signup/email' 로 변경
   return SignupResponseSchema.parse(res.data)
 }

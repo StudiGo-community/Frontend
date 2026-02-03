@@ -6,11 +6,17 @@ import { Button } from '@/shared/ui/Button'
 import KakaoIcon from '@/shared/assets/kakao-icon.svg'
 import GoogleIcon from '@/shared/assets/google-icon.svg'
 
-export function StartStep(props: {
+export interface StartStepProps {
   onKakao: () => void
   onGoogle: () => void
   onStartEmail: () => void
-}) {
+}
+
+export const StartStep = ({
+  onKakao,
+  onGoogle,
+  onStartEmail,
+}: StartStepProps) => {
   return (
     <div className="space-y-3">
       <Button
@@ -18,7 +24,7 @@ export function StartStep(props: {
         size="reg"
         style={{ backgroundColor: '#FEE500', color: '#1E1919' }}
         className="w-full cursor-pointer hover:opacity-90"
-        onClick={props.onKakao}
+        onClick={onKakao}
       >
         <KakaoIcon className="mr-2 size-5 shrink-0 overflow-visible" />
         카카오로 시작하기
@@ -29,7 +35,7 @@ export function StartStep(props: {
         size="reg"
         variant="outline"
         className="hover:bg-brand-gray-100 hover:border-brand-gray-400 w-full cursor-pointer"
-        onClick={props.onGoogle}
+        onClick={onGoogle}
       >
         <GoogleIcon className="mr-2 size-5 shrink-0 overflow-visible" />
         구글로 시작하기
@@ -45,7 +51,7 @@ export function StartStep(props: {
         type="button"
         size="reg"
         className="bg-brand-black text-brand-white w-full cursor-pointer hover:opacity-90"
-        onClick={props.onStartEmail}
+        onClick={onStartEmail}
       >
         이메일로 가입
       </Button>
