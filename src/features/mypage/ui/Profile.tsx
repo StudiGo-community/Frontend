@@ -1,7 +1,6 @@
 import Image from 'next/image'
 import { Button } from '@/shared/ui/Button'
-
-// Removed isMdDown prop and related logic
+import { useRouter } from 'next/navigation'
 
 function PinProfile() {
   return (
@@ -75,13 +74,16 @@ function Balloon({
 }
 
 export default function Profile() {
+  const router = useRouter()
   return (
     <div className="mb-10 flex w-full flex-row items-center justify-center gap-2 max-lg:gap-5 sm:gap-4 md:gap-8">
       <div className="flex min-w-0 flex-1 justify-end px-2 max-lg:px-5 sm:px-4 md:px-8">
         <div className="flex items-center gap-6 lg:gap-12">
           <Button
+            type="button"
             variant="secondary"
             size="md"
+            onClick={() => router.push('/mypage/my-information-fix')}
             className="w-28 px-3 py-1.5 text-sm lg:w-40 lg:px-4 lg:py-2 lg:text-base"
           >
             <span className="block">내 정보 수정</span>
