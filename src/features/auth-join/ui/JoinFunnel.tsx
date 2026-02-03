@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { isAxiosError } from 'axios'
@@ -88,39 +88,12 @@ const JOIN_SESSION_KEY = 'studigo_join_funnel_v1'
 
 type StoredJoinState = {
   v: 1
-  step: StepName
+  step: Exclude<StepName, 'start' | 'done'>
   form: JoinFormState
   savedAt: number
 }
 
-function loadStoredJoinState(): StoredJoinState | null {
-  if (typeof window === 'undefined') return null
-  try {
-    const raw = sessionStorage.getItem(JOIN_SESSION_KEY)
-    if (!raw) return null
-    const parsed = JSON.parse(raw) as StoredJoinState
-    if (parsed?.v !== 1) return null
-    if (!parsed.form || !parsed.step) return null
-    return parsed
-  } catch {
-    return null
-  }
-}
-
-function saveStoredJoinState(next: StoredJoinState) {
-  if (typeof window === 'undefined') return
-  sessionStorage.setItem(JOIN_SESSION_KEY, JSON.stringify(next))
-}
-
-function clearStoredJoinState() {
-  if (typeof window === 'undefined') return
-  sessionStorage.removeItem(JOIN_SESSION_KEY)
-}
-
-type ApiErrorBody = {
-  detail?: string
-  error_detail?: string
-}
+type ApiErrorBody = { detail?: string; error_detail?: string }
 
 function getErrorMessage(error: unknown, fallback: string) {
   if (!isAxiosError<ApiErrorBody>(error)) return fallback
@@ -152,27 +125,60 @@ function canGoNext(step: StepName, form: JoinFormState) {
       form.emailVerifyToken
     )
   }
-
   if (step === 'profileTerms') {
     return Boolean(
       form.name && form.phone && form.agree.terms && form.agree.privacy
     )
   }
-
   if (step === 'extraInfo') {
     return Boolean(
       form.nickname && form.birth && form.gender && form.nicknameVerified
     )
   }
-
   return false
 }
 
-function maxAllowedStep(form: JoinFormState): StepName {
+function maxAllowedStep(
+  form: JoinFormState
+): Exclude<StepName, 'start' | 'done'> {
   if (!canGoNext('emailPassword', form)) return 'emailPassword'
   if (!canGoNext('profileTerms', form)) return 'profileTerms'
   if (!canGoNext('extraInfo', form)) return 'extraInfo'
   return 'extraInfo'
+}
+
+function loadStored(): StoredJoinState | null {
+  try {
+    const raw = sessionStorage.getItem(JOIN_SESSION_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as StoredJoinState
+    if (parsed?.v !== 1) return null
+    if (!parsed.form || !parsed.step) return null
+    return parsed
+  } catch {
+    return null
+  }
+}
+
+function saveStored(step: StoredJoinState['step'], form: JoinFormState) {
+  const payload: StoredJoinState = { v: 1, step, form, savedAt: Date.now() }
+  sessionStorage.setItem(JOIN_SESSION_KEY, JSON.stringify(payload))
+}
+
+function clearStored() {
+  sessionStorage.removeItem(JOIN_SESSION_KEY)
+}
+
+function getNavigationType():
+  | 'reload'
+  | 'navigate'
+  | 'back_forward'
+  | 'prerender'
+  | 'unknown' {
+  const entry = performance.getEntriesByType('navigation')[0] as
+    | PerformanceNavigationTiming
+    | undefined
+  return entry?.type ?? 'unknown'
 }
 
 export function JoinFunnel() {
@@ -180,11 +186,12 @@ export function JoinFunnel() {
     () => parseAsStringLiteral(STEP_ORDER).withDefault('start'),
     []
   )
-
   const [stepParam, setStepParam] = useQueryState('step', stepParser)
   const currentStep = (stepParam ?? 'start') as StepName
 
   const [form, setForm] = useState<JoinFormState>(INITIAL_JOIN_FORM_STATE)
+  const [isHydrated, setIsHydrated] = useState(false)
+  const didInit = useRef(false)
 
   const updateJoinForm = (patch: Partial<JoinFormState>) => {
     setForm((prev) => ({ ...prev, ...patch }))
@@ -198,7 +205,6 @@ export function JoinFunnel() {
           agree: { all: value, terms: value, privacy: value, marketing: value },
         }
       }
-
       const nextAgree = { ...prev.agree, [key]: value }
       return {
         ...prev,
@@ -210,55 +216,79 @@ export function JoinFunnel() {
     })
   }
 
-  const resetFormAndGoStart = () => {
-    clearStoredJoinState()
+  useEffect(() => {
+    if (didInit.current) return
+    didInit.current = true
+
+    const navType = getNavigationType()
+    const stored = loadStored()
+
+    if (currentStep === 'start') {
+      clearStored()
+      setForm(INITIAL_JOIN_FORM_STATE)
+      setIsHydrated(true)
+      return
+    }
+
+    if (navType === 'reload' && stored) {
+      setForm(stored.form)
+
+      const allowed = maxAllowedStep(stored.form)
+      const desired =
+        STEP_ORDER.indexOf(stored.step) > STEP_ORDER.indexOf(allowed)
+          ? allowed
+          : stored.step
+
+      setStepParam(desired, { history: 'replace' })
+      setIsHydrated(true)
+      return
+    }
+
+    clearStored()
     setForm(INITIAL_JOIN_FORM_STATE)
     setStepParam('start', { history: 'replace' })
-  }
-
-  const canProceedNext = useMemo(
-    () => canGoNext(currentStep, form),
-    [currentStep, form]
-  )
-
-  useEffect(() => {
-    if (currentStep === 'start') return
-
-    const stored = loadStoredJoinState()
-    if (!stored) return
-
-    setForm(stored.form)
-
-    if (stored.step && stored.step !== currentStep) {
-      setStepParam(stored.step, { history: 'replace' })
-    }
+    setIsHydrated(true)
     // 최초 마운트 시에만 세션스토리지 복구
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
+    if (!isHydrated) return
     if (currentStep === 'start' || currentStep === 'done') return
 
-    saveStoredJoinState({
-      v: 1,
-      step: currentStep,
-      form,
-      savedAt: Date.now(),
-    })
-  }, [currentStep, form])
+    const allowed = maxAllowedStep(form)
+    const normalizedStep =
+      STEP_ORDER.indexOf(currentStep) > STEP_ORDER.indexOf(allowed)
+        ? allowed
+        : (currentStep as StoredJoinState['step'])
+
+    saveStored(normalizedStep, form)
+  }, [currentStep, form, isHydrated])
 
   useEffect(() => {
+    if (!isHydrated) return
     if (currentStep === 'start' || currentStep === 'done') return
 
     const allowed = maxAllowedStep(form)
     const curIdx = STEP_ORDER.indexOf(currentStep)
     const allowedIdx = STEP_ORDER.indexOf(allowed)
-
     if (curIdx > allowedIdx) {
       setStepParam(allowed, { history: 'replace' })
       toast.message('이전 단계 입력이 필요합니다.')
     }
-  }, [currentStep, form, setStepParam])
+  }, [currentStep, form, setStepParam, isHydrated])
+
+  useEffect(() => {
+    return () => {
+      clearStored()
+    }
+  }, [])
+
+  const goStartAndClear = () => {
+    clearStored()
+    setForm(INITIAL_JOIN_FORM_STATE)
+    setStepParam('start', { history: 'replace' })
+  }
 
   const next = () => {
     const idx = STEP_ORDER.indexOf(currentStep)
@@ -267,6 +297,11 @@ export function JoinFunnel() {
   }
 
   const prev = () => {
+    if (currentStep === 'emailPassword') {
+      goStartAndClear()
+      return
+    }
+
     const idx = STEP_ORDER.indexOf(currentStep)
     const prevStep = STEP_ORDER[Math.max(idx - 1, 0)]
     setStepParam(prevStep, { history: 'push' })
@@ -295,13 +330,18 @@ export function JoinFunnel() {
       }),
     onSuccess: () => {
       toast.success('회원가입이 완료되었습니다.')
-      clearStoredJoinState()
+      clearStored()
       setStepParam('done', { history: 'replace' })
     },
     onError: (error: unknown) => {
       toast.error(getErrorMessage(error, '회원가입에 실패했습니다.'))
     },
   })
+
+  const canProceedNext = useMemo(
+    () => canGoNext(currentStep, form),
+    [currentStep, form]
+  )
 
   return (
     <div className="w-full">
@@ -310,11 +350,9 @@ export function JoinFunnel() {
           <StartStep
             onKakao={() => {}}
             onGoogle={() => {}}
-            onStartEmail={() => {
-              clearStoredJoinState()
-              setForm(INITIAL_JOIN_FORM_STATE)
+            onStartEmail={() =>
               setStepParam('emailPassword', { history: 'push' })
-            }}
+            }
           />
         </Step>
 
@@ -345,10 +383,7 @@ export function JoinFunnel() {
             variant="outline"
             className="h-12 w-30"
             disabled={signupMut.isPending}
-            onClick={() => {
-              if (currentStep === 'emailPassword') resetFormAndGoStart()
-              else prev()
-            }}
+            onClick={prev}
           >
             이전
           </Button>

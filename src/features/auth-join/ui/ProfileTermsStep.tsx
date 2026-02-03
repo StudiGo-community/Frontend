@@ -1,7 +1,6 @@
 'use client'
 
 import type { ChangeEvent, ReactNode } from 'react'
-import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input'
 import type {
   AgreeKey,
@@ -44,26 +43,14 @@ export function ProfileTermsStep(props: {
       </Field>
 
       <Field label="전화번호">
-        <div className="flex gap-2">
-          <Input
-            size="sm"
-            placeholder="010-0000-0000"
-            value={formValue.phone}
-            onChange={onPhoneChange}
-            inputMode="numeric"
-            autoComplete="tel"
-          />
-
-          <Button
-            type="button"
-            size="reg"
-            variant="secondary"
-            className="h-12 w-24"
-            disabled
-          >
-            인증
-          </Button>
-        </div>
+        <Input
+          size="sm"
+          placeholder="010-0000-0000"
+          value={formValue.phone}
+          onChange={onPhoneChange}
+          inputMode="numeric"
+          autoComplete="tel"
+        />
       </Field>
 
       <div className="pt-2">
