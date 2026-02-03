@@ -9,7 +9,8 @@ export const mapSendMessageToMessage = (
     id: message.id,
     senderUserId: message.senderId,
     sender: { id: message.senderId, nickname, profileImageUrl },
-    content: message.content,
+    koContent: message.content,
+    esContent: message.content,
     status: message.status,
     createdAt: message.createdAt,
   }

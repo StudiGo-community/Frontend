@@ -11,10 +11,13 @@ type ChatRoomListQueryOptions = Omit<
   'queryKey' | 'queryFn'
 >
 
-export const useChatRoomList = (options?: ChatRoomListQueryOptions) => {
+export const useChatRoomList = (
+  sort: string = 'desc',
+  options?: ChatRoomListQueryOptions
+) => {
   return useQuery({
-    queryKey: chatKeys.roomList(),
-    queryFn: getChatRoomList,
+    queryKey: chatKeys.roomList(sort),
+    queryFn: () => getChatRoomList(sort),
     ...options,
   })
 }

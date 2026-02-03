@@ -1,8 +1,11 @@
+'use client'
+
 import { type Message } from '@/entities/message/model/schema'
 import { cn } from '@/shared/lib/cn'
 import Image from 'next/image'
 import { formatTimeString } from '@/entities/message/lib/formatter'
 import { LanguagesIcon, SirenIcon, Volume2Icon } from 'lucide-react'
+import { useState } from 'react'
 
 interface ReceivedMessageProps {
   message: Message
@@ -10,7 +13,11 @@ interface ReceivedMessageProps {
 }
 
 function ReceivedMessage({ message, onPlayTts }: ReceivedMessageProps) {
+  const [showSpanish, setShowSpanish] = useState(true)
   const isBlindMessage = message.status === 'DELETED_BY_ADMIN'
+  const displayContent = showSpanish ? message.esContent : message.koContent
+
+  const handleTranslateClick = () => setShowSpanish((prev) => !prev)
 
   return (
     <li className="flex max-w-4/5 flex-col gap-2 self-start">
@@ -42,7 +49,7 @@ function ReceivedMessage({ message, onPlayTts }: ReceivedMessageProps) {
             }
           )}
         >
-          {isBlindMessage ? '블라인드 처리된 메시지입니다.' : message.content}
+          {isBlindMessage ? '블라인드 처리된 메시지입니다.' : displayContent}
         </span>
         <span
           className={cn(
@@ -52,27 +59,32 @@ function ReceivedMessage({ message, onPlayTts }: ReceivedMessageProps) {
         >
           {formatTimeString(message.createdAt)}
         </span>
-        <div
-          className={cn(
-            'text-brand-login-text bg-brand-gray-100 rounded-brand-base flex items-center px-1.5 py-1',
-            'absolute opacity-0 transition-all group-hover:opacity-100',
-            '-right-9 flex-col gap-1.5 sm:-right-20 sm:flex-row sm:gap-1'
-          )}
-        >
-          <button type="button" onClick={() => {}}>
-            <SirenIcon className="text-brand-third size-4.5" />
-          </button>
-          <button type="button" onClick={() => {}}>
-            <LanguagesIcon className="size-4.5" />
-          </button>
-          <button
-            type="button"
-            // TODO: 현재 content에 따라 다른 언어 선택해서 보내기
-            onClick={() => onPlayTts(message.content, 'spanish')}
+        {/* 신고, 번역, TTS 버튼 */}
+        {!isBlindMessage && (
+          <div
+            className={cn(
+              'text-brand-login-text bg-brand-gray-100 rounded-brand-base flex items-center px-1.5 py-1',
+              'absolute opacity-0 transition-all group-hover:opacity-100',
+              '-right-9 flex-col gap-1.5 sm:-right-20 sm:flex-row sm:gap-1'
+            )}
           >
-            <Volume2Icon className="size-4.5" />
-          </button>
-        </div>
+            {/* TODO: 메세지 신고 API 연결하기 */}
+            <button type="button" onClick={() => {}}>
+              <SirenIcon className="text-brand-third size-4.5" />
+            </button>
+            <button type="button" onClick={handleTranslateClick}>
+              <LanguagesIcon className="size-4.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                onPlayTts(displayContent, showSpanish ? 'spanish' : 'korean')
+              }
+            >
+              <Volume2Icon className="size-4.5" />
+            </button>
+          </div>
+        )}
       </div>
     </li>
   )
