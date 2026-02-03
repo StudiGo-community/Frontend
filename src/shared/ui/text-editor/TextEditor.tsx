@@ -29,7 +29,9 @@ export default function TextEditor({
 }: TextEditorProps) {
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        link: false,
+      }),
       Highlight.configure({
         HTMLAttributes: {
           class: 'bg-brand-side py-[3px]',

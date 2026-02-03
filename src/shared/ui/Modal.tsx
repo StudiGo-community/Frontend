@@ -109,6 +109,19 @@ function DialogTitle({
   )
 }
 
+function ModalDescription({
+  className,
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Description>) {
+  return (
+    <DialogPrimitive.Description
+      data-slot="modal-description"
+      className={cn('text-brand-gray-600 text-sm', className)}
+      {...props}
+    />
+  )
+}
+
 interface ModalProps {
   isOpen?: boolean
   onClose?: () => void
@@ -160,4 +173,4 @@ function Modal({
 
 const ModalClose = DialogClose
 
-export { Modal, ModalClose }
+export { Modal, ModalClose, ModalDescription }

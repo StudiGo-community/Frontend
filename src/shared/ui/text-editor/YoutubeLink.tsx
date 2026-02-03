@@ -5,7 +5,7 @@ import { Editor } from '@tiptap/react'
 import { TvMinimalPlay } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import MenuButton from '@/shared/ui/text-editor/MenuButton'
-import { Modal, ModalClose } from '@/shared/ui/Modal'
+import { Modal, ModalClose, ModalDescription } from '@/shared/ui/Modal'
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input/Input'
 import { formatUrl, validateUrl } from '@/shared/lib/url'
@@ -66,6 +66,9 @@ export default function YoutubeLink({ editor }: { editor: Editor }) {
         title="유튜브 영상 첨부"
         size="sm"
       >
+        <ModalDescription className="mb-4">
+          유튜브 영상의 링크를 붙여넣기 하거나 입력해주세요.
+        </ModalDescription>
         <div className="flex flex-col gap-1.5">
           <Input
             placeholder="유튜브 링크를 입력해주세요"

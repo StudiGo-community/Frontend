@@ -1,6 +1,8 @@
 'use client'
 
-import { Button } from '@/shared/ui/Button'
+import CancelButton from '@/features/community-post-manage/ui/CancelButton'
+import ResetButton from '@/features/community-post-manage/ui/ResetButton'
+import SubmitButton from '@/features/community-post-manage/ui/SubmitButton'
 
 interface FormActionButtonsProps {
   onCancel: () => void
@@ -15,21 +17,9 @@ export default function FormActionButtons({
 }: FormActionButtonsProps) {
   return (
     <div className="bg-brand-white border-brand-gray-100 fixed right-0 bottom-0 left-0 z-30 flex justify-end gap-3 border-t p-4 px-6">
-      <Button variant="ghost" type="button" onClick={onCancel} size="md">
-        취소하기
-      </Button>
-      <Button variant="ghost" type="button" onClick={onReset} size="md">
-        다시쓰기
-      </Button>
-      <Button
-        form="community-form"
-        type="submit"
-        size="md"
-        disabled={isSubmitting}
-        className="disabled:bg-brand-gray-200 text-md bg-brand-black px-10 py-6 font-bold text-white transition-all"
-      >
-        {isSubmitting ? '등록 중...' : '등록하기'}
-      </Button>
+      <CancelButton onCancel={onCancel} />
+      <ResetButton onReset={onReset} />
+      <SubmitButton isSubmitting={isSubmitting} />
     </div>
   )
 }
