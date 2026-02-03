@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { chatSocketApi } from '@/features/chat-message-subscribe/api/socket'
+import { chatSocketApi } from '@/entities/message/api/socket'
 
 interface ChatSocketStore {
   socket: WebSocket | null

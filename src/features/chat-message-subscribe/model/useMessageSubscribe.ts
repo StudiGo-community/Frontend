@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react'
 import { ChatSocketEventSchema } from '@/features/chat-message-subscribe/model/schema'
 import useMessageCacheHandler from '@/entities/message/model/useMessageCacheHandler'
-import { useChatSocketStore } from '@/features/chat-message-subscribe/model/store'
+import { useChatSocketStore } from '@/entities/message/model/store'
 
 function useMessageSubscribe(
   roomId: number | null,
