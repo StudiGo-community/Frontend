@@ -1,6 +1,6 @@
 'use client'
 
-import * as React from 'react'
+import { useRef, useState, type ChangeEventHandler } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
@@ -10,43 +10,74 @@ import { cn } from '@/shared/lib/cn'
 
 type UserRole = 'user' | 'admin' | 'instructor'
 
-type MyInfoDraft = {
+interface MyInfoDraft {
   nickname: string
   marketingAgree: boolean
-  profileImage?: string | null // dataURL or null
+  profileImage?: string | null
 }
 
 const MYINFO_STORAGE_KEY = 'studigo_myinfo_draft'
 
+const getInitialDraft = (): MyInfoDraft | null => {
+  if (typeof window === 'undefined') return null
+
+  try {
+    const raw = localStorage.getItem(MYINFO_STORAGE_KEY)
+    if (!raw) return null
+
+    const parsed = JSON.parse(raw) as Partial<MyInfoDraft>
+
+    const nickname =
+      typeof parsed.nickname === 'string' ? parsed.nickname : 'fortes42'
+    const marketingAgree =
+      typeof parsed.marketingAgree === 'boolean' ? parsed.marketingAgree : true
+    const profileImage =
+      typeof parsed.profileImage === 'string' || parsed.profileImage === null
+        ? parsed.profileImage
+        : null
+
+    return { nickname, marketingAgree, profileImage }
+  } catch {
+    return null
+  }
+}
+
 export function MyInformationFix() {
   const router = useRouter()
 
-  const fileRef = React.useRef<HTMLInputElement>(null)
-  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  const [draft] = useState<MyInfoDraft | null>(() => getInitialDraft())
+
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    draft?.profileImage ?? null
+  )
 
   const userRole: UserRole = 'user' // TODO: 실제 유저 role로 교체
-  const [nickname, setNickname] = React.useState('fortes42')
+  const [nickname, setNickname] = useState(draft?.nickname ?? 'fortes42')
+  const [marketingAgree, setMarketingAgree] = useState(
+    draft?.marketingAgree ?? true
+  )
+
   const nameValue = '박진우'
   const joinedAtValue = '2026.01.08'
   const emailValue = 'forteslv42@gmail.com'
   const phoneValue = '01012345678'
-  const [marketingAgree, setMarketingAgree] = React.useState(true)
 
-  const [isPasswordEditing, setIsPasswordEditing] = React.useState(false)
+  const [isPasswordEditing, setIsPasswordEditing] = useState(false)
 
-  const [currentPassword] = React.useState('***************')
-  const [newPassword, setNewPassword] = React.useState('')
-  const [newPasswordConfirm, setNewPasswordConfirm] = React.useState('')
+  const [currentPassword] = useState('***************')
+  const [newPassword, setNewPassword] = useState('')
+  const [newPasswordConfirm, setNewPasswordConfirm] = useState('')
 
   const hasTypedNewPw = isPasswordEditing && newPassword.length > 0
-
   const isMin8 = newPassword.length >= 8
   const hasLetter = /[A-Za-z]/.test(newPassword)
   const hasNumber = /\d/.test(newPassword)
   const hasSpecial = /[^A-Za-z0-9]/.test(newPassword)
   const isComboOk = hasLetter && hasNumber && hasSpecial
 
-  const ruleTextColor = (ok: boolean) => {
+  const passwordRuleTextColor = (ok: boolean) => {
     if (!hasTypedNewPw) return 'text-brand-gray-300'
     return ok ? 'text-brand-green' : 'text-brand-main'
   }
@@ -62,26 +93,11 @@ export function MyInformationFix() {
     instructor: 'border-brand-blue',
   }[userRole]
 
-  React.useEffect(() => {
-    if (typeof window === 'undefined') return
-    try {
-      const raw = localStorage.getItem(MYINFO_STORAGE_KEY)
-      if (!raw) return
-      const saved = JSON.parse(raw) as MyInfoDraft
-
-      if (typeof saved.nickname === 'string') setNickname(saved.nickname)
-      if (typeof saved.marketingAgree === 'boolean')
-        setMarketingAgree(saved.marketingAgree)
-      if (typeof saved.profileImage === 'string' || saved.profileImage === null)
-        setPreviewUrl(saved.profileImage ?? null)
-    } catch {}
-  }, [])
-
   const handleClickUpload = () => {
     fileRef.current?.click()
   }
 
-  const handleChangeFile: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+  const handleChangeFile: ChangeEventHandler<HTMLInputElement> = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -227,25 +243,26 @@ export function MyInformationFix() {
 
           {(() => {
             const hasTyped = nickname.length > 0
-
             const isLengthOk = nickname.length >= 2 && nickname.length <= 12
             const isCharOk = /^[A-Za-z0-9가-힣]+$/.test(nickname)
             const isBannedOk = true // TODO: 금지어 체크 API 연결 전까지는 true
 
-            const ruleTextColor = (ok: boolean) => {
+            const nicknameRuleTextColor = (ok: boolean) => {
               if (!hasTyped) return 'text-brand-gray-300'
               return ok ? 'text-brand-green' : 'text-brand-main'
             }
 
             return (
               <div className="mt-3 text-xs leading-5">
-                <p className={ruleTextColor(isLengthOk)}>
+                <p className={nicknameRuleTextColor(isLengthOk)}>
                   ✓ 최소 2글자 최대 12글자
                 </p>
-                <p className={ruleTextColor(isCharOk)}>
+                <p className={nicknameRuleTextColor(isCharOk)}>
                   ✓ 한글, 영문, 숫자만 사용 가능 (특수문자, 공백 불가)
                 </p>
-                <p className={ruleTextColor(isBannedOk)}>✓ 금지어 포함 불가</p>
+                <p className={nicknameRuleTextColor(isBannedOk)}>
+                  ✓ 금지어 포함 불가
+                </p>
               </div>
             )
           })()}
@@ -320,8 +337,10 @@ export function MyInformationFix() {
                 />
 
                 <div className="mt-3 text-sm leading-6">
-                  <p className={cn(ruleTextColor(isMin8))}>✓ 최소 8글자</p>
-                  <p className={cn(ruleTextColor(isComboOk))}>
+                  <p className={cn(passwordRuleTextColor(isMin8))}>
+                    ✓ 최소 8글자
+                  </p>
+                  <p className={cn(passwordRuleTextColor(isComboOk))}>
                     ✓ 영문, 숫자, 특수문자 조합
                   </p>
                 </div>
