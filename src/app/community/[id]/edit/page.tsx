@@ -1,4 +1,4 @@
-import OldPostForm from '@/features/community/post/components/OldPostForm'
+import PostForm from '@/features/community-post-manage/ui/PostForm'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -16,7 +16,7 @@ export default async function Page({ params }: PageProps) {
         게시글 수정
       </h1>
 
-      <OldPostForm />
+      <PostForm />
     </>
   )
 }
