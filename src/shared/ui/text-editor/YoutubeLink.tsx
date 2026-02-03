@@ -1,8 +1,8 @@
 'use client'
 
-import Link from '@tiptap/extension-link'
+import Youtube from '@tiptap/extension-youtube'
 import { Editor } from '@tiptap/react'
-import { Link as LinkIcon } from 'lucide-react'
+import { TvMinimalPlay } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import MenuButton from '@/shared/ui/text-editor/MenuButton'
 import { Modal, ModalClose } from '@/shared/ui/Modal'
@@ -10,84 +10,65 @@ import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input/Input'
 import { formatUrl, validateUrl } from '@/shared/lib/url'
 
-export const linkConfigure = Link.configure({
-  HTMLAttributes: {
-    class: 'text-brand-second underline cursor-pointer',
-  },
-  // autolink: false,
-  linkOnPaste: true,
-  defaultProtocol: 'https',
-  protocols: ['http', 'https'],
-  // 링크 유효성 검사 (보안)
-  isAllowedUri: (url, ctx) => {
-    // 기본 Tiptap 검증 + 커스텀 프로토콜 검증
-    const isValid = validateUrl(url, ctx.defaultProtocol)
-    if (!isValid) return false
-
-    // Tiptap 내부 검증도 통과시켜야 함
-    try {
-      const parsedUrl = url.includes(':')
-        ? new URL(url)
-        : new URL(`${ctx.defaultProtocol}://${url}`)
-      return ctx.defaultValidate(parsedUrl.href)
-    } catch {
-      return false
-    }
-  },
+export const youtubeConfigure = Youtube.configure({
+  controls: false,
+  nocookie: true,
 })
 
-export default function HyperLink({ editor }: { editor: Editor }) {
+export default function YoutubeLink({ editor }: { editor: Editor }) {
   const [isOpen, setIsOpen] = useState(false)
   const [url, setUrl] = useState('')
   const [error, setError] = useState<string | null>(null)
 
   const openModal = useCallback(() => {
-    const previousUrl = editor.getAttributes('link').href
-    setUrl(previousUrl || '')
+    setUrl('')
     setError(null)
     setIsOpen(true)
-  }, [editor])
+  }, [])
 
   const handleSave = useCallback(() => {
-    // 빈 URL이면 링크 삭제
     if (url === '') {
-      editor.chain().focus().extendMarkRange('link').unsetLink().run()
       setIsOpen(false)
       return
     }
 
-    // URL 포맷팅 및 검증
     const formattedUrl = formatUrl(url)
+
+    // 유튜브 URL 검증은 Tiptap Youtube extension이 내부적으로 처리하지만,
+    // 기본 URL 구조 검증은 수행합니다.
     if (!validateUrl(formattedUrl)) {
       setError('유효하지 않은 URL 형식입니다.')
       return
     }
 
-    editor
-      .chain()
-      .focus()
-      .extendMarkRange('link')
-      .setLink({ href: formattedUrl })
-      .run()
+    editor.commands.setYoutubeVideo({
+      src: formattedUrl,
+      width: 640,
+      height: 480,
+    })
 
     setIsOpen(false)
   }, [editor, url])
 
   return (
     <>
-      <MenuButton onClick={openModal} isActive={editor.isActive('link')}>
-        <LinkIcon />
+      <MenuButton
+        onClick={openModal}
+        isActive={editor.isActive('youtube')}
+        disabled={false}
+      >
+        <TvMinimalPlay />
       </MenuButton>
 
       <Modal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        title="링크 첨부"
+        title="유튜브 영상 첨부"
         size="sm"
       >
         <div className="flex flex-col gap-1.5">
           <Input
-            placeholder="URL을 입력해주세요"
+            placeholder="유튜브 링크를 입력해주세요"
             value={url}
             onChange={(e) => {
               setUrl(e.target.value)
@@ -103,6 +84,10 @@ export default function HyperLink({ editor }: { editor: Editor }) {
           />
           {error && <span className="text-brand-error text-xs">{error}</span>}
         </div>
+        <ul className="text-brand-gray-600 mt-3 list-inside list-disc text-xs">
+          <li>유튜브 영상 링크만 등록 가능합니다.</li>
+          <li>일부 공개 또는 비공개 영상은 재생되지 않을 수 있습니다.</li>
+        </ul>
         <div className="mt-6 flex justify-end gap-2">
           <ModalClose asChild>
             <Button variant="ghost" size="sm">

@@ -1,8 +1,11 @@
 'use client'
 
 import { useTiptap, useTiptapState } from '@tiptap/react'
-import { menuBarStateSelector } from './menuBarState'
-import MenuButton from './MenuButton'
+import { menuBarStateSelector } from '@/shared/ui/text-editor/config'
+import HyperLink from '@/shared/ui/text-editor/HyperLink'
+import ImageLink from '@/shared/ui/text-editor/ImageLink'
+import YoutubeLink from '@/shared/ui/text-editor/YoutubeLink'
+import MenuButton from '@/shared/ui/text-editor/MenuButton'
 import { Separator } from '@/shared/ui/Separator'
 import {
   AlignCenter,
@@ -15,20 +18,16 @@ import {
   Heading2,
   Heading3,
   Highlighter,
-  ImageIcon,
   Italic,
-  // Link,
   List,
   ListOrdered,
   Minus,
   Quote,
   Redo2,
   Strikethrough,
-  TvMinimalPlay,
   UnderlineIcon,
   Undo2,
 } from 'lucide-react'
-import HyperLink from '@/shared/ui/text-editor/HyperLink'
 
 export default function MenuBar() {
   const { editor, isReady } = useTiptap()
@@ -190,31 +189,10 @@ export default function MenuBar() {
 
       <Separator orientation="vertical" className="mx-2 h-8" />
 
-      {/* 링크 (스타터키트에 있음), 이미지, 유튜브 추가 */}
+      {/* 링크, 이미지, 유튜브 */}
       <HyperLink editor={editor} />
-
-      {/* TODO: 이미지 업로드 기능 추가 */}
-      <MenuButton
-        onClick={() =>
-          editor
-            .chain()
-            .focus()
-            .setImage({ src: 'https://placehold.co/800x400' })
-            .run()
-        }
-      >
-        <ImageIcon />
-      </MenuButton>
-      {/* TODO: 모달 띄워서 주소 입력창 띄우기 */}
-      <MenuButton
-        onClick={() =>
-          editor.commands.setYoutubeVideo({
-            src: 'https://youtu.be/F2Mx-u7auUs?si=B5RabshHgu6YN9Ai',
-          })
-        }
-      >
-        <TvMinimalPlay />
-      </MenuButton>
+      <ImageLink editor={editor} />
+      <YoutubeLink editor={editor} />
     </div>
   )
 }
