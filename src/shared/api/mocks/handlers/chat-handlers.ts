@@ -136,16 +136,28 @@ const url = `${protocol}://${process.env.NEXT_PUBLIC_WS_HOST}/ws/chat/rooms/:roo
 const chat = ws.link(url)
 
 const chatSocketHandlers = [
-  chat.addEventListener('connection', ({ client }) => {
+  chat.addEventListener('connection', async ({ client }) => {
     console.log('✨ 웹소켓 연결 완료!')
 
-    SOCKET_MESSAGES.forEach(async (message, index) => {
-      await new Promise((resolve) =>
-        setTimeout(resolve, 1000 * index + 1)
-      ).then(() =>
+    // 새로운 메세지
+    for (const [_, message] of SOCKET_MESSAGES.entries()) {
+      await new Promise((resolve) => setTimeout(resolve, 500)).then(() =>
         client.send(JSON.stringify({ type: 'NEW_MESSAGE', message }))
       )
-    })
+    }
+
+    // 관리자가 메세지 삭제
+    const url = client.url.toString()
+    const roomId = Number(url.split('/')[6])
+    await new Promise((resolve) => setTimeout(resolve, 1000)).then(() =>
+      client.send(
+        JSON.stringify({
+          type: 'MESSAGE_DELETED',
+          room_id: roomId,
+          message_id: 104,
+        })
+      )
+    )
 
     client.addEventListener('close', () => {
       console.log('✨ 웹소켓 연결 종료!')
