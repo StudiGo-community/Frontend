@@ -2,7 +2,7 @@ import { getChatMessageList } from '@/entities/message/api/api'
 import MessageInput from '@/features/chat-message-send/ui/MessageInput'
 import { chatKeys } from '@/shared/api/query-keys'
 import ChatHeader from '@/widgets/chat-window/ui/ChatHeader'
-import MessageList from '@/widgets/chat-window/ui/MessageList'
+import { ChatMessageView } from '@/features/chat-message-view/ui'
 import {
   dehydrate,
   HydrationBoundary,
@@ -31,7 +31,7 @@ async function ChatWindow({ enteredRoomId }: ChatWindowProps) {
     <section className="mb-16 flex-1 px-3">
       <ChatHeader enteredRoomId={enteredRoomId} />
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <MessageList enteredRoomId={enteredRoomId} />
+        <ChatMessageView enteredRoomId={enteredRoomId} />
       </HydrationBoundary>
       <MessageInput enteredRoomId={enteredRoomId} />
     </section>

@@ -14,9 +14,10 @@ import { LoaderCircleIcon } from 'lucide-react'
 
 interface MessageInputProps {
   enteredRoomId: number
+  className?: string
 }
 
-function MessageInput({ enteredRoomId }: MessageInputProps) {
+function MessageInput({ enteredRoomId, className }: MessageInputProps) {
   const user = useSessionStore((state) => state.user)
   const { handleNewMessage } = useMessageCacheHandler()
   const formRef = useRef<HTMLFormElement>(null)
@@ -68,7 +69,10 @@ function MessageInput({ enteredRoomId }: MessageInputProps) {
     <form
       ref={formRef}
       onSubmit={handleSubmit}
-      className="border-t-brand-gray-200 flex flex-col gap-4 border-t"
+      className={cn(
+        'border-t-brand-gray-200 flex flex-col gap-4 border-t',
+        className
+      )}
     >
       <textarea
         onKeyDown={handleKeyDown}

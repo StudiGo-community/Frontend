@@ -1,7 +1,7 @@
 import CommunityBanner from '@/widgets/community-quiz/ui/CommunityBanner'
 import CommunityBoard from '@/widgets/community-board/ui/CommunityBoard'
-import FloatingButton from '@/shared/ui/FloatingButton'
 import { CommunityBoardSearchParams } from '@/widgets/community-board/model/types'
+import { FloatingChat } from '@/widgets/floating-chat/ui'
 
 // nuqs 쓰면 거기서 다시 처리
 interface PageProps {
@@ -25,8 +25,8 @@ export default async function Page({ searchParams }: PageProps) {
         query={query}
       />
 
-      {/* 플로팅 버튼 */}
-      <FloatingButton />
+      {/* 플로팅 채팅방 */}
+      <FloatingChat />
     </>
   )
 }
