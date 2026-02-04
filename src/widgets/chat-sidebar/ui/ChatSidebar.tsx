@@ -6,18 +6,23 @@ import Image from 'next/image'
 import { useChatRoomList } from '@/entities/chat-room/api/queries'
 import Error from '@/shared/ui/Error'
 import Loading from '@/shared/ui/Loading'
+import { useState } from 'react'
+import ChatRoomSwitchModal from '@/features/chat-room-switch/ui/ChatRoomSwitchModal'
+import { type ChatRoom } from '@/entities/chat-room/model/schema'
 
 interface ChatSidebarProps {
   enteredRoomId: number
 }
 
 function ChatSidebar({ enteredRoomId }: ChatSidebarProps) {
+  const [targetRoom, setTargetRoom] = useState<ChatRoom | null>(null)
   const { data, isLoading, error } = useChatRoomList()
   const chatRooms = data?.rooms
 
-  const handleClick = (roomId: number) => {
-    if (roomId === enteredRoomId) return
-    /*TODO: 모달 띄우고 유저 선택에 따라 다른 채팅방으로 이동하는 로직 추가*/
+  const handleModalClose = () => setTargetRoom(null)
+  const handleClick = (chatRoom: ChatRoom) => {
+    if (chatRoom.id === enteredRoomId) return
+    setTargetRoom(chatRoom)
   }
 
   return (
@@ -52,7 +57,7 @@ function ChatSidebar({ enteredRoomId }: ChatSidebarProps) {
                       chatRoom.id === enteredRoomId,
                   }
                 )}
-                onClick={() => handleClick(chatRoom.id)}
+                onClick={() => handleClick(chatRoom)}
                 aria-label={`${chatRoom.name} 채팅방으로 이동`}
               >
                 <div className="relative mr-2 size-10">
@@ -87,6 +92,7 @@ function ChatSidebar({ enteredRoomId }: ChatSidebarProps) {
             </li>
           ))}
       </ul>
+      <ChatRoomSwitchModal targetRoom={targetRoom} onClose={handleModalClose} />
     </aside>
   )
 }

@@ -5,12 +5,18 @@ import { useSearchParams } from 'next/navigation'
 import Loading from '@/shared/ui/Loading'
 import Error from '@/shared/ui/Error'
 import { useChatRoomList } from '@/entities/chat-room/api/queries'
+import { useState } from 'react'
+import { type ChatRoom } from '@/entities/chat-room/model/schema'
+import ChatRoomSwitchModal from '@/features/chat-room-switch/ui/ChatRoomSwitchModal'
 
 function ChatRoomList() {
+  const [targetRoom, setTargetRoom] = useState<ChatRoom | null>(null)
   const searchParams = useSearchParams()
   const sort = searchParams.get('sort') ?? 'desc'
   const { data, isLoading, error } = useChatRoomList(sort)
   const chatRooms = data?.rooms ?? []
+
+  const handleModalClose = () => setTargetRoom(null)
 
   if (isLoading) return <Loading className="mt-18" />
   if (error)
@@ -27,9 +33,14 @@ function ChatRoomList() {
     <div>
       <ul className="flex flex-col">
         {chatRooms.map((chatRoom) => (
-          <ChatRoomItem key={chatRoom.id} chatRoom={chatRoom} />
+          <ChatRoomItem
+            key={chatRoom.id}
+            chatRoom={chatRoom}
+            onSwitchRequest={() => setTargetRoom(chatRoom)}
+          />
         ))}
       </ul>
+      <ChatRoomSwitchModal targetRoom={targetRoom} onClose={handleModalClose} />
     </div>
   )
 }

@@ -10,17 +10,18 @@ import {
   type ChatRoom,
   type ChatRoomEnterResponse,
 } from '@/entities/chat-room/model/schema'
-import { useEnterChatRoom } from '@/features/chat-room-enter/api/queries'
 import { useTokenStore } from '@/entities/session/store/token-store'
 import { useRouter } from 'next/navigation'
+import { useEnterChatRoom } from '@/entities/chat-room/api/queries'
 
 interface ChatRoomItemProps {
   chatRoom: ChatRoom
+  onSwitchRequest: () => void
 }
 
 const LOADING_TOAST_ID = 'ENTER_ROOM'
 
-function ChatRoomItem({ chatRoom }: ChatRoomItemProps) {
+function ChatRoomItem({ chatRoom, onSwitchRequest }: ChatRoomItemProps) {
   const router = useRouter()
   const accessToken = useTokenStore((state) => state.accessToken)
   const enteredRoomId = useChatStore((state) => state.enteredRoomId)
@@ -30,7 +31,7 @@ function ChatRoomItem({ chatRoom }: ChatRoomItemProps) {
   const handleEnterChatRoomSuccess = (data: ChatRoomEnterResponse) => {
     const roomId = data.room.id
     setEnteredRoomId(roomId)
-    toast.success('입장 성공!', { id: LOADING_TOAST_ID })
+    toast.success('환영합니다!', { id: LOADING_TOAST_ID })
     router.push(`/chat/${roomId}`)
   }
   const { mutate: enterChatRoom, isPending } = useEnterChatRoom({
@@ -47,8 +48,7 @@ function ChatRoomItem({ chatRoom }: ChatRoomItemProps) {
       return
     }
     if (enteredRoomId && !isEnteredChatRoom) {
-      // TODO: 채팅방 퇴장 API 붙이고 나서 기존 채팅방 퇴장 → 새로운 채팅방 입장할지 묻는 모달로 바꾸기
-      toast.warning('채팅방은 중복 입장할 수 없습니다.')
+      onSwitchRequest()
       return
     }
 
