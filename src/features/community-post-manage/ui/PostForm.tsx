@@ -11,33 +11,28 @@ import CategoryField from '@/features/community-post-manage/ui/CategoryField'
 import TitleField from '@/features/community-post-manage/ui/TitleField'
 import ContentField from '@/features/community-post-manage/ui/ContentField'
 import FormActionButtons from '@/features/community-post-manage/ui/FormActionButtons'
-import { useCreatePostMutation } from '@/features/community-post-manage/model/useCreatePostMutation'
-import { extractImagesUrl } from '../lib/extract-images'
 
-// TODO: defaultValues 인자로 받아오기
-export default function PostForm() {
+interface PostFormProps {
+  onSubmit: (data: PostCreateForm) => void
+  isSubmitting?: boolean
+  defaultValues?: Partial<PostCreateForm>
+}
+
+export default function PostForm({
+  onSubmit,
+  isSubmitting,
+  defaultValues,
+}: PostFormProps) {
   const router = useRouter()
-  const { mutate, isPending } = useCreatePostMutation()
 
   const form = useForm<PostCreateForm>({
     resolver: zodResolver(PostCreateFormSchema),
-    defaultValues: {
+    defaultValues: defaultValues || {
       title: '',
       content: '',
       category: undefined,
     },
   })
-
-  const onSubmit = (data: PostCreateForm) => {
-    const images = extractImagesUrl(data)
-    const payload = {
-      ...data,
-      images: images,
-      thumbnailUrl: images?.[0].url || null,
-    }
-
-    mutate(payload)
-  }
 
   return (
     <form
@@ -63,7 +58,7 @@ export default function PostForm() {
       <FormActionButtons
         onCancel={() => router.back()}
         onReset={() => form.reset()}
-        isSubmitting={isPending}
+        isSubmitting={isSubmitting}
       />
     </form>
   )
