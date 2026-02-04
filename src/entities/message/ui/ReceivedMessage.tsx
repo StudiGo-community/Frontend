@@ -54,7 +54,8 @@ function ReceivedMessage({ message, onPlayTts }: ReceivedMessageProps) {
         <span
           className={cn(
             'text-brand-gray-300 text-sm font-medium',
-            'absolute -right-15.5 opacity-100 transition-all group-hover:opacity-0'
+            'absolute -right-17 opacity-100 transition-all sm:-right-18',
+            { 'group-hover:opacity-0': !isBlindMessage }
           )}
         >
           {formatTimeString(message.createdAt)}
