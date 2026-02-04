@@ -21,7 +21,7 @@ const PostBaseSchema = z.object({
   title: z.string(),
   category: z.enum(POST_CATEGORIES),
   author: AuthorSchema,
-  thumbnail_url: z.url().max(URL_MAX_LENGTH),
+  thumbnail_url: z.url().max(URL_MAX_LENGTH).nullable(),
   images: z.array(ImageSchema),
   like_count: z.number().int().nonnegative(),
   comment_count: z.number().int().nonnegative(),
@@ -32,7 +32,7 @@ const PostBaseSchema = z.object({
 
 // 조립
 // 게시글 상세
-// images, comments 추가
+// content, created_at, comments 추가
 export const PostDetailSchema = PostBaseSchema.extend({
   content: z.string(),
   created_at: z.string(),
@@ -58,6 +58,7 @@ export const PostDetailSchema = PostBaseSchema.extend({
 export type PostDetail = z.infer<typeof PostDetailSchema>
 
 // 목록의 단일 게시글
+// content_preview, blinded_reason 추가
 export const PostListItemSchema = PostBaseSchema.extend({
   content_preview: z.string(),
   blinded_reason: z.string().nullable(),
@@ -77,8 +78,10 @@ export const PostListItemSchema = PostBaseSchema.extend({
   blindedReason: post.blinded_reason,
   contentPreview: post.content_preview,
 }))
+
+export type PostListItem = z.infer<typeof PostListItemSchema>
+
 // 목록
-// blinded_reason, thumbnail_image 추가
 export const PostListSchema = z.object({
   count: z.number().int().nonnegative(),
   next: z.string().nullable(),

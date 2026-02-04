@@ -1,10 +1,10 @@
 import Image from 'next/image'
-import { Post } from '@/entities/post/model/mockData'
 import Link from 'next/link'
-import PostStats from './PostStats'
+import PostStats from '@/entities/post/ui/PostStats'
+import { PostListItem } from '@/entities/post/model/post.schema'
 
 interface PostCardProps {
-  post: Post
+  post: PostListItem
 }
 
 export default function PostCard({ post }: PostCardProps) {
@@ -17,9 +17,9 @@ export default function PostCard({ post }: PostCardProps) {
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           {/* 상단 */}
           <div className="text-brand-gray-400 flex items-center gap-2 text-base">
-            {post.author.profileImage ? (
+            {post.author.profileImageUrl ? (
               <Image
-                src={post.author.profileImage}
+                src={post.author.profileImageUrl}
                 alt={post.author.nickname}
                 width={24}
                 height={24}
@@ -31,7 +31,15 @@ export default function PostCard({ post }: PostCardProps) {
             <span className="text-brand-black font-bold">
               {post.author.nickname}
             </span>
-            <span className="text-brand-gray-300 pl-4">{post.createdAt}</span>
+            <span className="text-brand-gray-300 pl-4">
+              {post.updatedAt.toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </span>
           </div>
 
           {/* 제목 */}
@@ -41,17 +49,17 @@ export default function PostCard({ post }: PostCardProps) {
 
           {/* 하단 */}
           <PostStats
-            viewCount={post.views}
-            likeCount={post.likes}
-            commentCount={post.comments}
+            viewCount={post.viewCount}
+            likeCount={post.likeCount}
+            commentCount={post.commentCount}
           />
         </div>
 
         {/* 썸네일 */}
-        {post.thumbnail && (
+        {post.thumbnailUrl && (
           <div className="bg-brand-gray-100 border-brand-gray-50 relative ml-6 h-24 w-24 shrink-0 overflow-hidden rounded-xl border">
             <Image
-              src={post.thumbnail}
+              src={post.thumbnailUrl}
               alt="post thumbnail"
               fill
               sizes="96px"

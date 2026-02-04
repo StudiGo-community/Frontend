@@ -1,4 +1,4 @@
-import { PostFormData } from '@/shared/api/schema/postSchema'
+// import { PostFormData } from '@/shared/api/schema/postSchema'
 import { http, HttpResponse } from 'msw'
 
 // interface PostDetail extends PostFormData {
@@ -17,35 +17,35 @@ import { http, HttpResponse } from 'msw'
 //   comments: string[]
 // }
 
-const CURRENT_USER_ID = 10
+// const CURRENT_USER_ID = 10
 
-const posts = [
-  {
-    id: 1,
-    title:
-      '흑백요리사2 백수저 손종원 셰프 누구? 프로필·결혼·레스토랑 한 눈 정리',
-    content: `
-      <img src="https://cdn.example.com/chef.png" alt="손종원 셰프" />
-      <p>넷플릭스 흑백요리사 시즌2가 공개된 이후...</p>
-    `,
-    category: 'Free',
-    author: {
-      id: 10,
-      nickname: 'mju',
-      profile_image_url: 'https://cdn.example.com/profile.png',
-    },
-    images: [{ id: 101, url: 'https://cdn.example.com/chef.png', order: 1 }],
-    like_count: 337,
-    comment_count: 84,
-    view_count: 1024,
-    is_liked: false,
-    created_at: '2026-01-08T02:35:00+09:00',
-    updated_at: '2026-01-08T02:35:00+09:00',
-    comments: [],
-  },
-]
+// const posts = [
+//   {
+//     id: 1,
+//     title:
+//       '흑백요리사2 백수저 손종원 셰프 누구? 프로필·결혼·레스토랑 한 눈 정리',
+//     content: `
+//       <img src="https://cdn.example.com/chef.png" alt="손종원 셰프" />
+//       <p>넷플릭스 흑백요리사 시즌2가 공개된 이후...</p>
+//     `,
+//     category: 'Free',
+//     author: {
+//       id: 10,
+//       nickname: 'mju',
+//       profile_image_url: 'https://cdn.example.com/profile.png',
+//     },
+//     images: [{ id: 101, url: 'https://cdn.example.com/chef.png', order: 1 }],
+//     like_count: 337,
+//     comment_count: 84,
+//     view_count: 1024,
+//     is_liked: false,
+//     created_at: '2026-01-08T02:35:00+09:00',
+//     updated_at: '2026-01-08T02:35:00+09:00',
+//     comments: [],
+//   },
+// ]
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
+// const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
 // ---------- 게시글 등록 (POST) ----------
 // const createPost = http.post(
