@@ -12,6 +12,7 @@ import TitleField from '@/features/community-post-manage/ui/TitleField'
 import ContentField from '@/features/community-post-manage/ui/ContentField'
 import FormActionButtons from '@/features/community-post-manage/ui/FormActionButtons'
 import { useCreatePostMutation } from '@/features/community-post-manage/model/useCreatePostMutation'
+import { extractImagesUrl } from '../lib/extract-images'
 
 // TODO: defaultValues 인자로 받아오기
 export default function PostForm() {
@@ -24,13 +25,18 @@ export default function PostForm() {
       title: '',
       content: '',
       category: undefined,
-      // thumbnailUrl: null,
-      // images: [],
     },
   })
 
   const onSubmit = (data: PostCreateForm) => {
-    mutate(data)
+    const images = extractImagesUrl(data)
+    const payload = {
+      ...data,
+      images: images,
+      thumbnailUrl: images?.[0].url || null,
+    }
+
+    mutate(payload)
   }
 
   return (
@@ -58,7 +64,6 @@ export default function PostForm() {
         onCancel={() => router.back()}
         onReset={() => form.reset()}
         isSubmitting={isPending}
-        // isSubmitting={mutationOptions.isPending}
       />
     </form>
   )
