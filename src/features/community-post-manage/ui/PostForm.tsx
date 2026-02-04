@@ -11,10 +11,12 @@ import CategoryField from '@/features/community-post-manage/ui/CategoryField'
 import TitleField from '@/features/community-post-manage/ui/TitleField'
 import ContentField from '@/features/community-post-manage/ui/ContentField'
 import FormActionButtons from '@/features/community-post-manage/ui/FormActionButtons'
+import { useCreatePostMutation } from '@/features/community-post-manage/model/useCreatePostMutation'
 
 // TODO: defaultValues 인자로 받아오기
 export default function PostForm() {
   const router = useRouter()
+  const { mutate, isPending } = useCreatePostMutation()
 
   const form = useForm<PostCreateForm>({
     resolver: zodResolver(PostCreateFormSchema),
@@ -28,7 +30,7 @@ export default function PostForm() {
   })
 
   const onSubmit = (data: PostCreateForm) => {
-    console.log(data)
+    mutate(data)
   }
 
   return (
@@ -55,7 +57,7 @@ export default function PostForm() {
       <FormActionButtons
         onCancel={() => router.back()}
         onReset={() => form.reset()}
-        isSubmitting={form.formState.isSubmitting}
+        isSubmitting={isPending}
         // isSubmitting={mutationOptions.isPending}
       />
     </form>

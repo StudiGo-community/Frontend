@@ -45,6 +45,12 @@ export async function createPostAction(data: PostCreateForm) {
   } catch (error: unknown) {
     // 에러를 던져줌 (훅에서 받아서 처리)
     if (isAxiosError(error)) {
+      const status = error.response?.status
+
+      if (status === 401) {
+        throw new Error('로그인이 필요하거나 만료되었습니다.')
+      }
+
       const errorMessage =
         error.response?.data?.message ||
         error.message ||
