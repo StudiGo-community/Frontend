@@ -14,7 +14,7 @@ import useInfiniteScroll from '@/entities/message/model/useInfiniteScroll'
 import useMessageSubscribe from '@/entities/message/model/useMessageSubscribe'
 import { useSessionStore } from '@/entities/session/store/session-store'
 import { useTokenStore } from '@/entities/session/store/token-store'
-import useTts from '@/features/chat-message-tts/lib/useTts'
+import useTts from '@/shared/lib/useTts'
 
 interface MessageListProps {
   enteredRoomId: number
