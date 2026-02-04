@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react'
-import { ChatSocketEventSchema } from '@/features/chat-message-subscribe/model/schema'
+import { ChatSocketEventSchema } from '@/entities/message/model/socket-schema'
 import useMessageCacheHandler from '@/entities/message/model/useMessageCacheHandler'
 import { useChatSocketStore } from '@/entities/message/model/store'
 
