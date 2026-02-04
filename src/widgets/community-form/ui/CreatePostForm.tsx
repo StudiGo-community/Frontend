@@ -12,7 +12,7 @@ export default function CreatePostForm() {
     const payload = {
       ...data,
       images: images,
-      thumbnailUrl: images?.[0].url || null,
+      thumbnailUrl: images?.[0]?.url || null,
     }
 
     mutate(payload)
