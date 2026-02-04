@@ -12,24 +12,27 @@ import TitleField from '@/features/community-post-manage/ui/TitleField'
 import ContentField from '@/features/community-post-manage/ui/ContentField'
 import FormActionButtons from '@/features/community-post-manage/ui/FormActionButtons'
 
-// TODO: defaultValues 인자로 받아오기
-export default function PostForm() {
+interface PostFormProps {
+  onSubmit: (data: PostCreateForm) => void
+  isSubmitting?: boolean
+  defaultValues?: Partial<PostCreateForm>
+}
+
+export default function PostForm({
+  onSubmit,
+  isSubmitting,
+  defaultValues,
+}: PostFormProps) {
   const router = useRouter()
 
   const form = useForm<PostCreateForm>({
     resolver: zodResolver(PostCreateFormSchema),
-    defaultValues: {
+    defaultValues: defaultValues || {
       title: '',
       content: '',
       category: undefined,
-      // thumbnailUrl: null,
-      // images: [],
     },
   })
-
-  const onSubmit = (data: PostCreateForm) => {
-    console.log(data)
-  }
 
   return (
     <form
@@ -55,8 +58,7 @@ export default function PostForm() {
       <FormActionButtons
         onCancel={() => router.back()}
         onReset={() => form.reset()}
-        isSubmitting={form.formState.isSubmitting}
-        // isSubmitting={mutationOptions.isPending}
+        isSubmitting={isSubmitting}
       />
     </form>
   )

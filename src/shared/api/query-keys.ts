@@ -4,3 +4,7 @@ export const chatKeys = {
   messageList: (roomId: number) =>
     [...chatKeys.all, roomId, 'message', 'list'] as const,
 }
+
+export const postKeys = {
+  all: ['posts'] as const,
+}

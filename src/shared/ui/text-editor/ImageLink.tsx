@@ -11,7 +11,7 @@ import { Input } from '@/shared/ui/input/Input'
 import { formatUrl, validateUrl } from '@/shared/lib/url'
 
 export const imageConfigure = Image.configure({
-  inline: true,
+  inline: false,
   allowBase64: true,
   resize: {
     enabled: true,
@@ -43,9 +43,11 @@ export default function ImageLink({ editor }: { editor: Editor }) {
       return
     }
 
-    editor.chain().focus().setImage({ src: formattedUrl }).run()
-
     setIsOpen(false)
+
+    setTimeout(() => {
+      editor.chain().setImage({ src: formattedUrl }).focus().run()
+    }, 300)
   }, [editor, url])
 
   return (
