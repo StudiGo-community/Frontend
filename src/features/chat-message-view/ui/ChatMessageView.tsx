@@ -22,7 +22,7 @@ interface MessageListProps {
 
 const MESSAGE_STATUS_LAYOUT = 'h-full flex flex-1 items-center justify-center'
 
-function MessageList({ enteredRoomId }: MessageListProps) {
+function ChatMessageView({ enteredRoomId }: MessageListProps) {
   const {
     data,
     isLoading,
@@ -111,4 +111,4 @@ function MessageList({ enteredRoomId }: MessageListProps) {
   )
 }
 
-export default MessageList
+export default ChatMessageView
