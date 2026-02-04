@@ -22,7 +22,7 @@ export default function CommunitySearchForm({
     const query = formData.get('query') as string
 
     const newUrl = createUrl('', currentSearchParams, {
-      query: query || null, // query 빈 값 -> null -> 파라미터 삭제
+      q: query || null, // query 빈 값 -> null -> 파라미터 삭제
       page: 1,
     })
 
@@ -38,7 +38,7 @@ export default function CommunitySearchForm({
         name="query"
         type="search"
         size="sm"
-        defaultValue={(currentSearchParams.query as string) || ''}
+        defaultValue={(currentSearchParams.q as string) || ''}
         placeholder="검색어를 입력하세요"
         className="hover:border-brand-main text-brand-gray-300 hover:text-brand-main max-w-sm"
       />

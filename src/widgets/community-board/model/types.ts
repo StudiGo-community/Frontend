@@ -9,6 +9,6 @@ export interface CommunityBoardSearchParams {
   page?: string
   category?: CommunityCategory
   sort?: CommunitySort
-  query?: string
+  q?: string
   searchType?: CommunitySearchType
 }

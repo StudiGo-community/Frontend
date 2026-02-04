@@ -6,7 +6,7 @@ interface GetPostsParams {
   page?: string
   category?: string
   sort?: string
-  query?: string
+  q?: string
 }
 
 export default async function getPosts(params?: GetPostsParams) {

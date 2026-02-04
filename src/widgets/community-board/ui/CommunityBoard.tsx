@@ -9,19 +9,19 @@ export default async function CommunityBoard({
   page,
   category,
   sort,
-  query,
+  q,
 }: CommunityBoardSearchParams) {
   return (
     <section className="mt-16 space-y-8">
       <h1 className="text-brand-black text-4xl font-extrabold">게시판</h1>
 
       {/* 게시판 헤더 */}
-      <CommunityBoardFilters searchParams={{ category, sort, query, page }} />
+      <CommunityBoardFilters searchParams={{ category, sort, q, page }} />
 
       {/* 게시글 목록 */}
       <ApiErrorBoundary>
         <Suspense fallback={<PostListSkeleton />}>
-          <PostList searchParams={{ category, sort, query, page }} />
+          <PostList searchParams={{ category, sort, q, page }} />
         </Suspense>
       </ApiErrorBoundary>
     </section>

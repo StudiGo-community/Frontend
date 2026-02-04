@@ -34,7 +34,7 @@ export default async function PostList({
           page: searchParams.page,
           category: searchParams.category,
           sort: searchParams.sort,
-          query: searchParams.query,
+          q: searchParams.q,
         }}
         className="mb-16 py-4"
       />
