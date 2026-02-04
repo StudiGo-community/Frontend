@@ -1,4 +1,4 @@
-import PostForm from '@/features/community-post-manage/ui/PostForm'
+import CreatePostForm from '@/widgets/community-form/ui/CreatePostForm'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -16,7 +16,8 @@ export default async function Page({ params }: PageProps) {
         게시글 수정
       </h1>
 
-      <PostForm />
+      {/* TODO: 수정 폼으로 바꾸기 */}
+      <CreatePostForm />
     </>
   )
 }

@@ -1,4 +1,4 @@
-import PostForm from '@/features/community-post-manage/ui/PostForm'
+import CreatePostForm from '@/widgets/community-form/ui/CreatePostForm'
 
 export default async function Page() {
   return (
@@ -7,7 +7,7 @@ export default async function Page() {
         게시글 작성
       </h1>
 
-      <PostForm />
+      <CreatePostForm />
     </>
   )
 }
