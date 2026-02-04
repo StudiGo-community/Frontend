@@ -4,10 +4,10 @@ import PostStats from '@/entities/post/ui/PostStats'
 import Image from 'next/image'
 import ActionDropdown from '@/shared/ui/ActionDropdown'
 import { cn } from '@/shared/lib/cn'
-import { Post } from '@/entities/post/model/type'
+import { PostDetail } from '@/entities/post/model/post.schema'
 
 interface CommunityPostProps {
-  post: Post
+  post: PostDetail
 }
 
 export default async function CommunityPost({ post }: CommunityPostProps) {
@@ -46,7 +46,7 @@ export default async function CommunityPost({ post }: CommunityPostProps) {
                 {post.author.nickname}
               </span>
               <span className="text-brand-gray-300 text-sm">
-                {post.createdAt}
+                {post.createdAt.toLocaleString()}
               </span>
             </div>
           </div>

@@ -8,11 +8,19 @@ import {
 
 // 파츠
 // 이미지
-export const ImageSchema = z.object({
-  id: z.number().int().positive(),
-  image_url: z.url().max(URL_MAX_LENGTH),
-  sort_order: z.number().int().nonnegative(),
-})
+export const ImageSchema = z
+  .object({
+    id: z.number().int().positive(),
+    image_url: z.url().max(URL_MAX_LENGTH),
+    sort_order: z.number().int().nonnegative(),
+  })
+  .transform((image) => ({
+    id: image.id,
+    imageUrl: image.image_url,
+    sortOrder: image.sort_order,
+  }))
+
+export type Image = z.infer<typeof ImageSchema>
 
 // 게시글 베이스
 // id, title, category, author, thumbnail_url, images, like_count, comment_count, view_count, is_liked, updated_at

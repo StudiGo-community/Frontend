@@ -2,7 +2,7 @@ import { Button } from '@/shared/ui/Button'
 import { Textarea } from '@/shared/ui/Textarea'
 import UrlPagination from '@/shared/ui/UrlPagination'
 import CommunityComment from './CommunityComment'
-import { Comment } from '@/entities/post/model/type'
+import { Comment } from '@/entities/post/model/comment.schema'
 
 interface CommunityCommentsProps {
   comments: Comment[]
