@@ -2,7 +2,7 @@ import { getChatMessageList } from '@/entities/message/api/api'
 import MessageInput from '@/features/chat-message-send/ui/MessageInput'
 import { chatKeys } from '@/shared/api/query-keys'
 import ChatHeader from '@/widgets/chat-window/ui/ChatHeader'
-import ChatMessageView from '@/features/chat-message-view/ui/ChatMessageView'
+import { ChatMessageView } from '@/features/chat-message-view/ui'
 import {
   dehydrate,
   HydrationBoundary,

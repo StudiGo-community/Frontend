@@ -8,21 +8,22 @@ import Error from '@/shared/ui/Error'
 import { Button } from '@/shared/ui/Button'
 import { ChevronDownIcon } from 'lucide-react'
 import EmptyState from '@/shared/ui/EmptyState'
-import { cn } from '@/shared/lib/cn'
 import { useChatMessageList } from '@/entities/message/api/queries'
 import useInfiniteScroll from '@/entities/message/model/useInfiniteScroll'
 import useMessageSubscribe from '@/entities/message/model/useMessageSubscribe'
 import { useSessionStore } from '@/entities/session/store/session-store'
 import { useTokenStore } from '@/entities/session/store/token-store'
 import useTts from '@/shared/lib/useTts'
+import MessageViewLayout from '@/features/chat-message-view/ui/MessageViewLayout'
 
 interface MessageListProps {
   enteredRoomId: number
+  className?: string
 }
 
 const MESSAGE_STATUS_LAYOUT = 'h-full flex flex-1 items-center justify-center'
 
-function ChatMessageView({ enteredRoomId }: MessageListProps) {
+function ChatMessageView({ enteredRoomId, className }: MessageListProps) {
   const {
     data,
     isLoading,
@@ -59,55 +60,62 @@ function ChatMessageView({ enteredRoomId }: MessageListProps) {
     })
   }
 
-  return (
-    <div className="relative h-[calc(100vh-22rem)]">
-      {isLoading && <Loading className={cn(MESSAGE_STATUS_LAYOUT)} />}
-      {!user && error && (
+  if (isLoading)
+    return (
+      <MessageViewLayout>
+        <Loading className={MESSAGE_STATUS_LAYOUT} />
+      </MessageViewLayout>
+    )
+  if (error)
+    return (
+      <MessageViewLayout>
         <Error
-          className={cn(MESSAGE_STATUS_LAYOUT)}
+          className={MESSAGE_STATUS_LAYOUT}
           message={
             error.response?.data.detail ??
             '메세지를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.'
           }
         />
-      )}
-      {messages?.length === 0 && (
+      </MessageViewLayout>
+    )
+  if (messages?.length === 0)
+    return (
+      <MessageViewLayout>
         <EmptyState
-          className={cn(MESSAGE_STATUS_LAYOUT)}
+          className={MESSAGE_STATUS_LAYOUT}
           message="아직 대화가 없습니다. 첫 메세지를 보내보세요!"
         />
-      )}
-      {messages && (
-        <ul
-          className="flex h-full flex-col-reverse gap-4 overflow-y-auto pt-9 pb-16"
-          ref={containerRef}
-        >
-          {messages.map((message) =>
-            message.sender.id === user?.id ? (
-              <SentMessage key={message.id} message={message} />
-            ) : (
-              <ReceivedMessage
-                key={message.id}
-                message={message}
-                onPlayTts={speak}
-              />
-            )
-          )}
-          {isFetchingNextPage && <Loading />}
-        </ul>
-      )}
-      {!error && messages && (
-        <Button
-          type="button"
-          className="absolute right-7 bottom-3 z-10 flex size-6 items-center justify-center rounded-full p-5 opacity-80 md:right-8 md:bottom-4"
-          variant="secondary"
-          onClick={handleScrollButtonClick}
-          aria-label="채팅방 아래로 이동"
-        >
-          <ChevronDownIcon className="size-6" />
-        </Button>
-      )}
-    </div>
+      </MessageViewLayout>
+    )
+  return (
+    <MessageViewLayout className={className}>
+      <ul
+        className="flex h-full flex-col-reverse gap-4 overflow-y-auto pt-9 pb-16"
+        ref={containerRef}
+      >
+        {messages?.map((message) =>
+          message.sender.id === user?.id ? (
+            <SentMessage key={message.id} message={message} />
+          ) : (
+            <ReceivedMessage
+              key={message.id}
+              message={message}
+              onPlayTts={speak}
+            />
+          )
+        )}
+        {isFetchingNextPage && <Loading />}
+      </ul>
+      <Button
+        type="button"
+        className="absolute right-7 bottom-3 z-10 flex size-6 items-center justify-center rounded-full p-5 opacity-80 md:right-8 md:bottom-4"
+        variant="secondary"
+        onClick={handleScrollButtonClick}
+        aria-label="채팅방 아래로 이동"
+      >
+        <ChevronDownIcon className="size-6" />
+      </Button>
+    </MessageViewLayout>
   )
 }
 
