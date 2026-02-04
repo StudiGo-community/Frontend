@@ -1,5 +1,4 @@
 import { type Message } from '@/entities/message/model/schema'
-import { InfiniteQueryObserverResult } from '@tanstack/react-query'
 import { useEffect, useRef } from 'react'
 
 function useInfiniteScroll(
@@ -7,7 +6,7 @@ function useInfiniteScroll(
   isFetchingNextPage: boolean,
   hasNextPage: boolean,
   isEnabled: boolean,
-  fetchNextPage: () => Promise<InfiniteQueryObserverResult>
+  fetchNextPage: () => Promise<unknown>
 ) {
   const containerRef = useRef<HTMLUListElement>(null)
   const prevScrollHeightRef = useRef<number>(0)
