@@ -22,12 +22,8 @@ export const ChatRoomSchema = z
 export type ChatRoom = z.infer<typeof ChatRoomSchema>
 
 export const ChatRoomListResponseSchema = z
-  .object({
-    rooms: z.array(ChatRoomSchema),
-  })
-  .transform((data) => ({
-    rooms: data.rooms,
-  }))
+  .array(ChatRoomSchema)
+  .transform((data) => data)
 
 export type ChatRoomListResponse = z.infer<typeof ChatRoomListResponseSchema>
 
