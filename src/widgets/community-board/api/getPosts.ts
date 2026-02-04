@@ -1,0 +1,21 @@
+import { api } from '@/shared/api/client'
+import { PostList, PostListSchema } from '@/entities/post/model/post.schema'
+import { GetPostsParamsSchema } from '@/widgets/community-board/model/schema'
+
+interface GetPostsParams {
+  page?: string
+  category?: string
+  sort?: string
+  query?: string
+}
+
+export default async function getPosts(params?: GetPostsParams) {
+  // TODO: 파라미터 유효성 검사 nuqs로 바꾸기?
+  const validatedParams = GetPostsParamsSchema.safeParse(params)
+
+  const response = await api.get<PostList>('/posts', {
+    params: validatedParams.data,
+  })
+
+  return PostListSchema.parse(response.data)
+}
