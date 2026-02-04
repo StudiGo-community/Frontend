@@ -3,6 +3,8 @@ import { CommunityBoardSearchParams } from '@/widgets/community-board/model/type
 import PostCard from '@/entities/post/ui/PostCard'
 import UrlPagination from '@/shared/ui/UrlPagination'
 import { MOCK_POSTS } from '@/entities/post/model/mockData'
+import { api } from '@/shared/api/client'
+import { PostList, PostListSchema } from '@/entities/post/model/post.schema'
 
 export default async function CommunityBoard({
   page,
@@ -10,6 +12,19 @@ export default async function CommunityBoard({
   sort,
   query,
 }: CommunityBoardSearchParams) {
+  const { data: response } = await api.get<PostList>('/posts', {
+    params: {
+      page,
+      category,
+      sort,
+      query,
+    },
+  })
+  const data = PostListSchema.safeParse(response)
+
+  console.log(page, category, sort, query)
+  console.log(data)
+
   return (
     <section className="mt-16 space-y-8">
       <h1 className="text-brand-black text-4xl font-extrabold">게시판</h1>
