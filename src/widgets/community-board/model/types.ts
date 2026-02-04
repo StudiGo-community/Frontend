@@ -1,10 +1,13 @@
-// TODO: CommunityFilters.tsx에 정의해놓은거랑 겹치니까 처리하기
-export type CommunityCategory = 'all' | 'free' | 'recruit' | 'study'
-export type CommunitySort = 'popular' | 'latest'
+import { POST_CATEGORIES } from '@/entities/post/model/constants'
+
+export type CommunityCategory = (typeof POST_CATEGORIES)[number]
+export type CommunitySort = 'popular' | 'latest' | 'oldest'
+export type CommunitySearchType = 'all' | 'title' | 'content'
 
 export interface CommunityBoardSearchParams {
   page?: string
   category?: CommunityCategory
   sort?: CommunitySort
   query?: string
+  searchType?: CommunitySearchType
 }
