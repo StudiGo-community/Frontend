@@ -22,9 +22,11 @@ function useSwitchChat() {
         cleanupMessage(currentRoomId)
       } catch {
         toast.error('채팅방 퇴장에 실패했습니다.')
+        return
       }
 
       // 새로운 채팅방 입장
+      toast.loading('채팅방 입장 중...', { id: LOADING_TOAST_ID })
       enterChat(targetRoomId, {
         onSuccess: () => {
           toast.success('환영합니다!', { id: LOADING_TOAST_ID })
@@ -35,7 +37,6 @@ function useSwitchChat() {
             error.response?.data.detail ?? '채팅방 입장에 실패했습니다.'
           ),
       })
-      toast.loading('채팅방 입장 중...', { id: LOADING_TOAST_ID })
     },
     [cleanupMessage, cleanupRoom, enterChat, router]
   )
