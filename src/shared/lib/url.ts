@@ -95,17 +95,6 @@ export const formatUrl = (url: string) => {
 
   // 프로토콜이 없는 경우
   if (!formattedUrl.includes('://')) {
-    // www. 으로 시작하면 유지, 아니더라도 https:// 붙임
-    // 단, 아예 도메인 형식이 아닌 경우(예: 'naver')는 그대로 두거나
-    // 사용자 의도에 따라 다르게 처리될 수 있으나, 여기서는 https:// 만 붙임
-    // validateUrl에서 걸러질 것임.
-
-    // 이미 www. 이 있는 경우도 https://www.naver.com 꼴로 만들기 위해
-    // slice 하지 않고 바로 https:// 붙이는게 안전함 (기존 코드에서는 www. 제거함)
-    // 하지만 보통 www. 입력하면 그대로 두는게 나으므로 제거 로직 삭제 혹은 유지 고민
-    // 요청사항: 'naver라고 쳐도 그냥 naver/가 들어가버리고' -> 이건 validateUrl에서 막아야 함.
-
-    // 기존 로직 수정: www. 제거 안함. https://만 붙임.
     formattedUrl = `https://${formattedUrl}`
   }
   return formattedUrl

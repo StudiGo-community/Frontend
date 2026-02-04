@@ -1,5 +1,5 @@
 import { JSONContent } from '@tiptap/react'
-import { PostCreateForm } from '../model/post-create.schema'
+import { PostCreateForm } from '@/features/community-post-manage/model/post-create.schema'
 
 // 이미지 URL만 추출해서 스키마에 맞게 배열로 변환
 export const extractImagesUrl = (
