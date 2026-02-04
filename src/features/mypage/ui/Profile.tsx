@@ -1,14 +1,15 @@
 import Image from 'next/image'
 import { Button } from '@/shared/ui/Button'
 import { useRouter } from 'next/navigation'
+import type { MyPageProfile } from '@/shared/api/mocks/handlers/mypage-handlers'
 
-function PinProfile() {
+function PinProfile({ src }: { src: string }) {
   return (
     <div className="relative flex flex-col items-center">
       <div className="border-brand-green bg-brand-white shadow-brand-md relative flex h-28 w-28 items-center justify-center rounded-full border-4 max-lg:h-20 max-lg:w-20">
         <div className="absolute inset-2 overflow-hidden rounded-full max-lg:inset-1.5">
           <Image
-            src="/images/profiles/default-1.webp"
+            src={src}
             alt="profile"
             fill
             sizes="112px"
@@ -73,7 +74,7 @@ function Balloon({
   )
 }
 
-export default function Profile() {
+export default function Profile({ profile }: { profile: MyPageProfile }) {
   const router = useRouter()
   return (
     <div className="mb-10 flex w-full flex-row items-center justify-center gap-2 max-lg:gap-5 sm:gap-4 md:gap-8">
@@ -90,19 +91,21 @@ export default function Profile() {
           </Button>
           <div className="hidden flex-col items-end leading-tight md:flex">
             <h2 className="text-brand-black text-2xl font-black lg:text-3xl">
-              Fortes42
+              {profile.nickname}
             </h2>
             <p className="text-brand-gray-400 mt-0.5 text-sm lg:text-base">
-              fortelsv42@gmail.com
+              {profile.email}
             </p>
             <p className="text-brand-gray-300 mt-0.5 text-[10px] lg:text-xs">
-              최초 가입일&nbsp;&nbsp;2026.01.08
+              최초 가입일&nbsp;&nbsp;{profile.joinedAt}
             </p>
           </div>
         </div>
       </div>
       <div className="z-10 flex flex-col items-center">
-        <PinProfile />
+        <PinProfile
+          src={profile.profileImageSrc ?? '/images/profiles/default-1.webp'}
+        />
       </div>
       <div className="flex min-w-0 flex-1 flex-col items-start px-2 max-lg:px-5 sm:px-4 md:px-8">
         <div className="hidden md:block">
@@ -111,10 +114,10 @@ export default function Profile() {
             className="mb-2 w-35 max-lg:w-60 sm:w-45 md:w-55 lg:w-80"
           >
             <div className="text-brand-black text-sm font-bold lg:text-base">
-              오늘도 힘내봐요!
+              {profile.balloonLeft.title}
             </div>
             <div className="text-brand-gray-400 mt-1 text-xs lg:text-sm">
-              Hazlo lo mejor que puedas hoy también
+              {profile.balloonLeft.subtitle}
             </div>
           </Balloon>
           <Balloon
@@ -122,7 +125,9 @@ export default function Profile() {
             tail="right"
             className="mt-2 ml-24 w-20 max-lg:ml-16 max-lg:w-32 sm:w-28 md:w-32 lg:w-45"
           >
-            <div className="text-sm font-bold lg:text-base">STUDY GO !</div>
+            <div className="text-sm font-bold lg:text-base">
+              {profile.balloonRight.title}
+            </div>
           </Balloon>
         </div>
       </div>

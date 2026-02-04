@@ -4,16 +4,9 @@ import Image from 'next/image'
 import { useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Avatar } from '@/shared/ui/Avatar'
+import type { MyCommentItem } from '@/shared/api/mocks/handlers/mypage-handlers'
 
 export type SortOption = 'latest' | 'oldest'
-
-export type MyCommentItem = {
-  commentId: string
-  postId: string | null
-  postTitle: string | null
-  content: string | null
-  createdAt: string
-}
 
 interface MyCommentProps {
   page: number
@@ -42,23 +35,6 @@ function formatDateTime(input: string) {
   return `${yyyy}.${mm}.${dd} ${hh}:${min}`
 }
 
-const MOCK_ITEMS: MyCommentItem[] = Array.from({ length: 15 }).map((_, i) => {
-  const deleted = i === 4
-  const longTitle =
-    '조리는 보이가 나타났다... 이제 우승을 곁들인..! 조리는 보이가 나타났다... 이제 우승을 곁들인..! 조리는 보이가 나타났다... 이제 우승을 곁들인..!'
-  return {
-    commentId: `c_${i + 1}`,
-    postId: deleted ? null : `p_${i + 1}`,
-    postTitle: deleted
-      ? null
-      : i === 0
-        ? longTitle
-        : '조리는 보이가 나타났다... 이제 우승을 곁들인..!',
-    content: 'fortes42 조림 요정 우승 각 떴다! '.repeat(6),
-    createdAt: new Date(Date.now() - i * 1000 * 60 * 60 * 6).toISOString(),
-  }
-})
-
 export default function MyComment({
   page,
   items,
@@ -71,7 +47,6 @@ export default function MyComment({
   const router = useRouter()
 
   const safeItems = useMemo<MyCommentItem[]>(() => {
-    if (items === undefined) return MOCK_ITEMS
     return Array.isArray(items) ? items : []
   }, [items])
 
