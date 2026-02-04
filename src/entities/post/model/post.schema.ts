@@ -7,8 +7,7 @@ import {
 } from '@/entities/post/model/constants'
 
 // 베이스
-// id, title, content, category, author, like_count, comment_count, is_liked, created_at, updated_at
-// TODO: 목록의 단일 포스트에 view_count 추가해달라고 요청하기 (그리고 나면 상세에서 베이스로 옮기기)
+// id, title, content, category, author, like_count, comment_count, view_count, is_liked, created_at, updated_at
 const PostBaseSchema = z.object({
   id: z.number().int().positive(),
   title: z.string(),
@@ -17,6 +16,7 @@ const PostBaseSchema = z.object({
   author: AuthorSchema,
   like_count: z.number().int().nonnegative(),
   comment_count: z.number().int().nonnegative(),
+  view_count: z.number().int().nonnegative(),
   is_liked: z.boolean(),
   created_at: z.string(),
   updated_at: z.string(),
@@ -31,10 +31,9 @@ export const ImageSchema = z.object({
 
 // 조립
 // 상세
-// images, view_count, comments 추가
+// images, comments 추가
 export const PostDetailSchema = PostBaseSchema.extend({
   images: z.array(ImageSchema),
-  view_count: z.number().int().nonnegative(),
   comments: z.array(CommentSchema),
 }).transform((post) => ({
   id: post.id,
