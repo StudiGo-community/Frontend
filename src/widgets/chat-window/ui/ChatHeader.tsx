@@ -17,7 +17,7 @@ const HEADER_STATUS_LAYOUT = 'border-b-brand-gray-200 border-b py-9'
 function ChatHeader({ enteredRoomId }: ChatHeaderProps) {
   const { data, isLoading, error } = useChatRoomList()
   const { exit, isExitPending } = useExitChat()
-  const currentRoom = data?.rooms.find((room) => room.id === enteredRoomId)
+  const currentRoom = data?.find((room) => room.id === enteredRoomId)
 
   if (isLoading) return <Loading className={HEADER_STATUS_LAYOUT} />
   if (error)

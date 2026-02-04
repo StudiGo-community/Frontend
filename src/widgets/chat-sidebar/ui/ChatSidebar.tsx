@@ -16,8 +16,7 @@ interface ChatSidebarProps {
 
 function ChatSidebar({ enteredRoomId }: ChatSidebarProps) {
   const [targetRoom, setTargetRoom] = useState<ChatRoom | null>(null)
-  const { data, isLoading, error } = useChatRoomList()
-  const chatRooms = data?.rooms
+  const { data: chatRooms, isLoading, error } = useChatRoomList()
 
   const handleModalClose = () => setTargetRoom(null)
   const handleClick = (chatRoom: ChatRoom) => {
