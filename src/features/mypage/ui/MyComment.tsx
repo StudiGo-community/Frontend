@@ -84,7 +84,7 @@ export default function MyComment({
         const isDeleted = item.postId === null || item.postTitle === null
 
         const titleText = isDeleted
-          ? '삭제된 게시글의 댓글입니다'
+          ? '삭제된 게시글 입니다'
           : truncate100(item.postTitle)
 
         const commentText = truncate100(item.content)
