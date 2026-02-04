@@ -1,6 +1,6 @@
 import { http, HttpResponse, ws } from 'msw'
 import {
-  CHAT_ROOMS,
+  // CHAT_ROOMS,
   MESSAGES,
   SOCKET_MESSAGES,
 } from '@/shared/api/mocks/data/chat-data'
@@ -131,20 +131,20 @@ const sendChatMessage = http.post(
 )
 
 // ---------- 채팅방 퇴장 ----------
-const exitChatRoom = http.post(
-  `${process.env.NEXT_PUBLIC_API_BASE_URL}/chat/:roomId/exit`,
-  ({ params }) => {
-    const { roomId } = params
-    const parsedRoomId = Number(roomId)
+// const exitChatRoom = http.post(
+//   `${process.env.NEXT_PUBLIC_API_BASE_URL}/chat/:roomId/exit`,
+//   ({ params }) => {
+//     const { roomId } = params
+//     const parsedRoomId = Number(roomId)
 
-    if (![1, 2, 3, 4].includes(parsedRoomId))
-      return HttpResponse.json(
-        { detail: '채팅방을 찾을 수 없습니다.' },
-        { status: 404 }
-      )
-    return HttpResponse.json({ message: '채팅방에서 퇴장했습니다.' })
-  }
-)
+//     if (![1, 2, 3, 4].includes(parsedRoomId))
+//       return HttpResponse.json(
+//         { detail: '채팅방을 찾을 수 없습니다.' },
+//         { status: 404 }
+//       )
+//     return HttpResponse.json({ message: '채팅방에서 퇴장했습니다.' })
+//   }
+// )
 
 // ---------- 채팅 웹소켓 이벤트 수신 ----------
 const protocol = globalThis.location?.protocol === 'https' ? 'wss' : 'ws'
@@ -189,7 +189,7 @@ const chatHandlers = [
   // enterChatRoom,
   getChatMessageList,
   sendChatMessage,
-  exitChatRoom,
+  // exitChatRoom,
   ...chatSocketHandlers,
 ]
 
