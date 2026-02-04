@@ -11,6 +11,15 @@ const nextConfig = {
     ]
   },
 
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${process.env.NEXT_PUBLIC_API_BASE_URL}/:path*`,
+      },
+    ]
+  },
+
   // Turbopack 사용 시 SVG를 React 컴포넌트로 import 가능하게 설정
   turbopack: {
     rules: {
