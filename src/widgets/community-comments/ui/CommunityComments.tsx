@@ -17,7 +17,6 @@ export default async function CommunityComments({
   const { comments, pagination } = await getComments(postId, page)
 
   const user = await getUser()
-  console.log(user)
 
   return (
     <section className="mb-20">
@@ -25,7 +24,11 @@ export default async function CommunityComments({
       <div className="flex flex-col">
         <ul className="border-brand-gray-100 flex flex-col gap-8 border-y-2 py-8">
           {comments.map((comment) => (
-            <CommunityComment key={comment.id} comment={comment} />
+            <CommunityComment
+              key={comment.id}
+              comment={comment}
+              userId={user?.id}
+            />
           ))}
         </ul>
         <UrlPagination
