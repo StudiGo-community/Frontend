@@ -12,7 +12,6 @@ interface CommunityPostProps {
 
 export default async function CommunityPost({ id }: CommunityPostProps) {
   const post = await getPost(id)
-  console.log(post)
 
   return (
     <>

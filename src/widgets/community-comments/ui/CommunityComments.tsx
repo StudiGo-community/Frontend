@@ -1,7 +1,7 @@
 import { Button } from '@/shared/ui/Button'
 import { Textarea } from '@/shared/ui/Textarea'
 import UrlPagination from '@/shared/ui/UrlPagination'
-import CommunityComment from './CommunityComment'
+import CommunityComment from '@/widgets/community-comments/ui/CommunityComment'
 import getComments from '@/widgets/community-comments/api/getComments'
 
 interface CommunityCommentsProps {
