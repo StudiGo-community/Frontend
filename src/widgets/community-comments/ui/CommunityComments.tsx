@@ -3,6 +3,7 @@ import { Textarea } from '@/shared/ui/Textarea'
 import UrlPagination from '@/shared/ui/UrlPagination'
 import CommunityComment from '@/widgets/community-comments/ui/CommunityComment'
 import getComments from '@/widgets/community-comments/api/getComments'
+import { getUser } from '@/shared/api/getUser'
 
 interface CommunityCommentsProps {
   postId: number
@@ -14,6 +15,9 @@ export default async function CommunityComments({
   page,
 }: CommunityCommentsProps) {
   const { comments, pagination } = await getComments(postId, page)
+
+  const user = await getUser()
+  console.log(user)
 
   return (
     <section className="mb-20">

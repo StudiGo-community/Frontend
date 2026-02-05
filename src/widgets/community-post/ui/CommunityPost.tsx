@@ -5,6 +5,8 @@ import { Button } from '@/shared/ui/Button'
 import PostStats from '@/entities/post/ui/PostStats'
 import ActionDropdown from '@/shared/ui/ActionDropdown'
 import { Heart, MessageSquare, Siren } from 'lucide-react'
+import { getUser } from '@/shared/api/getUser'
+import { notFound } from 'next/navigation'
 
 interface CommunityPostProps {
   id: number
@@ -12,6 +14,13 @@ interface CommunityPostProps {
 
 export default async function CommunityPost({ id }: CommunityPostProps) {
   const post = await getPost(id)
+
+  if (!post) {
+    notFound()
+  }
+
+  const user = await getUser()
+  console.log(user)
 
   return (
     <>

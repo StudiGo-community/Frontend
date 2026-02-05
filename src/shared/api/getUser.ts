@@ -1,11 +1,27 @@
+import { cache } from 'react'
+import { cookies } from 'next/headers'
+import { AxiosError } from 'axios'
 import { api } from '@/shared/api/client'
 import type { User } from '@/shared/model/user'
 import { UserResponseSchema } from '@/shared/model/user.schema'
 
-export const getUser = async (): Promise<User> => {
-  const response = await api.get('/me/profile')
-
-  return UserResponseSchema.parse(response.data)
-}
+// TODO: adapter: fetch 가게되면 캐싱 방법 변경 (현재 React.cache 사용)
+export const getUser = cache(async (): Promise<User | null> => {
+  try {
+    const cookieStore = await cookies()
+    const response = await api.get('/me/profile', {
+      headers: {
+        Cookie: cookieStore.toString(),
+      },
+    })
+    return UserResponseSchema.parse(response.data.user)
+  } catch (error) {
+    // 인터셉터가 토큰 갱신을 시도한 후에도 실패한 경우에만 이곳에 도달.
+    if (error instanceof AxiosError && error.response?.status === 401) {
+      return null
+    }
+    throw error
+  }
+})
 
 // 프로필 조회는 마이페이지가 외에도 사용되어서 shared에 두었어요.
