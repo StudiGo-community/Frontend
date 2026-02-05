@@ -1,64 +1,123 @@
+'use client'
+
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { Avatar } from '@/shared/ui/Avatar'
 import HeartIcon from '@/features/mypage/assets/heart-icon.svg'
 import CommentIcon from '@/features/mypage/assets/comment-icon.svg'
 import type { MyPagePostItem } from '@/shared/api/mocks/handlers/mypage-handlers'
+import type { SortOption } from '@/features/mypage/ui/PostFilter'
 
-export default function MyLike({ items }: { items: MyPagePostItem[] }) {
+interface MyLikeProps {
+  items: MyPagePostItem[]
+  sortBy: SortOption
+  checkedMap: Record<string, boolean>
+  onToggleOne: (id: string) => void
+}
+
+function getPostTimeMs(post: MyPagePostItem): number {
+  const date = post.date.replace(/\./g, '-')
+  const time = post.time.length === 5 ? `${post.time}:00` : post.time
+  const t = new Date(`${date}T${time}`).getTime()
+  return Number.isNaN(t) ? 0 : t
+}
+
+export default function MyLike({
+  items,
+  sortBy,
+  checkedMap,
+  onToggleOne,
+}: MyLikeProps) {
+  const router = useRouter()
+
+  const sortedItems = [...items].sort((a, b) => {
+    const ta = getPostTimeMs(a)
+    const tb = getPostTimeMs(b)
+    return sortBy === 'latest' ? tb - ta : ta - tb
+  })
+
+  const goDetail = (postId: number) => {
+    router.push(`/community/${postId}`)
+  }
+
   return (
     <div>
-      {items.map((post) => (
-        <div className="py-6" key={post.id}>
-          <div className="flex items-start gap-4">
-            <input type="checkbox" className="mt-2" />
-            <div className="flex flex-1 items-start justify-between gap-0">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <Avatar className="h-8 w-8">
-                    <Image
-                      src={post.avatar}
-                      alt="author"
-                      fill
-                      sizes="32px"
-                      className="object-cover"
-                    />
-                  </Avatar>
-                  <div className="flex flex-col">
-                    <span className="text-brand-gray-500 text-xs font-semibold">
-                      {post.author}
-                    </span>
-                    <div className="text-brand-gray-400 mt-0.5 flex gap-2 text-xs">
-                      <span>{post.date}</span>
-                      <span>{post.time}</span>
+      {sortedItems.map((post) => {
+        const id = String(post.id)
+
+        return (
+          <div
+            key={post.id}
+            className="cursor-pointer py-6"
+            onClick={() => goDetail(post.id)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') goDetail(post.id)
+            }}
+          >
+            <div className="flex items-start gap-4">
+              <input
+                type="checkbox"
+                className="mt-2"
+                checked={checkedMap[id] === true}
+                onChange={() => onToggleOne(id)}
+                onClick={(e) => e.stopPropagation()}
+              />
+
+              <div className="flex flex-1 items-start justify-between gap-0">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <Avatar className="h-8 w-8">
+                      <Image
+                        src={post.avatar}
+                        alt="author"
+                        fill
+                        sizes="32px"
+                        className="object-cover"
+                      />
+                    </Avatar>
+
+                    <div className="flex flex-col">
+                      <span className="text-brand-gray-500 text-xs font-semibold">
+                        {post.author}
+                      </span>
+                      <div className="text-brand-gray-400 mt-0.5 flex gap-2 text-xs">
+                        <span>{post.date}</span>
+                        <span>{post.time}</span>
+                      </div>
                     </div>
                   </div>
+
+                  <p className="text-brand-black mt-2 truncate text-base font-semibold">
+                    {post.title}
+                  </p>
+
+                  <div className="text-brand-gray-400 mt-3 flex items-center gap-4 text-xs">
+                    <span>조회수 {post.views}</span>
+                    <span className="flex items-center gap-1">
+                      <HeartIcon className="h-5 w-5" /> {post.likes}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <CommentIcon className="h-5 w-5" /> {post.comments}
+                    </span>
+                  </div>
                 </div>
-                <p className="text-brand-black mt-2 truncate text-base font-semibold">
-                  {post.title}
-                </p>
-                <div className="text-brand-gray-400 mt-3 flex items-center gap-4 text-xs">
-                  <span>조회수 {post.views}</span>
-                  <span className="flex items-center gap-1">
-                    <HeartIcon className="h-5 w-5" /> {post.likes}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <CommentIcon className="h-5 w-5" /> {post.comments}
-                  </span>
+
+                <div className="bg-brand-gray-100 relative hidden h-30 w-30 shrink-0 overflow-hidden rounded-lg md:block">
+                  <Image
+                    src={post.thumbnail}
+                    alt="thumbnail"
+                    fill
+                    sizes="120px"
+                    className="object-cover"
+                  />
                 </div>
-              </div>
-              <div className="bg-brand-gray-100 relative hidden h-30 w-30 shrink-0 overflow-hidden rounded-lg md:block">
-                <Image
-                  src={post.thumbnail}
-                  alt="thumbnail"
-                  fill
-                  sizes="120px"
-                  className="object-cover"
-                />
               </div>
             </div>
           </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }

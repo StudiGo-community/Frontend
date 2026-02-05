@@ -5,8 +5,7 @@ import { useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Avatar } from '@/shared/ui/Avatar'
 import type { MyCommentItem } from '@/shared/api/mocks/handlers/mypage-handlers'
-
-export type SortOption = 'latest' | 'oldest'
+import type { SortOption } from '@/features/mypage/ui/PostFilter'
 
 interface MyCommentProps {
   page: number
