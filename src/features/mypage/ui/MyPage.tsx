@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
-import PostFilter from '@/features/mypage/ui/PostFilter'
+import PostFilter, { type SortOption } from '@/features/mypage/ui/PostFilter'
 import MyPost from '@/features/mypage/ui/MyPost'
 import MyComment from '@/features/mypage/ui/MyComment'
 import MyLike from '@/features/mypage/ui/MyLike'
@@ -28,12 +28,20 @@ export default function MyPage() {
   const [selectedBoard, setSelectedBoard] = useState('')
   const [search, setSearch] = useState('')
 
+  const [sortBy, setSortBy] = useState<SortOption>('latest')
+
   const [checkedMap, setCheckedMap] = useState<Record<string, boolean>>({})
 
   const timeline = useMemo<TimelineItem[]>(() => MY_TIMELINE, [])
 
   const handleChangeTab = (nextTab: TabType) => {
     setTab(nextTab)
+    setPage(1)
+    setCheckedMap({})
+  }
+
+  const handleChangeSortBy = (next: SortOption) => {
+    setSortBy(next)
     setPage(1)
     setCheckedMap({})
   }
@@ -83,7 +91,6 @@ export default function MyPage() {
       <section className="mx-auto max-w-6xl px-5 pt-10">
         <div className="flex items-center justify-between">
           <h1 className="text-brand-black text-2xl font-black">마이페이지</h1>
-
           <MyPageActionMenu
             label={actionLabel}
             onClickAction={handleClickAction}
@@ -99,6 +106,8 @@ export default function MyPage() {
               onChangeBoard={setSelectedBoard}
               search={search}
               onChangeSearch={setSearch}
+              sortBy={sortBy}
+              onChangeSortBy={handleChangeSortBy}
             />
           </div>
         </div>
@@ -107,6 +116,7 @@ export default function MyPage() {
           {tab === 'post' && (
             <MyPost
               items={MY_POSTS}
+              sortBy={sortBy}
               checkedMap={checkedMap}
               onToggleOne={handleToggleOne}
             />
@@ -116,7 +126,7 @@ export default function MyPage() {
             <MyComment
               page={page}
               items={MY_COMMENTS}
-              sortBy="latest"
+              sortBy={sortBy}
               checkedMap={checkedMap}
               onToggleOne={handleToggleOne}
               profileImageSrc={MY_PROFILE.profileImageSrc}
@@ -126,6 +136,7 @@ export default function MyPage() {
           {tab === 'like' && (
             <MyLike
               items={MY_LIKES}
+              sortBy={sortBy}
               checkedMap={checkedMap}
               onToggleOne={handleToggleOne}
             />
@@ -133,7 +144,6 @@ export default function MyPage() {
         </div>
 
         <div className="border-brand-gray-200 border-b" />
-
         <div className="my-14 flex justify-center">
           <Pagination page={page} totalPages={10} onChangePage={setPage} />
         </div>

@@ -1,33 +1,68 @@
+'use client'
+
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { Avatar } from '@/shared/ui/Avatar'
 import HeartIcon from '@/features/mypage/assets/heart-icon.svg'
 import CommentIcon from '@/features/mypage/assets/comment-icon.svg'
 import type { MyPagePostItem } from '@/shared/api/mocks/handlers/mypage-handlers'
+import type { SortOption } from '@/features/mypage/ui/PostFilter'
 
 interface MyPostProps {
   items: MyPagePostItem[]
+  sortBy: SortOption
   checkedMap: Record<string, boolean>
   onToggleOne: (id: string) => void
 }
 
+function getPostTimeMs(post: MyPagePostItem): number {
+  const date = post.date.replace(/\./g, '-')
+  const time = post.time.length === 5 ? `${post.time}:00` : post.time
+  const t = new Date(`${date}T${time}`).getTime()
+  return Number.isNaN(t) ? 0 : t
+}
+
 export default function MyPost({
   items,
+  sortBy,
   checkedMap,
   onToggleOne,
 }: MyPostProps) {
+  const router = useRouter()
+
+  const sortedItems = [...items].sort((a, b) => {
+    const ta = getPostTimeMs(a)
+    const tb = getPostTimeMs(b)
+    return sortBy === 'latest' ? tb - ta : ta - tb
+  })
+
+  const goDetail = (postId: number) => {
+    router.push(`/community/${postId}`)
+  }
+
   return (
     <div>
-      {items.map((post) => {
+      {sortedItems.map((post) => {
         const id = String(post.id)
 
         return (
-          <div className="py-6" key={post.id}>
+          <div
+            key={post.id}
+            className="cursor-pointer py-6"
+            onClick={() => goDetail(post.id)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') goDetail(post.id)
+            }}
+          >
             <div className="flex items-start gap-4">
               <input
                 type="checkbox"
                 className="mt-2"
                 checked={checkedMap[id] === true}
                 onChange={() => onToggleOne(id)}
+                onClick={(e) => e.stopPropagation()}
               />
 
               <div className="flex flex-1 items-start justify-between gap-0">
