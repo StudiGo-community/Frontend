@@ -20,7 +20,8 @@ export default async function CommunityPost({ id }: CommunityPostProps) {
   }
 
   const user = await getUser()
-  console.log(user)
+  const isAuthenticated = !!user
+  const isAuthor = user?.id === post.author.id
 
   return (
     <>
@@ -33,7 +34,7 @@ export default async function CommunityPost({ id }: CommunityPostProps) {
           </h1>
 
           {/* TODO: 기능, 인자 어떻게 처리할지 결정하기 */}
-          <ActionDropdown />
+          {isAuthenticated && isAuthor && <ActionDropdown />}
         </div>
 
         {/* 기타 정보 */}
@@ -98,10 +99,12 @@ export default async function CommunityPost({ id }: CommunityPostProps) {
               />
               <span>좋아요</span>
             </Button>
-            <Button variant="outline" size="sm" className="text-sm">
-              <Siren size={14} strokeWidth={2} className="text-brand-third" />
-              <span>신고하기</span>
-            </Button>
+            {isAuthenticated && !isAuthor && (
+              <Button variant="outline" size="sm" className="text-sm">
+                <Siren size={14} strokeWidth={2} className="text-brand-third" />
+                <span>신고하기</span>
+              </Button>
+            )}
           </div>
 
           <span className="text-brand-gray-400 flex items-center gap-1">
