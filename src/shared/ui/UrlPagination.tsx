@@ -14,7 +14,7 @@ import { createUrl } from '@/shared/lib/url'
 interface UrlPaginationProps {
   totalPages: number
   page: number
-  searchParams: Record<string, string | string[] | undefined>
+  searchParams?: Record<string, string | string[] | undefined>
   className?: string
 }
 
