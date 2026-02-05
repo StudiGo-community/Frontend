@@ -1,16 +1,20 @@
 import { Button } from '@/shared/ui/Button'
 import { Textarea } from '@/shared/ui/Textarea'
 import UrlPagination from '@/shared/ui/UrlPagination'
-import CommunityComment from './CommunityComment'
-import { Comment } from '@/entities/post/model/comment.schema'
+import CommunityComment from '@/widgets/community-comments/ui/CommunityComment'
+import getComments from '@/widgets/community-comments/api/getComments'
 
 interface CommunityCommentsProps {
-  comments: Comment[]
+  postId: number
+  page?: number
 }
 
 export default async function CommunityComments({
-  comments,
+  postId,
+  page,
 }: CommunityCommentsProps) {
+  const { comments, pagination } = await getComments(postId, page)
+
   return (
     <section className="mb-20">
       {/* 댓글 목록 */}
@@ -21,8 +25,8 @@ export default async function CommunityComments({
           ))}
         </ul>
         <UrlPagination
-          totalPages={5}
-          page={1}
+          totalPages={pagination.totalPages}
+          page={pagination.page}
           searchParams={{}}
           className="py-12"
         />

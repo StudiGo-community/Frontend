@@ -13,6 +13,8 @@ const handlers = [
     passthrough()
   ),
 
+  http.post('/api/auth/logout', () => passthrough()),
+
   ...communityHandlers,
   ...chatHandlers,
   ...mypageHandlers,
