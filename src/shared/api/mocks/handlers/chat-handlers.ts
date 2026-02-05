@@ -107,28 +107,28 @@ import {
 // )
 
 // ---------- 메세지 전송 ----------
-const sendChatMessage = http.post(
-  `${process.env.NEXT_PUBLIC_API_BASE_URL}/chat/:roomId/messages`,
-  async ({ params, request }) => {
-    const { content } = (await request.json()) as { content: string }
-    const { roomId } = params
+// const sendChatMessage = http.post(
+//   `${process.env.NEXT_PUBLIC_API_BASE_URL}/chat/:roomId/messages`,
+//   async ({ params, request }) => {
+//     const { content } = (await request.json()) as { content: string }
+//     const { roomId } = params
 
-    return HttpResponse.json({
-      message: {
-        id: new Date().getTime(),
-        room_id: Number(roomId),
-        sender_id: 1,
-        content: String(content),
-        status: 'SENT',
-        created_at: new Date().toISOString(),
-      },
-    })
-    // return HttpResponse.json(
-    //   { detail: `content: ${content}, room: ${roomId}` },
-    //   { status: 400 }
-    // )
-  }
-)
+//     return HttpResponse.json({
+//       message: {
+//         id: new Date().getTime(),
+//         room_id: Number(roomId),
+//         sender_id: 1,
+//         content: String(content),
+//         status: 'SENT',
+//         created_at: new Date().toISOString(),
+//       },
+//     })
+//     // return HttpResponse.json(
+//     //   { detail: `content: ${content}, room: ${roomId}` },
+//     //   { status: 400 }
+//     // )
+//   }
+// )
 
 // ---------- 채팅방 퇴장 ----------
 // const exitChatRoom = http.post(
@@ -188,7 +188,7 @@ const chatHandlers = [
   // getChatRoomList,
   // enterChatRoom,
   // getChatMessageList,
-  sendChatMessage,
+  // sendChatMessage,
   // exitChatRoom,
   ...chatSocketHandlers,
 ]

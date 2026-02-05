@@ -6,10 +6,8 @@ import { Button } from '@/shared/ui/Button'
 import { inputGroupVariants } from '@/shared/ui/input'
 import { useRef } from 'react'
 import { toast } from 'sonner'
-import { mapSendMessageToMessage } from '@/features/chat-message-send/model/mapper'
 import useMessageCacheHandler from '@/entities/message/model/useMessageCacheHandler'
-import { type SendMessage } from '@/entities/message/model/schema'
-import { useSessionStore } from '@/entities/session/store/session-store'
+import { type Message } from '@/entities/message/model/schema'
 import { LoaderCircleIcon } from 'lucide-react'
 
 interface MessageInputProps {
@@ -18,18 +16,11 @@ interface MessageInputProps {
 }
 
 function MessageInput({ enteredRoomId, className }: MessageInputProps) {
-  const user = useSessionStore((state) => state.user)
   const { handleNewMessage } = useMessageCacheHandler()
   const formRef = useRef<HTMLFormElement>(null)
 
-  const handleSubmitSuccess = (data: SendMessage) => {
-    if (!user) return
-
-    const { nickname, profileImageUrl } = user
-    handleNewMessage(
-      enteredRoomId,
-      mapSendMessageToMessage(data, nickname, profileImageUrl)
-    )
+  const handleSubmitSuccess = (data: Message) => {
+    handleNewMessage(enteredRoomId, data)
 
     const form = formRef.current
     if (!form) return
@@ -38,14 +29,14 @@ function MessageInput({ enteredRoomId, className }: MessageInputProps) {
     setTimeout(() => form.querySelector('textarea')?.focus(), 100)
   }
   const { mutate, isPending } = useSendChatMessage({
-    onSuccess: (data) => handleSubmitSuccess(data.message),
+    onSuccess: (data) => handleSubmitSuccess(data),
     onError: (error) =>
       toast.error(error.response?.data.detail ?? '메세지 전송에 실패했습니다.'),
   })
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (!enteredRoomId || !user) {
+    if (!enteredRoomId) {
       toast.error('예기치 않은 오류가 발생했습니다.')
       return
     }
