@@ -1,13 +1,15 @@
-import { cn } from '@/shared/lib/cn'
+// import { cn } from '@/shared/lib/cn'
 import Image from 'next/image'
 import getPost from '@/widgets/community-post/api/getPost'
-import { Button } from '@/shared/ui/Button'
+// import { Button } from '@/shared/ui/Button'
 import PostStats from '@/entities/post/ui/PostStats'
 import ActionDropdown from '@/shared/ui/ActionDropdown'
-import { Heart, MessageSquare, Siren } from 'lucide-react'
+import { MessageSquare } from 'lucide-react'
 import { getUser } from '@/shared/api/getUser'
 import { notFound } from 'next/navigation'
 import { formatCommunityDate } from '@/shared/lib/date'
+import PostLikeButton from '@/features/community-post-like/ui/PostLikeButton'
+import PostReportButton from '@/features/community-report/ui/PostReportButton'
 
 interface CommunityPostProps {
   id: number
@@ -82,36 +84,9 @@ export default async function CommunityPost({ id }: CommunityPostProps) {
 
         {/* 버튼: (좋아요, 신고하기), 댓글 수 */}
         <div className="flex items-end justify-between py-4">
-          {/* TODO: 컴포넌트 분리 (클라이언트 컴포넌트 + 기능 컴포넌트 필요) */}
           <div className="flex items-center gap-2">
-            {isAuthenticated && (
-              <Button
-                variant="outline"
-                size="sm"
-                // onClick={() => {}}
-                className="hover:bg-brand-gray-100 w-24 text-sm transition-all duration-200"
-              >
-                <Heart
-                  size={14}
-                  strokeWidth={2}
-                  className={cn(
-                    'text-brand-third',
-                    post.isLiked && 'fill-brand-third'
-                  )}
-                />
-                <span>좋아요</span>
-              </Button>
-            )}
-            {isAuthenticated && !isAuthor && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="hover:bg-brand-gray-100 w-24 text-sm transition-all duration-200"
-              >
-                <Siren size={14} strokeWidth={2} className="text-brand-third" />
-                <span>신고</span>
-              </Button>
-            )}
+            {isAuthenticated && <PostLikeButton isLiked={post.isLiked} />}
+            {isAuthenticated && !isAuthor && <PostReportButton />}
           </div>
 
           <span className="text-brand-gray-400 flex items-center gap-1">
