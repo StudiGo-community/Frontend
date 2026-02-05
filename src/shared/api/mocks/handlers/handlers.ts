@@ -12,6 +12,7 @@ const handlers = [
   http.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, () =>
     passthrough()
   ),
+  http.post('/api/auth/logout', () => passthrough()),
 
   http.post('/api/auth/logout', () => passthrough()),
 
