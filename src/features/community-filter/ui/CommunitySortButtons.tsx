@@ -3,8 +3,8 @@ import { cn } from '@/shared/lib/cn'
 import { createUrl } from '@/shared/lib/url'
 
 const SORT = [
-  { label: '인기순', value: 'popular' },
-  { label: '최신순', value: 'latest' },
+  { label: '인기', value: 'popular' },
+  { label: '최신', value: 'latest' },
   // { label: '오래된순', value: 'oldest' }, // 사용할 필요가..?
 ] as const
 

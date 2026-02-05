@@ -7,6 +7,7 @@ import ActionDropdown from '@/shared/ui/ActionDropdown'
 import { Heart, MessageSquare, Siren } from 'lucide-react'
 import { getUser } from '@/shared/api/getUser'
 import { notFound } from 'next/navigation'
+import { formatCommunityDate } from '@/shared/lib/date'
 
 interface CommunityPostProps {
   id: number
@@ -58,7 +59,7 @@ export default async function CommunityPost({ id }: CommunityPostProps) {
                 {post.author.nickname}
               </span>
               <span className="text-brand-gray-300 text-sm">
-                {post.createdAt.toLocaleString()}
+                {formatCommunityDate(post.createdAt)}
               </span>
             </div>
           </div>
@@ -83,26 +84,32 @@ export default async function CommunityPost({ id }: CommunityPostProps) {
         <div className="flex items-end justify-between py-4">
           {/* TODO: 컴포넌트 분리 (클라이언트 컴포넌트 + 기능 컴포넌트 필요) */}
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              // onClick={() => {}}
-              className="text-sm"
-            >
-              <Heart
-                size={14}
-                strokeWidth={2}
-                className={cn(
-                  'text-brand-third',
-                  post.isLiked && 'fill-brand-third'
-                )}
-              />
-              <span>좋아요</span>
-            </Button>
+            {isAuthenticated && (
+              <Button
+                variant="outline"
+                size="sm"
+                // onClick={() => {}}
+                className="hover:bg-brand-gray-100 w-24 text-sm transition-all duration-200"
+              >
+                <Heart
+                  size={14}
+                  strokeWidth={2}
+                  className={cn(
+                    'text-brand-third',
+                    post.isLiked && 'fill-brand-third'
+                  )}
+                />
+                <span>좋아요</span>
+              </Button>
+            )}
             {isAuthenticated && !isAuthor && (
-              <Button variant="outline" size="sm" className="text-sm">
+              <Button
+                variant="outline"
+                size="sm"
+                className="hover:bg-brand-gray-100 w-24 text-sm transition-all duration-200"
+              >
                 <Siren size={14} strokeWidth={2} className="text-brand-third" />
-                <span>신고하기</span>
+                <span>신고</span>
               </Button>
             )}
           </div>

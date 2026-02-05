@@ -3,6 +3,7 @@ import ActionDropdown from '@/shared/ui/ActionDropdown'
 import { Comment } from '@/entities/post/model/comment.schema'
 import { Button } from '@/shared/ui/Button'
 import { Siren } from 'lucide-react'
+import { formatCommunityDate } from '@/shared/lib/date'
 
 interface CommunityCommentProps {
   comment: Comment
@@ -38,7 +39,7 @@ export default async function CommunityComment({
         </div>
         <div>{comment.content}</div>
         <span className="text-brand-gray-300 text-sm">
-          {comment.createdAt.toLocaleString()}
+          {formatCommunityDate(comment.createdAt)}
         </span>
       </div>
 
@@ -50,9 +51,13 @@ export default async function CommunityComment({
 
         {/* 타인일 때: 신고 버튼 */}
         {isAuthenticated && !isAuthor && (
-          <Button variant="outline" size="sm" className="text-sm">
+          <Button
+            variant="outline"
+            size="sm"
+            className="hover:bg-brand-gray-100 text-sm transition-all duration-200"
+          >
             <Siren size={14} strokeWidth={2} className="text-brand-third" />
-            <span>신고하기</span>
+            <span>신고</span>
           </Button>
         )}
 
