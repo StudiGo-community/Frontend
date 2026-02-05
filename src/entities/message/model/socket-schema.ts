@@ -2,6 +2,7 @@ import { ChatMessageSchema } from '@/entities/message/model/schema'
 import z from 'zod'
 
 export const ChatSocketEventTypeSchema = z.enum([
+  'system',
   'NEW_MESSAGE',
   'MESSAGE_DELETED',
 ])
@@ -9,6 +10,18 @@ export const ChatSocketEventTypeSchema = z.enum([
 export type ChatSocketEventType = z.infer<typeof ChatSocketEventTypeSchema>
 
 export const ChatSocketEventSchema = z.discriminatedUnion('type', [
+  // ---------- system ----------
+  z
+    .object({
+      type: z.literal('system'),
+      room_id: z.number(),
+      message: z.string(),
+    })
+    .transform((data) => ({
+      type: data.type,
+      roomId: data.room_id,
+      message: data.message,
+    })),
   // ---------- NEW_MESSAGE ----------
   z
     .object({ type: z.literal('NEW_MESSAGE'), message: ChatMessageSchema })
