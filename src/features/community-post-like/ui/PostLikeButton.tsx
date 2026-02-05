@@ -50,8 +50,7 @@ export default function PostLikeButton({
         onConfirm={handleConfirm}
         title="알림"
       >
-        게시글을 <strong className="text-brand-second">좋아요</strong>{' '}
-        하시겠습니까?
+        게시글을 <span className="text-brand-second">좋아요</span> 하시겠습니까?
       </ConfirmModal>
     </>
   )

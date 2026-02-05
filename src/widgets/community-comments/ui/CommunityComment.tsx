@@ -1,5 +1,6 @@
 import Image from 'next/image'
-import ActionDropdown from '@/shared/ui/ActionDropdown'
+// import ActionDropdown from '@/shared/ui/ActionDropdown'
+import CommentActionMenu from '@/features/community-comment-manage/ui/CommentActionMenu'
 import { Comment } from '@/entities/post/model/comment.schema'
 import { formatCommunityDate } from '@/shared/lib/date'
 import CommentReportButton from '@/features/community-report/ui/CommentReportButton'
@@ -7,11 +8,13 @@ import CommentReportButton from '@/features/community-report/ui/CommentReportBut
 interface CommunityCommentProps {
   comment: Comment
   userId?: number
+  postId: number
 }
 
 export default async function CommunityComment({
   comment,
   userId,
+  postId,
 }: CommunityCommentProps) {
   const isAuthenticated = !!userId
   const isAuthor = userId === comment.author.id
@@ -46,7 +49,9 @@ export default async function CommunityComment({
       <div className="flex flex-col items-end justify-between">
         {/* TODO: 기능, 인자 어떻게 처리할지 결정하기 */}
         {/* 본인일 때: 관리 메뉴 */}
-        {isAuthenticated && isAuthor && <ActionDropdown />}
+        {isAuthenticated && isAuthor && (
+          <CommentActionMenu postId={postId} commentId={comment.id} />
+        )}
 
         {/* 타인일 때: 신고 버튼 */}
         {isAuthenticated && !isAuthor && <CommentReportButton />}

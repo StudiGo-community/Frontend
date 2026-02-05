@@ -38,7 +38,7 @@ export function ConfirmModal({
     >
       <div
         className={cn(
-          'text-center text-lg font-semibold break-keep',
+          'text-center text-base font-semibold break-keep',
           description ? 'mb-0.5' : 'mb-8'
         )}
       >
