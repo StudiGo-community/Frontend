@@ -18,13 +18,9 @@ export default function MyPageActionMenu({
         <button
           type="button"
           aria-label="마이페이지 메뉴"
-          className="hover:bg-brand-gray-100 cursor-pointer rounded-full p-1 transition-colors outline-none"
+          className="hover:bg-brand-gray-100 hidden cursor-pointer rounded-full p-1 transition-colors outline-none sm:inline-flex"
         >
-          <MenuIcon
-            width={4}
-            height={27}
-            className="pointer-events-none block"
-          />
+          <MenuIcon width={4} height={27} className="ml-2 block" />
         </button>
       </DropdownMenu.Trigger>
 

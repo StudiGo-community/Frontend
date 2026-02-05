@@ -83,6 +83,7 @@ export default function MyPage() {
       <section className="mx-auto max-w-6xl px-5 pt-10">
         <div className="flex items-center justify-between">
           <h1 className="text-brand-black text-2xl font-black">마이페이지</h1>
+
           <MyPageActionMenu
             label={actionLabel}
             onClickAction={handleClickAction}
@@ -132,6 +133,7 @@ export default function MyPage() {
         </div>
 
         <div className="border-brand-gray-200 border-b" />
+
         <div className="my-14 flex justify-center">
           <Pagination page={page} totalPages={10} onChangePage={setPage} />
         </div>
