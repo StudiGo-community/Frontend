@@ -28,12 +28,13 @@ export default function CommunityBoardFilters({
           className="bg-brand-black mb-2 flex items-center gap-2 rounded-lg px-6 py-3 text-base font-bold text-white hover:bg-black/80"
         >
           <Plus size={18} />
-          게시글 작성
+          <span className="max-sm:hidden">게시글 작성</span>
+          <span className="sm:hidden">글쓰기</span>
         </Link>
       </div>
 
       {/* 아랫줄 */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         {/* 정렬 */}
         <CommunitySortButtons searchParams={searchParams} />
 
