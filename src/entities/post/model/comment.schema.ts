@@ -14,11 +14,13 @@ const CommentBaseSchema = z.object({
 // 상세
 export const CommentSchema = CommentBaseSchema.transform((comment) => ({
   id: comment.id,
-  postId: comment.post_id,
   author: comment.author,
   content: comment.content,
-  taggedNicknames: comment.tagged_nicknames,
   createdAt: new Date(comment.created_at),
+  ...(comment.post_id !== undefined && { postId: comment.post_id }),
+  ...(comment.tagged_nicknames !== undefined && {
+    taggedNicknames: comment.tagged_nicknames,
+  }),
 }))
 
 export type Comment = z.infer<typeof CommentSchema>

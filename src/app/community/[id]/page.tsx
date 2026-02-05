@@ -70,17 +70,25 @@ import CommunityComments from '@/widgets/community-comments/ui/CommunityComments
 
 interface PageProps {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ page?: string }>
 }
 
 const IdParamsSchema = z.coerce.number().int().positive()
+// TODO: nuqs로 리팩토링?
+const PageSearchParamsSchema = z.coerce
+  .number()
+  .int()
+  .positive()
+  .optional()
+  .catch(undefined)
 
-export default async function Page({ params }: PageProps) {
+export default async function Page({ params, searchParams }: PageProps) {
   const { id } = await params
   const validatedId = IdParamsSchema.safeParse(id)
+  if (!validatedId.success) return notFound()
 
-  if (!validatedId.success) {
-    return notFound()
-  }
+  const { page } = await searchParams
+  const validatedPage = PageSearchParamsSchema.safeParse(page)
 
   return (
     <>
@@ -88,7 +96,7 @@ export default async function Page({ params }: PageProps) {
       <CommunityPost id={validatedId.data} />
 
       {/* 댓글 */}
-      <CommunityComments postId={validatedId.data} />
+      <CommunityComments postId={validatedId.data} page={validatedPage.data} />
     </>
   )
 }
