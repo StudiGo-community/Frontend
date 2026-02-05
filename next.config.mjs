@@ -11,6 +11,7 @@ const nextConfig = {
     ]
   },
 
+  // 프록시 설정 (상대 경로로 요청시, 넥스트 서버를 거쳐서 백엔드에 절대 경로로 바꿔서 요청)
   async rewrites() {
     return [
       {
@@ -18,6 +19,16 @@ const nextConfig = {
         destination: `${process.env.NEXT_PUBLIC_API_BASE_URL}/:path*`,
       },
     ]
+  },
+
+  // 이미지 설정 (외부 이미지 사용)
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
 
   // Turbopack 사용 시 SVG를 React 컴포넌트로 import 가능하게 설정
