@@ -17,6 +17,7 @@ export const getUser = cache(async (): Promise<User | null> => {
     return UserResponseSchema.parse(response.data.user)
   } catch (error) {
     // 인터셉터가 토큰 갱신을 시도한 후에도 실패한 경우에만 이곳에 도달.
+    // 401은 null 반환 주의하세요!
     if (error instanceof AxiosError && error.response?.status === 401) {
       return null
     }

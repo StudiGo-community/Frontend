@@ -1,6 +1,6 @@
 /**
- * @param date - Date object or date string
- * @returns Formatted date string in 'yyyy.mm.dd AM/PM hh.mm' format
+ * @param date - Date 객체나 문자열
+ * @returns 'yyyy.mm.dd AM/PM hh.mm' 형식의 문자열 반환
  */
 export const formatCommunityDate = (date: Date | string | number) => {
   const d = new Date(date)
