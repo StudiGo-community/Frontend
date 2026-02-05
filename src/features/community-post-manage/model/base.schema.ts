@@ -20,7 +20,15 @@ export const PostFormBaseSchema = z.object({
     .url()
     .max(URL_MAX_LENGTH, `URL은 ${URL_MAX_LENGTH}자까지만 입력 가능합니다.`)
     .nullish(),
-  images: z.array(ImageSchema.omit({ id: true })).optional(),
+  // 백엔드 요청 스펙에 맞춰 url, order로 정의 (ImageSchema는 image_url, sort_order라 사용 불가)
+  images: z
+    .array(
+      z.object({
+        url: z.string().max(URL_MAX_LENGTH),
+        order: z.number().int().nonnegative(),
+      })
+    )
+    .optional(),
 })
 
 // 응답 베이스

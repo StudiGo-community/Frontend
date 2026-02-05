@@ -6,75 +6,90 @@ import {
   URL_MAX_LENGTH,
 } from '@/entities/post/model/constants'
 
-// 베이스
-// id, title, content, category, author, like_count, comment_count, is_liked, created_at, updated_at
-// TODO: 목록의 단일 포스트에 view_count 추가해달라고 요청하기 (그리고 나면 상세에서 베이스로 옮기기)
+// 파츠
+// 이미지
+export const ImageSchema = z
+  .object({
+    id: z.number().int().positive(),
+    image_url: z.url().max(URL_MAX_LENGTH),
+    sort_order: z.number().int().nonnegative(),
+  })
+  .transform((image) => ({
+    id: image.id,
+    imageUrl: image.image_url,
+    sortOrder: image.sort_order,
+  }))
+
+export type Image = z.infer<typeof ImageSchema>
+
+// 게시글 베이스
+// id, title, category, author, thumbnail_url, images, like_count, comment_count, view_count, is_liked, updated_at
 const PostBaseSchema = z.object({
   id: z.number().int().positive(),
   title: z.string(),
-  content: z.string(),
   category: z.enum(POST_CATEGORIES),
   author: AuthorSchema,
+  thumbnail_url: z.url().max(URL_MAX_LENGTH).nullable(),
+  images: z.array(ImageSchema),
   like_count: z.number().int().nonnegative(),
   comment_count: z.number().int().nonnegative(),
+  view_count: z.number().int().nonnegative(),
   is_liked: z.boolean(),
-  created_at: z.string(),
   updated_at: z.string(),
 })
 
-// 이미지 파츠
-export const ImageSchema = z.object({
-  id: z.number().int().positive(),
-  url: z.url().max(URL_MAX_LENGTH),
-  order: z.number().int().nonnegative(),
-})
-
 // 조립
-// 상세
-// images, view_count, comments 추가
+// 게시글 상세
+// content, created_at, comments 추가
 export const PostDetailSchema = PostBaseSchema.extend({
-  images: z.array(ImageSchema),
-  view_count: z.number().int().nonnegative(),
+  content: z.string(),
+  created_at: z.string(),
   comments: z.array(CommentSchema),
 }).transform((post) => ({
   id: post.id,
   title: post.title,
-  content: post.content,
   category: post.category,
   author: post.author,
+  thumbnailUrl: post.thumbnail_url,
+  images: post.images,
   likeCount: post.like_count,
   commentCount: post.comment_count,
-  isLiked: post.is_liked,
-  createdAt: new Date(post.created_at),
-  updatedAt: new Date(post.updated_at),
-  images: post.images,
   viewCount: post.view_count,
+  isLiked: post.is_liked,
+  updatedAt: new Date(post.updated_at),
+
+  content: post.content,
+  createdAt: new Date(post.created_at),
   comments: post.comments,
 }))
 
 export type PostDetail = z.infer<typeof PostDetailSchema>
 
-// 목록의 단일 포스트
+// 목록의 단일 게시글
+// content_preview, blinded_reason 추가
 export const PostListItemSchema = PostBaseSchema.extend({
-  blinded_reason: z.string().nullable(), // 옵셔널이면 nullish로 바꾸기
-  thumbnail_image: z.url().max(URL_MAX_LENGTH),
+  content_preview: z.string(),
+  blinded_reason: z.string().nullable(),
 }).transform((post) => ({
   id: post.id,
   title: post.title,
-  content: post.content,
   category: post.category,
   author: post.author,
+  thumbnailUrl: post.thumbnail_url,
+  images: post.images,
+  viewCount: post.view_count,
   likeCount: post.like_count,
   commentCount: post.comment_count,
   isLiked: post.is_liked,
-  createdAt: new Date(post.created_at),
   updatedAt: new Date(post.updated_at),
+
   blindedReason: post.blinded_reason,
-  thumbnailImageUrl: post.thumbnail_image,
+  contentPreview: post.content_preview,
 }))
 
+export type PostListItem = z.infer<typeof PostListItemSchema>
+
 // 목록
-// blinded_reason, thumbnail_image 추가
 export const PostListSchema = z.object({
   count: z.number().int().nonnegative(),
   next: z.string().nullable(),

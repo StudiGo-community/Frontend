@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import ActionDropdown from '@/shared/ui/ActionDropdown'
-import { Comment } from '@/entities/post/model/type'
+import { Comment } from '@/entities/post/model/comment.schema'
 
 interface CommunityCommentProps {
   comment: Comment
@@ -30,7 +30,9 @@ export default async function CommunityComment({
           </span>
         </div>
         <div>{comment.content}</div>
-        <span className="text-brand-gray-300 text-sm">{comment.createdAt}</span>
+        <span className="text-brand-gray-300 text-sm">
+          {comment.createdAt.toLocaleString()}
+        </span>
       </div>
 
       {/* 우측 */}

@@ -1,13 +1,23 @@
 import Link from 'next/link'
 import { cn } from '@/shared/lib/cn'
 import { createUrl } from '@/shared/lib/url'
+import {
+  POST_CATEGORIES,
+  POST_CATEGORY_LABELS,
+} from '@/entities/post/model/constants'
 
-// TODO: 명세서 나오는거 보고 value 수정 & constans로 옮기기
+const SHORT_LABELS: Record<(typeof POST_CATEGORIES)[number], string> = {
+  FREE: '자유',
+  RECRUIT: '모집',
+  STUDY: '학습',
+}
+
 const CATEGORIES = [
-  { label: '전체', value: 'all' },
-  { label: '자유', value: 'free' },
-  { label: '모집', value: 'recruit' },
-  { label: '학습', value: 'study' },
+  { label: '전체', value: 'ALL' },
+  ...POST_CATEGORIES.map((category) => ({
+    label: SHORT_LABELS[category] || POST_CATEGORY_LABELS[category],
+    value: category,
+  })),
 ] as const
 
 interface CommunityCategoryTabsProps {
@@ -17,7 +27,7 @@ interface CommunityCategoryTabsProps {
 export default async function CommunityCategoryTabs({
   searchParams,
 }: CommunityCategoryTabsProps) {
-  const activeCategory = (searchParams.category as string) ?? 'all'
+  const activeCategory = (searchParams.category as string) ?? 'ALL'
 
   return (
     <nav className="flex gap-8">

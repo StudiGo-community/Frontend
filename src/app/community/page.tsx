@@ -10,7 +10,7 @@ interface PageProps {
 
 export default async function Page({ searchParams }: PageProps) {
   // TODO: 따로 분리하지 말아야하나? (nuqs 도입시 리팩토링)
-  const { page, category, sort, query } = await searchParams
+  const { page, category, sort, q } = await searchParams
 
   return (
     <>
@@ -18,12 +18,7 @@ export default async function Page({ searchParams }: PageProps) {
       <CommunityBanner />
 
       {/* 게시판 */}
-      <CommunityBoard
-        page={page}
-        category={category}
-        sort={sort}
-        query={query}
-      />
+      <CommunityBoard page={page} category={category} sort={sort} q={q} />
 
       {/* 플로팅 채팅방 */}
       <FloatingChat />
