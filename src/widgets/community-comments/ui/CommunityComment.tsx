@@ -1,9 +1,8 @@
 import Image from 'next/image'
 import ActionDropdown from '@/shared/ui/ActionDropdown'
 import { Comment } from '@/entities/post/model/comment.schema'
-import { Button } from '@/shared/ui/Button'
-import { Siren } from 'lucide-react'
 import { formatCommunityDate } from '@/shared/lib/date'
+import CommentReportButton from '@/features/community-report/ui/CommentReportButton'
 
 interface CommunityCommentProps {
   comment: Comment
@@ -50,16 +49,7 @@ export default async function CommunityComment({
         {isAuthenticated && isAuthor && <ActionDropdown />}
 
         {/* 타인일 때: 신고 버튼 */}
-        {isAuthenticated && !isAuthor && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="hover:bg-brand-gray-100 text-sm transition-all duration-200"
-          >
-            <Siren size={14} strokeWidth={2} className="text-brand-third" />
-            <span>신고</span>
-          </Button>
-        )}
+        {isAuthenticated && !isAuthor && <CommentReportButton />}
 
         {/* UI에만 존재하고 '댓글 좋아요' API가 없어서 컴포넌트 분리 진행하지 않았음. */}
         {/* <LikeButton isLiked={comment.isLiked} /> */}
