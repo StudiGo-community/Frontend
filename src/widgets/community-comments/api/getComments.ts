@@ -17,6 +17,5 @@ export default async function getComments(postId: number, page?: number) {
     }
   )
 
-  console.log(CommentListSchema.parse(response.data))
   return CommentListSchema.parse(response.data)
 }

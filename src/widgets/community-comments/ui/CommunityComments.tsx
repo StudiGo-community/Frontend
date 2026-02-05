@@ -27,7 +27,6 @@ export default async function CommunityComments({
         <UrlPagination
           totalPages={pagination.totalPages}
           page={pagination.page}
-          searchParams={{}}
           className="py-12"
         />
       </div>
