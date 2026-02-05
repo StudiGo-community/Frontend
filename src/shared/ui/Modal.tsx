@@ -160,7 +160,10 @@ function Modal({
         <DialogHeader hasUnderline={hasHeaderUnderline}>
           <DialogTitle>{title}</DialogTitle>
           <DialogClose>
-            <XIcon className="text-brand-gray-500 size-5" strokeWidth={1.5} />
+            <XIcon
+              className="text-brand-gray-500 size-5 cursor-pointer"
+              strokeWidth={1.5}
+            />
           </DialogClose>
         </DialogHeader>
         <div className={cn('flex-1 overflow-y-auto', contentClassName)}>
