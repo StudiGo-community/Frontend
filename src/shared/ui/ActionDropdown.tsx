@@ -2,20 +2,13 @@
 
 import { Button } from '@/shared/ui/Button'
 import { DropdownMenu } from '@/shared/ui/DropdownMenu'
-import { Ellipsis, Pencil, Share, Trash2 } from 'lucide-react'
+import { Ellipsis } from 'lucide-react'
 
-// TODO: 인자 어떻게 처리할지 결정하기
 interface ActionDropdownProps {
-  onEdit?: () => void
-  onShare?: () => void
-  onDelete?: () => void
+  children: React.ReactNode
 }
 
-export default function ActionDropdown({
-  onEdit,
-  onShare,
-  onDelete,
-}: ActionDropdownProps) {
+export default function ActionDropdown({ children }: ActionDropdownProps) {
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
@@ -31,30 +24,7 @@ export default function ActionDropdown({
         onCloseAutoFocus={(e) => e.preventDefault()}
         align="end"
       >
-        <DropdownMenu.Item
-          className="text-brand-gray-500 flex cursor-pointer items-center justify-between py-2"
-          onClick={onEdit}
-        >
-          <span>수정하기</span>
-          <Pencil />
-        </DropdownMenu.Item>
-        <DropdownMenu.Separator />
-        <DropdownMenu.Item
-          className="text-brand-gray-500 flex cursor-pointer items-center justify-between py-2"
-          onClick={onShare}
-        >
-          <span>공유하기</span>
-          <Share />
-        </DropdownMenu.Item>
-        <DropdownMenu.Separator />
-        <DropdownMenu.Item
-          variant="destructive"
-          className="flex cursor-pointer items-center justify-between py-2"
-          onClick={onDelete}
-        >
-          <span>삭제하기</span>
-          <Trash2 />
-        </DropdownMenu.Item>
+        {children}
       </DropdownMenu.Content>
     </DropdownMenu>
   )

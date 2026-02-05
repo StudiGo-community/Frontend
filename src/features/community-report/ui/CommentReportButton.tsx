@@ -44,7 +44,7 @@ export default function CommentReportButton({
         onConfirm={handleConfirm}
         title="알림"
       >
-        댓글을 <strong className="text-brand-third">신고</strong> 하시겠습니까?
+        댓글을 <span className="text-brand-third">신고</span> 하시겠습니까?
       </ConfirmModal>
     </>
   )
