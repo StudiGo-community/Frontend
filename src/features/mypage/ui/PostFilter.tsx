@@ -137,10 +137,21 @@ export default function PostFilter({
               <Dropdown.Value placeholder="게시판을 선택해 주세요." />
             </Dropdown.Trigger>
             <Dropdown.Content>
-              <Dropdown.Item value="popular">인기게시판</Dropdown.Item>
-              <Dropdown.Item value="recruit">모집 게시판</Dropdown.Item>
-              <Dropdown.Item value="study">학습 게시판</Dropdown.Item>
-              <Dropdown.Item value="free">자유 게시판</Dropdown.Item>
+              <Dropdown.Item value=" " className="cursor-pointer">
+                전체 게시판
+              </Dropdown.Item>
+              <Dropdown.Item value="popular" className="cursor-pointer">
+                인기게시판
+              </Dropdown.Item>
+              <Dropdown.Item value="recruit" className="cursor-pointer">
+                모집 게시판
+              </Dropdown.Item>
+              <Dropdown.Item value="study" className="cursor-pointer">
+                학습 게시판
+              </Dropdown.Item>
+              <Dropdown.Item value="free" className="cursor-pointer">
+                자유 게시판
+              </Dropdown.Item>
             </Dropdown.Content>
           </Dropdown>
 

@@ -21,6 +21,11 @@ import {
 
 type TabType = 'post' | 'comment' | 'like'
 
+const normalize = (v: unknown) =>
+  String(v ?? '')
+    .trim()
+    .toLowerCase()
+
 export default function MyPage() {
   const [tab, setTab] = useState<TabType>('post')
   const [page, setPage] = useState(1)
@@ -29,10 +34,47 @@ export default function MyPage() {
   const [search, setSearch] = useState('')
 
   const [sortBy, setSortBy] = useState<SortOption>('latest')
-
   const [checkedMap, setCheckedMap] = useState<Record<string, boolean>>({})
 
   const timeline = useMemo<TimelineItem[]>(() => MY_TIMELINE, [])
+
+  const filteredPosts = useMemo(() => {
+    const board = normalize(selectedBoard)
+    const q = normalize(search)
+
+    return MY_POSTS.filter((p) => {
+      const okBoard = !board || normalize(p.board) === board
+      const okSearch =
+        !q || normalize(p.title).includes(q) || normalize(p.author).includes(q)
+      return okBoard && okSearch
+    })
+  }, [selectedBoard, search])
+
+  const filteredLikes = useMemo(() => {
+    const board = normalize(selectedBoard)
+    const q = normalize(search)
+
+    return MY_LIKES.filter((p) => {
+      const okBoard = !board || normalize(p.board) === board
+      const okSearch =
+        !q || normalize(p.title).includes(q) || normalize(p.author).includes(q)
+      return okBoard && okSearch
+    })
+  }, [selectedBoard, search])
+
+  const filteredComments = useMemo(() => {
+    const board = normalize(selectedBoard)
+    const q = normalize(search)
+
+    return MY_COMMENTS.filter((c) => {
+      const okBoard = !board || normalize(c.board) === board
+      const okSearch =
+        !q ||
+        normalize(c.postTitle).includes(q) ||
+        normalize(c.content).includes(q)
+      return okBoard && okSearch
+    })
+  }, [selectedBoard, search])
 
   const handleChangeTab = (nextTab: TabType) => {
     setTab(nextTab)
@@ -42,6 +84,18 @@ export default function MyPage() {
 
   const handleChangeSortBy = (next: SortOption) => {
     setSortBy(next)
+    setPage(1)
+    setCheckedMap({})
+  }
+
+  const handleChangeBoard = (value: string) => {
+    setSelectedBoard(value)
+    setPage(1)
+    setCheckedMap({})
+  }
+
+  const handleChangeSearch = (value: string) => {
+    setSearch(value)
     setPage(1)
     setCheckedMap({})
   }
@@ -71,6 +125,14 @@ export default function MyPage() {
 
     setCheckedMap({})
   }
+
+  const totalPages = useMemo(() => {
+    if (tab === 'comment') {
+      const pageSize = 15
+      return Math.max(1, Math.ceil(filteredComments.length / pageSize))
+    }
+    return 10
+  }, [tab, filteredComments.length])
 
   return (
     <div className="bg-brand-white min-h-screen">
@@ -103,9 +165,9 @@ export default function MyPage() {
               tab={tab}
               onChangeTab={handleChangeTab}
               selectedBoard={selectedBoard}
-              onChangeBoard={setSelectedBoard}
+              onChangeBoard={handleChangeBoard}
               search={search}
-              onChangeSearch={setSearch}
+              onChangeSearch={handleChangeSearch}
               sortBy={sortBy}
               onChangeSortBy={handleChangeSortBy}
             />
@@ -115,7 +177,7 @@ export default function MyPage() {
         <div className="mt-2">
           {tab === 'post' && (
             <MyPost
-              items={MY_POSTS}
+              items={filteredPosts}
               sortBy={sortBy}
               checkedMap={checkedMap}
               onToggleOne={handleToggleOne}
@@ -125,7 +187,7 @@ export default function MyPage() {
           {tab === 'comment' && (
             <MyComment
               page={page}
-              items={MY_COMMENTS}
+              items={filteredComments}
               sortBy={sortBy}
               checkedMap={checkedMap}
               onToggleOne={handleToggleOne}
@@ -135,7 +197,7 @@ export default function MyPage() {
 
           {tab === 'like' && (
             <MyLike
-              items={MY_LIKES}
+              items={filteredLikes}
               sortBy={sortBy}
               checkedMap={checkedMap}
               onToggleOne={handleToggleOne}
@@ -145,7 +207,11 @@ export default function MyPage() {
 
         <div className="border-brand-gray-200 border-b" />
         <div className="my-14 flex justify-center">
-          <Pagination page={page} totalPages={10} onChangePage={setPage} />
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onChangePage={setPage}
+          />
         </div>
       </section>
     </div>
