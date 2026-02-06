@@ -1,9 +1,8 @@
-import { Button } from '@/shared/ui/Button'
-import { Textarea } from '@/shared/ui/Textarea'
 import UrlPagination from '@/shared/ui/UrlPagination'
 import CommunityComment from '@/widgets/community-comments/ui/CommunityComment'
 import getComments from '@/widgets/community-comments/api/getComments'
 import { getUser } from '@/shared/api/getUser'
+import CommentForm from '@/features/community-comment-manage/ui/CommentForm'
 
 interface CommunityCommentsProps {
   postId: number
@@ -19,41 +18,36 @@ export default async function CommunityComments({
   const user = await getUser()
 
   return (
-    <section className="mb-20">
+    <section className="mb-16">
       {/* 댓글 목록 */}
       <div className="flex flex-col">
         <ul className="border-brand-gray-100 flex flex-col gap-8 border-y-2 py-8">
-          {comments.map((comment) => (
-            <CommunityComment
-              key={comment.id}
-              comment={comment}
-              userId={user?.id}
-              postId={postId}
-              currentPage={page}
-            />
-          ))}
+          {comments.length > 0 ? (
+            comments.map((comment) => (
+              <CommunityComment
+                key={comment.id}
+                comment={comment}
+                userId={user?.id}
+                postId={postId}
+                currentPage={page}
+              />
+            ))
+          ) : (
+            <li className="text-brand-gray-300 flex flex-col gap-4 py-20 text-center">
+              <span>아직 작성된 댓글이 없습니다.</span>
+              <span>첫 댓글을 작성해 보세요!</span>
+            </li>
+          )}
         </ul>
         <UrlPagination
           totalPages={pagination.totalPages}
           page={pagination.page}
-          className="py-12"
+          className="pt-12"
         />
       </div>
 
-      {/* TODO: 컴포넌트 분리 (클라이언트 컴포넌트 + 기능 컴포넌트 필요) */}
       {/* 댓글 작성 */}
-      <div className="flex flex-col gap-4">
-        <Textarea
-          placeholder="댓글을 입력해주세요"
-          className="min-h-32 px-6 py-4 focus-visible:ring-1"
-        />
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-brand-gray-400">0 / 500</span>
-          <Button variant="secondary" size="sm" className="px-6 text-sm">
-            등록
-          </Button>
-        </div>
-      </div>
+      <CommentForm postId={postId} />
     </section>
   )
 }

@@ -13,16 +13,14 @@ export default async function PostList({
   return (
     <>
       {/* 게시글 목록 */}
-      <ul
-        id="community-post-list"
-        className="flex flex-col gap-4 border-b-2 pb-8"
-      >
+      <ul className="flex flex-col gap-4 border-b-2 pb-8">
         {data.posts.length > 0 ? (
           data.posts.map((post) => <PostCard key={post.id} post={post} />)
         ) : (
-          <div className="text-brand-gray-300 py-20 text-center">
-            해당 게시글이 없습니다.
-          </div>
+          <li className="text-brand-gray-300 flex flex-col gap-4 py-20 text-center">
+            <span>아직 작성된 게시글이 없습니다.</span>
+            <span>첫 게시글을 작성해 보세요!</span>
+          </li>
         )}
       </ul>
 
