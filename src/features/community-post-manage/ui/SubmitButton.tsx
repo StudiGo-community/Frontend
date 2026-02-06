@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/shared/ui/Button'
-import { Modal, ModalDescription } from '@/shared/ui/Modal'
+import { ConfirmModal } from '@/shared/ui/ConfirmModal'
 
 interface SubmitButtonProps {
   isSubmitting?: boolean
@@ -26,37 +26,18 @@ export default function SubmitButton({ isSubmitting }: SubmitButtonProps) {
         {isSubmitting ? '등록 중...' : '등록하기'}
       </Button>
 
-      <Modal
+      <ConfirmModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
+        onConfirm={() => setIsOpen(false)} // Submit handles the action via form
         title="글을 등록하시겠어요?"
-        contentClassName="flex flex-col gap-6"
+        confirmText={isSubmitting ? '등록 중...' : '등록하기'}
+        isPending={isSubmitting}
+        submit
+        formId="post-form"
       >
-        <ModalDescription className="text-center">
-          등록된 글은 모든 사용자가 볼 수 있습니다.
-        </ModalDescription>
-        <div className="flex gap-3">
-          <Button
-            variant="ghost"
-            onClick={() => setIsOpen(false)}
-            className="flex-1"
-            size="md"
-          >
-            취소
-          </Button>
-          <Button
-            form="post-form"
-            type="submit"
-            variant="secondary"
-            onClick={() => setIsOpen(false)}
-            disabled={isSubmitting}
-            size="md"
-            className="flex-1"
-          >
-            {isSubmitting ? '등록 중...' : '등록하기'}
-          </Button>
-        </div>
-      </Modal>
+        등록된 글은 모든 사용자가 볼 수 있습니다.
+      </ConfirmModal>
     </>
   )
 }
