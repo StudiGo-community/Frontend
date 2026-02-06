@@ -42,6 +42,9 @@ export default function CommentForm({ postId }: CommentFormProps) {
         form.reset()
         setIsOpen(false)
       },
+      onError: () => {
+        setIsOpen(false)
+      },
     })
   }
 
@@ -50,49 +53,49 @@ export default function CommentForm({ postId }: CommentFormProps) {
       <form
         id="comment-form"
         onSubmit={form.handleSubmit(onSubmit)}
-        className="py-12"
+        className="flex flex-col gap-2 py-12"
       >
         <Field
           data-invalid={!!form.formState.errors.content}
-          className="flex flex-col"
+          className={cn(
+            'flex flex-col',
+            !form.formState.errors.content && 'mb-7'
+          )}
         >
           <Textarea
             {...form.register('content')}
             placeholder="댓글을 입력해주세요"
             className={cn(
               'min-h-40 resize-none px-6 py-4 focus-visible:ring-1',
-              form.formState.errors.content
-                ? 'border-brand-error focus-visible:border-brand-error focus-visible:ring-brand-error border-2'
-                : 'mb-7'
+              form.formState.errors.content &&
+                'border-brand-error focus-visible:border-brand-error focus-visible:ring-brand-error border-2'
             )}
           />
           {form.formState.errors.content && (
             <FieldError errors={[form.formState.errors.content]} />
           )}
-
-          <div className="flex justify-between gap-2">
-            <span
-              className={cn(
-                'text-sm transition-colors',
-                content.length > 500
-                  ? 'text-brand-error'
-                  : 'text-brand-gray-400'
-              )}
-            >
-              {content.length} / 500
-            </span>
-            <Button
-              variant="secondary"
-              type="button"
-              size="sm"
-              className="-translate-y-6 px-6 text-sm"
-              onClick={form.handleSubmit(() => setIsOpen(true))}
-              disabled={!content || isPending}
-            >
-              등록
-            </Button>
-          </div>
         </Field>
+
+        <div className="flex justify-between gap-2">
+          <span
+            className={cn(
+              'text-sm transition-colors',
+              content.length > 500 ? 'text-brand-error' : 'text-brand-gray-400'
+            )}
+          >
+            {content.length} / 500
+          </span>
+          <Button
+            variant="secondary"
+            type="button"
+            size="sm"
+            className="-translate-y-6 px-6 text-sm"
+            onClick={form.handleSubmit(() => setIsOpen(true))}
+            disabled={!content || isPending}
+          >
+            등록
+          </Button>
+        </div>
       </form>
 
       {/* 등록 확인 모달 */}
