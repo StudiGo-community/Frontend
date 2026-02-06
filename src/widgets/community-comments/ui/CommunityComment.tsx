@@ -9,18 +9,20 @@ interface CommunityCommentProps {
   comment: Comment
   userId?: number
   postId: number
+  currentPage?: number
 }
 
 export default async function CommunityComment({
   comment,
   userId,
   postId,
+  currentPage,
 }: CommunityCommentProps) {
   const isAuthenticated = !!userId
   const isAuthor = userId === comment.author.id
 
   return (
-    <li className="flex justify-between py-2">
+    <li id={`comment-${comment.id}`} className="flex justify-between py-2">
       {/* 좌측 */}
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-2">
@@ -47,10 +49,13 @@ export default async function CommunityComment({
 
       {/* 우측 */}
       <div className="flex flex-col items-end justify-between">
-        {/* TODO: 기능, 인자 어떻게 처리할지 결정하기 */}
         {/* 본인일 때: 관리 메뉴 */}
         {isAuthenticated && isAuthor && (
-          <CommentActionMenu postId={postId} commentId={comment.id} />
+          <CommentActionMenu
+            postId={postId}
+            commentId={comment.id}
+            currentPage={currentPage}
+          />
         )}
 
         {/* 타인일 때: 신고 버튼 */}

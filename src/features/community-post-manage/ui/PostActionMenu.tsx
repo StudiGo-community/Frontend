@@ -6,6 +6,7 @@ import ActionDropdown from '@/shared/ui/ActionDropdown'
 import { Pencil, Share, Trash2 } from 'lucide-react'
 import { ConfirmModal } from '@/shared/ui/ConfirmModal'
 import { useRouter } from 'next/navigation'
+import { copyToClipboard } from '@/shared/lib/copyToClipboard'
 // import { revalidatePath } from 'next/cache'
 // import { deletePostAction } from '@/features/community-post-manage/api/deletePostAction'
 
@@ -19,8 +20,8 @@ export default function PostActionMenu({ postId }: PostActionMenuProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   const handleShare = () => {
-    // TODO: 공유 기능 구현
-    console.log('공유하기')
+    const url = `${window.location.origin}/community/${postId}`
+    copyToClipboard(url)
   }
 
   const handleDelete = async () => {
