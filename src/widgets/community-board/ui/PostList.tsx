@@ -1,6 +1,6 @@
 import PostCard from '@/entities/post/ui/PostCard'
 import UrlPagination from '@/shared/ui/UrlPagination'
-import getPosts from '@/widgets/community-board/api/getPosts'
+import { getPosts } from '@/widgets/community-board/api/getPosts'
 import { CommunityBoardSearchParams } from '@/widgets/community-board/model/types'
 
 export default async function PostList({

@@ -1,6 +1,6 @@
 import UrlPagination from '@/shared/ui/UrlPagination'
 import CommunityComment from '@/widgets/community-comments/ui/CommunityComment'
-import getComments from '@/widgets/community-comments/api/getComments'
+import { getComments } from '@/widgets/community-comments/api/getComments'
 import { getUser } from '@/shared/api/getUser'
 import CommentForm from '@/features/community-comment-manage/ui/CommentForm'
 

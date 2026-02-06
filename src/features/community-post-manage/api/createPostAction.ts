@@ -9,7 +9,7 @@ import {
   PostCreateFormSchema,
 } from '@/features/community-post-manage/model/post-create.schema'
 
-export async function createPostAction(data: PostCreateForm) {
+export const createPostAction = async (data: PostCreateForm) => {
   // 입력값 검증 (혹시 클라이언트 측 RHF이 뚫릴 경우를 대비)
   const parsed = PostCreateFormSchema.safeParse(data)
 
