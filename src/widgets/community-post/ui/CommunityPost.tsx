@@ -1,9 +1,6 @@
-// import { cn } from '@/shared/lib/cn'
 import Image from 'next/image'
 import getPost from '@/widgets/community-post/api/getPost'
-// import { Button } from '@/shared/ui/Button'
 import PostStats from '@/entities/post/ui/PostStats'
-// import ActionDropdown from '@/shared/ui/ActionDropdown'
 import PostActionMenu from '@/features/community-post-manage/ui/PostActionMenu'
 import { MessageSquare } from 'lucide-react'
 import { getUser } from '@/shared/api/getUser'
@@ -11,6 +8,7 @@ import { notFound } from 'next/navigation'
 import { formatCommunityDate } from '@/shared/lib/date'
 import PostLikeButton from '@/features/community-post-like/ui/PostLikeButton'
 import PostReportButton from '@/features/community-report/ui/PostReportButton'
+import TextViewer from '@/shared/ui/text-editor/TextViewer'
 
 interface CommunityPostProps {
   id: number
@@ -80,8 +78,7 @@ export default async function CommunityPost({ id }: CommunityPostProps) {
       {/* 본문 */}
       <section>
         {/* 내용 */}
-        {/* TODO: 팁탭 에디터 뷰어 추가 */}
-        <div className="py-8">{post.content}</div>
+        <TextViewer content={post.content} />
 
         {/* 버튼: (좋아요, 신고하기), 댓글 수 */}
         <div className="flex items-end justify-between py-4">

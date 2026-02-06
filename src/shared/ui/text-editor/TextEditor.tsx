@@ -1,23 +1,20 @@
 import { ComponentProps, useEffect } from 'react'
 
 import { Tiptap, useEditor } from '@tiptap/react'
-import StarterKit from '@tiptap/starter-kit'
-import Highlight from '@tiptap/extension-highlight'
-import TextAlign from '@tiptap/extension-text-align'
+
 import Placeholder from '@tiptap/extension-placeholder'
 import { cn } from '@/shared/lib/cn'
 import MenuBar from '@/shared/ui/text-editor/MenuBar'
 import WordCount from '@/shared/ui/text-editor/WordCount'
-import { linkConfigure } from '@/shared/ui/text-editor/HyperLink'
-import { youtubeConfigure } from '@/shared/ui/text-editor/YoutubeLink'
-import { imageConfigure } from '@/shared/ui/text-editor/ImageLink'
+import { baseExtensions } from '@/shared/ui/text-editor/extensions'
 
-import { editorContentStyles } from '@/shared/ui/text-editor/config'
+import { editorContentStyles } from '@/shared/ui/text-editor/styles'
 
 interface TextEditorProps extends Omit<ComponentProps<'div'>, 'onChange'> {
   value?: string
   onChange?: (value: string) => void
   onBlur?: () => void
+  className?: string
 }
 
 export default function TextEditor({
@@ -29,20 +26,7 @@ export default function TextEditor({
 }: TextEditorProps) {
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({
-        link: false,
-      }),
-      Highlight.configure({
-        HTMLAttributes: {
-          class: 'bg-brand-side py-[3px]',
-        },
-      }),
-      TextAlign.configure({
-        types: ['heading', 'paragraph'],
-      }),
-      linkConfigure,
-      imageConfigure,
-      youtubeConfigure,
+      ...baseExtensions,
       Placeholder.configure({
         placeholder: '내용을 입력하세요...',
       }),
@@ -94,6 +78,7 @@ export default function TextEditor({
         {editor && (
           <>
             <MenuBar />
+            {/* Tiptap.Content 도 className 적용 가능 */}
             <Tiptap.Content className="" />
             <WordCount />
           </>
