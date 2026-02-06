@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Siren } from 'lucide-react'
 import { Button } from '@/shared/ui/Button'
 import { cn } from '@/shared/lib/cn'
-import { ConfirmModal } from '@/shared/ui/ConfirmModal'
+import { ReportModal } from '@/features/community-report/ui/ReportModal'
 
 interface PostReportButtonProps {
   onClick?: () => void
@@ -17,8 +17,8 @@ export default function PostReportButton({
 }: PostReportButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const handleConfirm = () => {
-    console.log('신고')
+  const handleConfirm = (reason: string) => {
+    console.log('신고 사유:', reason)
     setIsModalOpen(false)
     onClick?.()
   }
@@ -38,14 +38,13 @@ export default function PostReportButton({
         <span>신고</span>
       </Button>
 
-      <ConfirmModal
+      <ReportModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirm}
-        title="알림"
-      >
-        게시글을 <span className="text-brand-third">신고</span> 하시겠습니까?
-      </ConfirmModal>
+        title="게시글 신고"
+        targetName="게시글"
+      />
     </>
   )
 }

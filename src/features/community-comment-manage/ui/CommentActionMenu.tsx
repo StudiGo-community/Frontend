@@ -5,6 +5,7 @@ import { DropdownMenu } from '@/shared/ui/DropdownMenu'
 import ActionDropdown from '@/shared/ui/ActionDropdown'
 import { Share, Trash2 } from 'lucide-react'
 import { ConfirmModal } from '@/shared/ui/ConfirmModal'
+import { copyToClipboard } from '@/shared/lib/copyToClipboard'
 // import { revalidatePath } from 'next/cache'
 // import { deleteCommentAction } from '@/features/community-comment-manage/api/deleteCommentAction'
 // import { useRouter } from 'next/navigation'
@@ -12,17 +13,22 @@ import { ConfirmModal } from '@/shared/ui/ConfirmModal'
 interface CommentActionMenuProps {
   postId: number
   commentId: number
+  currentPage?: number
 }
 
 export default function CommentActionMenu({
   postId,
   commentId,
+  currentPage,
 }: CommentActionMenuProps) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
   const handleShare = () => {
-    // TODO: 공유 기능 구현
-    console.log('공유하기', postId)
+    const pageParam =
+      currentPage && currentPage > 1 ? `?page=${currentPage}` : ''
+    const hash = `#comment-${commentId}`
+    const url = `${window.location.origin}/community/${postId}${pageParam}${hash}`
+    copyToClipboard(url)
   }
 
   const handleDelete = async () => {

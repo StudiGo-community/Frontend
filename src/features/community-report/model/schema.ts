@@ -5,10 +5,10 @@ import { REPORT_REASON_MAX_LENGTH } from '@/entities/post/model/constants'
 export const ReportFormSchema = z.object({
   reason: z
     .string()
-    .min(1, '신고 이유를 입력해주세요.')
+    .min(1, '신고 사유를 입력해주세요.')
     .max(
       REPORT_REASON_MAX_LENGTH,
-      `신고 이유는 ${REPORT_REASON_MAX_LENGTH}자 이내로 입력해주세요.`
+      `신고 사유는 ${REPORT_REASON_MAX_LENGTH}자 이내로 입력해주세요.`
     ),
 })
 

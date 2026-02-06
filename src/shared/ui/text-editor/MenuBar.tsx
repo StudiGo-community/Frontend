@@ -1,7 +1,7 @@
 'use client'
 
 import { useTiptap, useTiptapState } from '@tiptap/react'
-import { menuBarStateSelector } from '@/shared/ui/text-editor/config'
+import { menuBarStateSelector } from '@/shared/ui/text-editor/utils'
 import HyperLink from '@/shared/ui/text-editor/HyperLink'
 import ImageLink from '@/shared/ui/text-editor/ImageLink'
 import YoutubeLink from '@/shared/ui/text-editor/YoutubeLink'

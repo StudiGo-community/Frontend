@@ -29,6 +29,7 @@ export default async function CommunityComments({
               comment={comment}
               userId={user?.id}
               postId={postId}
+              currentPage={page}
             />
           ))}
         </ul>
