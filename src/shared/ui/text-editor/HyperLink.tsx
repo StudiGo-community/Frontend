@@ -51,8 +51,10 @@ export default function HyperLink({ editor }: { editor: Editor }) {
   const handleSave = useCallback(() => {
     // 빈 URL이면 링크 삭제
     if (url === '') {
-      editor.chain().focus().extendMarkRange('link').unsetLink().run()
       setIsOpen(false)
+      setTimeout(() => {
+        editor.chain().focus().extendMarkRange('link').unsetLink().run()
+      }, 300)
       return
     }
 
@@ -63,14 +65,15 @@ export default function HyperLink({ editor }: { editor: Editor }) {
       return
     }
 
-    editor
-      .chain()
-      .focus()
-      .extendMarkRange('link')
-      .setLink({ href: formattedUrl })
-      .run()
-
     setIsOpen(false)
+    setTimeout(() => {
+      editor
+        .chain()
+        .focus()
+        .extendMarkRange('link')
+        .setLink({ href: formattedUrl })
+        .run()
+    }, 300)
   }, [editor, url])
 
   return (
