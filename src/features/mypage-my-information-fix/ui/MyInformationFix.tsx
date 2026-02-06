@@ -8,6 +8,8 @@ import { Input } from '@/shared/ui/input'
 import { Button } from '@/shared/ui/Button'
 import { cn } from '@/shared/lib/cn'
 
+import { WithdrawFlowModal } from './WithdrawFlowModal'
+
 type UserRole = 'user' | 'admin' | 'instructor'
 
 interface MyInfoDraft {
@@ -145,6 +147,8 @@ export function MyInformationFix() {
     router.push('/mypage')
     router.refresh()
   }
+
+  const [isWithdrawOpen, setIsWithdrawOpen] = useState(false)
 
   return (
     <main className="bg-brand-white w-full">
@@ -408,7 +412,7 @@ export function MyInformationFix() {
           <button
             type="button"
             className="text-brand-gray-300 text-sm underline underline-offset-4"
-            onClick={() => alert('회원탈퇴 (UI 더미)')}
+            onClick={() => setIsWithdrawOpen(true)}
           >
             회원탈퇴
           </button>
@@ -424,6 +428,11 @@ export function MyInformationFix() {
           </Button>
         </div>
       </section>
+
+      <WithdrawFlowModal
+        isOpen={isWithdrawOpen}
+        onClose={() => setIsWithdrawOpen(false)}
+      />
     </main>
   )
 }
