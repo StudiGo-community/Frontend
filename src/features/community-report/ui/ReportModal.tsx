@@ -75,7 +75,7 @@ export function ReportModal({
         <Textarea
           {...register('reason')}
           placeholder="신고 사유를 입력해주세요. (최대 100자)"
-          className="h-32 resize-none"
+          className={cn('h-28 resize-none p-3', !errors.reason && 'mb-5')}
         />
         {errors.reason && (
           <span className="text-xs font-medium text-red-500">
