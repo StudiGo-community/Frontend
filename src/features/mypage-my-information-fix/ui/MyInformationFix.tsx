@@ -9,6 +9,7 @@ import { Button } from '@/shared/ui/Button'
 import { cn } from '@/shared/lib/cn'
 
 import { WithdrawFlowModal } from './WithdrawFlowModal'
+import { toast } from 'sonner'
 
 type UserRole = 'user' | 'admin' | 'instructor'
 
@@ -104,7 +105,7 @@ export function MyInformationFix() {
     if (!file) return
 
     if (file.size > 5 * 1024 * 1024) {
-      alert('최대 5MB까지 업로드 가능합니다.')
+      toast.error('최대 5MB까지 업로드 가능합니다.')
       if (fileRef.current) fileRef.current.value = ''
       return
     }

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Modal } from '@/shared/ui/Modal'
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input'
@@ -13,6 +14,7 @@ import {
   REASON_LABEL,
   type WithdrawalReason,
 } from '@/features/mypage-my-information-fix/ui/withdraw-types'
+import { toast } from 'sonner'
 
 type Step = 'GUIDE' | 'REASON' | 'PASSWORD'
 
@@ -22,6 +24,7 @@ interface WithdrawFlowModalProps {
 }
 
 export function WithdrawFlowModal({ isOpen, onClose }: WithdrawFlowModalProps) {
+  const router = useRouter()
   const [step, setStep] = useState<Step>('GUIDE')
 
   // 탈퇴안내 1
@@ -88,9 +91,10 @@ export function WithdrawFlowModal({ isOpen, onClose }: WithdrawFlowModalProps) {
   const handleConfirmWithdraw = () => {
     // TODO: API 연동 자리
     setIsConfirmOpen(false)
-    alert('회원탈퇴 처리 (추후 API 연동)')
+    toast.success('회원탈퇴 처리 완료되었습니다.')
     reset()
     onClose()
+    router.replace('/')
   }
 
   return (
