@@ -11,11 +11,12 @@ import CategoryField from '@/features/community-post-manage/ui/CategoryField'
 import TitleField from '@/features/community-post-manage/ui/TitleField'
 import ContentField from '@/features/community-post-manage/ui/ContentField'
 import FormActionButtons from '@/features/community-post-manage/ui/FormActionButtons'
+import { PostDetail } from '@/entities/post/model/post.schema'
 
 interface PostFormProps {
   onSubmit: (data: PostCreateForm) => void
   isSubmitting?: boolean
-  defaultValues?: Partial<PostCreateForm>
+  defaultValues?: PostDetail
 }
 
 export default function PostForm({
@@ -27,10 +28,10 @@ export default function PostForm({
 
   const form = useForm<PostCreateForm>({
     resolver: zodResolver(PostCreateFormSchema),
-    defaultValues: defaultValues || {
-      title: '',
-      content: '',
-      category: undefined,
+    defaultValues: {
+      title: defaultValues?.title || '',
+      content: defaultValues?.content || '',
+      category: defaultValues?.category || undefined,
     },
   })
 

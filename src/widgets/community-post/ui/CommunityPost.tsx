@@ -16,10 +16,7 @@ interface CommunityPostProps {
 
 export default async function CommunityPost({ id }: CommunityPostProps) {
   const post = await getPost(id)
-
-  if (!post) {
-    notFound()
-  }
+  if (!post) notFound()
 
   const user = await getUser()
   const isAuthenticated = !!user
