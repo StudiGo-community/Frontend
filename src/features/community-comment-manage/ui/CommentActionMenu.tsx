@@ -6,9 +6,7 @@ import ActionDropdown from '@/shared/ui/ActionDropdown'
 import { Share, Trash2 } from 'lucide-react'
 import { ConfirmModal } from '@/shared/ui/ConfirmModal'
 import { copyToClipboard } from '@/shared/lib/copyToClipboard'
-// import { revalidatePath } from 'next/cache'
-// import { deleteCommentAction } from '@/features/community-comment-manage/api/deleteCommentAction'
-// import { useRouter } from 'next/navigation'
+import { useDeleteCommentMutation } from '@/features/community-comment-manage/model/useDeleteCommentMutation'
 
 interface CommentActionMenuProps {
   postId: number
@@ -31,11 +29,12 @@ export default function CommentActionMenu({
     copyToClipboard(url)
   }
 
-  const handleDelete = async () => {
-    // TODO: 실제 삭제 API 연동
-    console.log('삭제하기', postId, commentId)
-    // revalidatePath(`/community/${postId}`)
-    setIsDeleteModalOpen(false)
+  const { mutate, isPending } = useDeleteCommentMutation(postId)
+
+  const handleDelete = () => {
+    mutate(commentId, {
+      onSettled: () => setIsDeleteModalOpen(false),
+    })
   }
 
   return (
@@ -66,7 +65,7 @@ export default function CommentActionMenu({
         onConfirm={handleDelete}
         title="알림"
         confirmText="삭제"
-        cancelText="취소"
+        isPending={isPending}
       >
         댓글을 <strong className="text-brand-main">삭제</strong> 하시겠습니까?
       </ConfirmModal>

@@ -1,4 +1,5 @@
 'use client'
+
 import PostForm from '@/features/community-post-manage/ui/PostForm'
 import { useCreatePostMutation } from '@/features/community-post-manage/model/useCreatePostMutation'
 import { extractImagesUrl } from '@/features/community-post-manage/lib/extract-images'

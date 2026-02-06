@@ -10,7 +10,25 @@ import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input/Input'
 import { formatUrl, validateUrl } from '@/shared/lib/url'
 
-export const imageConfigure = Image.configure({
+export const imageConfigure = Image.extend({
+  // img 태그에 referrerPolicy="no-referrer" 속성 강제 추가
+  // 진우님이 네이트 기사에서 가져오신 이미지를 걔네가 이미지 못 긁어다가 쓰게 막아놔서 가져올 수 없어서,
+  // 출처 표시 없애는 방법으로 우회해서 가져왔어요.
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      referrerPolicy: {
+        default: 'no-referrer',
+        parseHTML: (element) => element.getAttribute('referrerPolicy'),
+        renderHTML: (attributes) => {
+          return {
+            referrerPolicy: attributes.referrerPolicy,
+          }
+        },
+      },
+    }
+  },
+}).configure({
   inline: false,
   allowBase64: true,
   resize: {

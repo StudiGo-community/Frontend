@@ -6,10 +6,10 @@ import {
 
 const PAGE_SIZE = 5
 
-export default async function getComments(
+export const getComments = async (
   postId: number,
   page?: number
-): Promise<CommentList> {
+): Promise<CommentList> => {
   const response = await api.get(`/posts/${postId}/comments/list`, {
     params: {
       size: PAGE_SIZE,

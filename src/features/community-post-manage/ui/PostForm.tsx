@@ -36,7 +36,7 @@ export default function PostForm({
 
   return (
     <form
-      id="community-form"
+      id="post-form"
       onSubmit={form.handleSubmit(onSubmit)}
       className="mb-20 flex flex-col gap-2"
     >

@@ -9,9 +9,7 @@ interface GetPostsParams {
   q?: string
 }
 
-export default async function getPosts(
-  params?: GetPostsParams
-): Promise<PostList> {
+export const getPosts = async (params?: GetPostsParams): Promise<PostList> => {
   // TODO: 파라미터 유효성 검사 nuqs로 바꾸기?
   const validatedParams = GetPostsParamsSchema.safeParse(params)
 

@@ -45,7 +45,7 @@ export default function SubmitButton({ isSubmitting }: SubmitButtonProps) {
             취소
           </Button>
           <Button
-            form="community-form"
+            form="post-form"
             type="submit"
             variant="secondary"
             onClick={() => setIsOpen(false)}
