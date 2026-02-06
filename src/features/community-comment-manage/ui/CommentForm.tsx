@@ -12,7 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Field, FieldError } from '@/shared/ui/Field'
 import { cn } from '@/shared/lib/cn'
 import { ConfirmModal } from '@/shared/ui/ConfirmModal'
-import { useCreateCommentMutation } from '../model/useCreateCommentMutation'
+import { useCreateCommentMutation } from '@/features/community-comment-manage/model/useCreateCommentMutation'
 
 interface CommentFormProps {
   postId: number
@@ -40,9 +40,8 @@ export default function CommentForm({ postId }: CommentFormProps) {
     mutate(data, {
       onSuccess: () => {
         form.reset()
-        setIsOpen(false)
       },
-      onError: () => {
+      onSettled: () => {
         setIsOpen(false)
       },
     })
