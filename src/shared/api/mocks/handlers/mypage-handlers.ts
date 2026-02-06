@@ -6,6 +6,8 @@ export type TimelineItem = {
   status: 'done' | 'fail' | 'go' | 'upcoming'
 }
 
+export type BoardValue = 'popular' | 'recruit' | 'study' | 'free'
+
 export type MyPagePostItem = {
   id: number
   author: string
@@ -17,6 +19,7 @@ export type MyPagePostItem = {
   comments: number
   avatar: string
   thumbnail: string
+  board: BoardValue
 }
 
 export type MyCommentItem = {
@@ -25,6 +28,7 @@ export type MyCommentItem = {
   postTitle: string | null
   content: string | null
   createdAt: string
+  board: BoardValue | null
 }
 
 export type MyPageProfile = {
@@ -82,6 +86,8 @@ const formatTime = (d: Date) => {
   return `${hh}:${min}`
 }
 
+const BOARDS: BoardValue[] = ['popular', 'recruit', 'study', 'free']
+
 // 내 게시글
 export const MY_POSTS: MyPagePostItem[] = Array.from({ length: 10 }).map(
   (_, idx) => {
@@ -90,6 +96,7 @@ export const MY_POSTS: MyPagePostItem[] = Array.from({ length: 10 }).map(
 
     return {
       id: idx + 1,
+      board: BOARDS[idx % BOARDS.length],
       author:
         idx % 3 === 0 ? '흑백요리사' : idx % 3 === 1 ? 'Fortes42' : '요리왕',
       date: formatDate(d),
@@ -113,6 +120,7 @@ export const MY_COMMENTS: MyCommentItem[] = Array.from({ length: 15 }).map(
     const deleted = i === 4
     const longTitle =
       '조리는 보이가 나타났다... 이제 우승을 곁들인..! 조리는 보이가 나타났다... 이제 우승을 곁들인..! 조리는 보이가 나타났다... 이제 우승을 곁들인..!'
+
     return {
       commentId: `c_${i + 1}`,
       postId: deleted ? null : `p_${i + 1}`,
@@ -123,6 +131,7 @@ export const MY_COMMENTS: MyCommentItem[] = Array.from({ length: 15 }).map(
           : '조리는 보이가 나타났다... 이제 우승을 곁들인..!',
       content: 'fortes42 조림 요정 우승 각 떴다! '.repeat(6),
       createdAt: new Date(Date.now() - i * 1000 * 60 * 60 * 6).toISOString(),
+      board: deleted ? null : BOARDS[i % BOARDS.length],
     }
   }
 )
@@ -131,10 +140,11 @@ export const MY_COMMENTS: MyCommentItem[] = Array.from({ length: 15 }).map(
 export const MY_LIKES: MyPagePostItem[] = Array.from({ length: 10 }).map(
   (_, idx) => {
     const base = new Date('2026-01-15T22:40:00')
-    const d = new Date(base.getTime() - idx * 1000 * 60 * 60 * 9) // 9시간씩 과거
+    const d = new Date(base.getTime() - idx * 1000 * 60 * 60 * 9)
 
     return {
       id: idx + 101,
+      board: BOARDS[idx % BOARDS.length],
       author:
         idx % 3 === 0
           ? '흑백요리사'
