@@ -66,7 +66,6 @@ export default function CommentActionMenu({
         onConfirm={handleDelete}
         title="알림"
         confirmText="삭제"
-        cancelText="취소"
       >
         댓글을 <strong className="text-brand-main">삭제</strong> 하시겠습니까?
       </ConfirmModal>

@@ -74,7 +74,6 @@ export default function PostActionMenu({ postId }: PostActionMenuProps) {
         onConfirm={handleDelete}
         title="알림"
         confirmText="삭제"
-        cancelText="취소"
       >
         게시글을 <span className="text-brand-main">삭제</span> 하시겠습니까?
       </ConfirmModal>
@@ -86,7 +85,6 @@ export default function PostActionMenu({ postId }: PostActionMenuProps) {
         onConfirm={handleEdit}
         title="알림"
         confirmText="확인"
-        cancelText="취소"
       >
         게시글을 <span className="text-brand-second">수정</span> 하시겠습니까?
       </ConfirmModal>

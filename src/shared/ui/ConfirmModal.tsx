@@ -12,9 +12,10 @@ interface ConfirmModalProps {
   title?: string
   description?: React.ReactNode
   confirmText?: string
-  cancelText?: string
   isPending?: boolean
   children: React.ReactNode
+  submit?: boolean
+  formId?: string
 }
 
 export function ConfirmModal({
@@ -24,9 +25,10 @@ export function ConfirmModal({
   title = '알림',
   description,
   confirmText = '확인',
-  cancelText = '취소',
   isPending,
   children,
+  submit,
+  formId,
 }: ConfirmModalProps) {
   return (
     <Modal
@@ -62,13 +64,15 @@ export function ConfirmModal({
           )}
           disabled={isPending}
         >
-          {cancelText}
+          취소
         </ModalClose>
         <Button
           size="md"
           className="bg-brand-main px-10"
           onClick={onConfirm}
           disabled={isPending}
+          type={submit ? 'submit' : 'button'}
+          form={formId}
         >
           {confirmText}
         </Button>
