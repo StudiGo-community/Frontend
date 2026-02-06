@@ -7,8 +7,7 @@ import { Pencil, Share, Trash2 } from 'lucide-react'
 import { ConfirmModal } from '@/shared/ui/ConfirmModal'
 import { useRouter } from 'next/navigation'
 import { copyToClipboard } from '@/shared/lib/copyToClipboard'
-// import { revalidatePath } from 'next/cache'
-// import { deletePostAction } from '@/features/community-post-manage/api/deletePostAction'
+import { useDeletePostMutation } from '@/features/community-post-manage/model/useDeletePostMutation'
 
 interface PostActionMenuProps {
   postId: number
@@ -19,18 +18,19 @@ export default function PostActionMenu({ postId }: PostActionMenuProps) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
+  const { mutate, isPending } = useDeletePostMutation()
+
   const handleShare = () => {
     const url = `${window.location.origin}/community/${postId}`
     copyToClipboard(url)
   }
 
   const handleDelete = async () => {
-    // TODO: 실제 삭제 API 연동
-    console.log('삭제하기', postId)
-    // await deletePostAction(postId)
-    // revalidatePath('/community')
-    // router.push('/community')
-    setIsDeleteModalOpen(false)
+    mutate(postId, {
+      onSettled: () => {
+        setIsDeleteModalOpen(false)
+      },
+    })
   }
 
   const handleEdit = () => {
@@ -74,11 +74,12 @@ export default function PostActionMenu({ postId }: PostActionMenuProps) {
         onConfirm={handleDelete}
         title="알림"
         confirmText="삭제"
+        isPending={isPending}
       >
         게시글을 <span className="text-brand-main">삭제</span> 하시겠습니까?
       </ConfirmModal>
 
-      {/* 수정 확인 모달 (예시: 수정 페이지 이동 전 확인이 필요하다면 사용) */}
+      {/* 수정 확인 모달 */}
       <ConfirmModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}

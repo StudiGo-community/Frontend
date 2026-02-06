@@ -6,6 +6,7 @@ import Placeholder from '@tiptap/extension-placeholder'
 import { cn } from '@/shared/lib/cn'
 import MenuBar from '@/shared/ui/text-editor/MenuBar'
 import WordCount from '@/shared/ui/text-editor/WordCount'
+import { TextEditorSkeleton } from '@/shared/ui/text-editor/TextEditorSkeleton'
 import { baseExtensions } from '@/shared/ui/text-editor/extensions'
 
 import { editorContentStyles } from '@/shared/ui/text-editor/styles'
@@ -73,8 +74,9 @@ export default function TextEditor({
       {...props}
     >
       <Tiptap instance={editor}>
-        {/* TODO: 스켈레톤으로 바꾸기 */}
-        <Tiptap.Loading>Loading editor...</Tiptap.Loading>
+        <Tiptap.Loading>
+          <TextEditorSkeleton className="border-0 p-0" />
+        </Tiptap.Loading>
         {editor && (
           <>
             <MenuBar />

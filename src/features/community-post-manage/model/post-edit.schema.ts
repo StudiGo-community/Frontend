@@ -5,10 +5,7 @@ import {
 } from '@/features/community-post-manage/model/base.schema'
 
 // 요청
-// TODO: images가 있어야 하는거 아닌지 확인 후 요청 (포함하기로 하면 omit 필요없음)
-export const PostEditFormSchema = PostFormBaseSchema.omit({
-  images: true,
-}).partial()
+export const PostEditFormSchema = PostFormBaseSchema
 
 export type PostEditForm = z.infer<typeof PostEditFormSchema>
 

@@ -41,13 +41,15 @@ export default function YoutubeLink({ editor }: { editor: Editor }) {
       return
     }
 
-    editor.commands.setYoutubeVideo({
-      src: formattedUrl,
-      width: 640,
-      height: 480,
-    })
-
     setIsOpen(false)
+
+    setTimeout(() => {
+      editor.commands.setYoutubeVideo({
+        src: formattedUrl,
+        width: 640,
+        height: 480,
+      })
+    }, 300)
   }, [editor, url])
 
   return (

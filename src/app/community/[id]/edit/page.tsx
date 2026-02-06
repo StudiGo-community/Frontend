@@ -1,14 +1,21 @@
-import CreatePostForm from '@/widgets/community-form/ui/CreatePostForm'
+import z from 'zod'
+import { notFound } from 'next/navigation'
+import EditPostForm from '@/widgets/community-form/ui/EditPostForm'
+import getPost from '@/widgets/community-post/api/getPost'
 
 interface PageProps {
   params: Promise<{ id: string }>
 }
 
+const IdParamsSchema = z.coerce.number().int().positive()
+
 export default async function Page({ params }: PageProps) {
   const { id } = await params
-  console.log(id)
+  const validatedId = IdParamsSchema.safeParse(id)
+  if (!validatedId.success) return notFound()
 
-  // TODO: 게시글 조회해서 폼에 기본값으로 넣기
+  const post = await getPost(validatedId.data)
+  if (!post) return notFound()
 
   return (
     <>
@@ -16,8 +23,7 @@ export default async function Page({ params }: PageProps) {
         게시글 수정
       </h1>
 
-      {/* TODO: 수정 폼으로 바꾸기 */}
-      <CreatePostForm />
+      <EditPostForm post={post} />
     </>
   )
 }

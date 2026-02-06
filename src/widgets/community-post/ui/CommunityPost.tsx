@@ -16,10 +16,7 @@ interface CommunityPostProps {
 
 export default async function CommunityPost({ id }: CommunityPostProps) {
   const post = await getPost(id)
-
-  if (!post) {
-    notFound()
-  }
+  if (!post) notFound()
 
   const user = await getUser()
   const isAuthenticated = !!user
@@ -35,7 +32,6 @@ export default async function CommunityPost({ id }: CommunityPostProps) {
             {post.title}
           </h1>
 
-          {/* TODO: 기능, 인자 어떻게 처리할지 결정하기 */}
           {isAuthenticated && isAuthor && <PostActionMenu postId={post.id} />}
         </div>
 
