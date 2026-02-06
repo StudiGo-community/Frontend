@@ -3,6 +3,7 @@ import { Textarea } from '@/shared/ui/Textarea'
 import UrlPagination from '@/shared/ui/UrlPagination'
 import CommunityComment from '@/widgets/community-comments/ui/CommunityComment'
 import getComments from '@/widgets/community-comments/api/getComments'
+import { getUser } from '@/shared/api/getUser'
 
 interface CommunityCommentsProps {
   postId: number
@@ -15,19 +16,25 @@ export default async function CommunityComments({
 }: CommunityCommentsProps) {
   const { comments, pagination } = await getComments(postId, page)
 
+  const user = await getUser()
+
   return (
     <section className="mb-20">
       {/* 댓글 목록 */}
       <div className="flex flex-col">
         <ul className="border-brand-gray-100 flex flex-col gap-8 border-y-2 py-8">
           {comments.map((comment) => (
-            <CommunityComment key={comment.id} comment={comment} />
+            <CommunityComment
+              key={comment.id}
+              comment={comment}
+              userId={user?.id}
+              postId={postId}
+            />
           ))}
         </ul>
         <UrlPagination
           totalPages={pagination.totalPages}
           page={pagination.page}
-          searchParams={{}}
           className="py-12"
         />
       </div>

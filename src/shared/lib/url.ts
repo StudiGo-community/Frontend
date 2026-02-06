@@ -8,7 +8,7 @@
  */
 export const createUrl = (
   pathname: string,
-  currentParams: Record<string, string | string[] | undefined>,
+  currentParams: Record<string, string | string[] | undefined> = {},
   updates: Record<string, string | number | undefined | null>
 ) => {
   const params = new URLSearchParams()

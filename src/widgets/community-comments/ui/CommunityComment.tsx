@@ -1,14 +1,24 @@
 import Image from 'next/image'
-import ActionDropdown from '@/shared/ui/ActionDropdown'
+// import ActionDropdown from '@/shared/ui/ActionDropdown'
+import CommentActionMenu from '@/features/community-comment-manage/ui/CommentActionMenu'
 import { Comment } from '@/entities/post/model/comment.schema'
+import { formatCommunityDate } from '@/shared/lib/date'
+import CommentReportButton from '@/features/community-report/ui/CommentReportButton'
 
 interface CommunityCommentProps {
   comment: Comment
+  userId?: number
+  postId: number
 }
 
 export default async function CommunityComment({
   comment,
+  userId,
+  postId,
 }: CommunityCommentProps) {
+  const isAuthenticated = !!userId
+  const isAuthor = userId === comment.author.id
+
   return (
     <li className="flex justify-between py-2">
       {/* 좌측 */}
@@ -31,14 +41,20 @@ export default async function CommunityComment({
         </div>
         <div>{comment.content}</div>
         <span className="text-brand-gray-300 text-sm">
-          {comment.createdAt.toLocaleString()}
+          {formatCommunityDate(comment.createdAt)}
         </span>
       </div>
 
       {/* 우측 */}
       <div className="flex flex-col items-end justify-between">
         {/* TODO: 기능, 인자 어떻게 처리할지 결정하기 */}
-        <ActionDropdown />
+        {/* 본인일 때: 관리 메뉴 */}
+        {isAuthenticated && isAuthor && (
+          <CommentActionMenu postId={postId} commentId={comment.id} />
+        )}
+
+        {/* 타인일 때: 신고 버튼 */}
+        {isAuthenticated && !isAuthor && <CommentReportButton />}
 
         {/* UI에만 존재하고 '댓글 좋아요' API가 없어서 컴포넌트 분리 진행하지 않았음. */}
         {/* <LikeButton isLiked={comment.isLiked} /> */}

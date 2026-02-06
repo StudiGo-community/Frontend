@@ -1,10 +1,16 @@
-import { cn } from '@/shared/lib/cn'
+// import { cn } from '@/shared/lib/cn'
 import Image from 'next/image'
 import getPost from '@/widgets/community-post/api/getPost'
-import { Button } from '@/shared/ui/Button'
+// import { Button } from '@/shared/ui/Button'
 import PostStats from '@/entities/post/ui/PostStats'
-import ActionDropdown from '@/shared/ui/ActionDropdown'
-import { Heart, MessageSquare, Siren } from 'lucide-react'
+// import ActionDropdown from '@/shared/ui/ActionDropdown'
+import PostActionMenu from '@/features/community-post-manage/ui/PostActionMenu'
+import { MessageSquare } from 'lucide-react'
+import { getUser } from '@/shared/api/getUser'
+import { notFound } from 'next/navigation'
+import { formatCommunityDate } from '@/shared/lib/date'
+import PostLikeButton from '@/features/community-post-like/ui/PostLikeButton'
+import PostReportButton from '@/features/community-report/ui/PostReportButton'
 
 interface CommunityPostProps {
   id: number
@@ -12,6 +18,14 @@ interface CommunityPostProps {
 
 export default async function CommunityPost({ id }: CommunityPostProps) {
   const post = await getPost(id)
+
+  if (!post) {
+    notFound()
+  }
+
+  const user = await getUser()
+  const isAuthenticated = !!user
+  const isAuthor = user?.id === post.author.id
 
   return (
     <>
@@ -24,7 +38,7 @@ export default async function CommunityPost({ id }: CommunityPostProps) {
           </h1>
 
           {/* TODO: 기능, 인자 어떻게 처리할지 결정하기 */}
-          <ActionDropdown />
+          {isAuthenticated && isAuthor && <PostActionMenu postId={post.id} />}
         </div>
 
         {/* 기타 정보 */}
@@ -41,14 +55,14 @@ export default async function CommunityPost({ id }: CommunityPostProps) {
                 className="size-10 shrink-0 rounded-full object-cover"
               />
             ) : (
-              <div className="bg-brand-gray-200 h-6 w-6 shrink-0 rounded-full" />
+              <div className="bg-brand-gray-200 h-10 w-10 shrink-0 rounded-full" />
             )}
             <div className="flex flex-col gap-1">
               <span className="text-brand-black text-lg font-bold">
                 {post.author.nickname}
               </span>
               <span className="text-brand-gray-300 text-sm">
-                {post.createdAt.toLocaleString()}
+                {formatCommunityDate(post.createdAt)}
               </span>
             </div>
           </div>
@@ -64,35 +78,16 @@ export default async function CommunityPost({ id }: CommunityPostProps) {
       </section>
 
       {/* 본문 */}
-      {/* TODO: 클라이언트 컴포넌트로 분리 (내용 부분은 팁탭 에디터 뷰어) */}
       <section>
         {/* 내용 */}
+        {/* TODO: 팁탭 에디터 뷰어 추가 */}
         <div className="py-8">{post.content}</div>
 
         {/* 버튼: (좋아요, 신고하기), 댓글 수 */}
         <div className="flex items-end justify-between py-4">
-          {/* TODO: 컴포넌트 분리 (클라이언트 컴포넌트 + 기능 컴포넌트 필요) */}
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              // onClick={() => {}}
-              className="text-sm"
-            >
-              <Heart
-                size={14}
-                strokeWidth={2}
-                className={cn(
-                  'text-brand-third',
-                  post.isLiked && 'fill-brand-third'
-                )}
-              />
-              <span>좋아요</span>
-            </Button>
-            <Button variant="outline" size="sm" className="text-sm">
-              <Siren size={14} strokeWidth={2} className="text-brand-third" />
-              <span>신고하기</span>
-            </Button>
+            {isAuthenticated && <PostLikeButton isLiked={post.isLiked} />}
+            {isAuthenticated && !isAuthor && <PostReportButton />}
           </div>
 
           <span className="text-brand-gray-400 flex items-center gap-1">
