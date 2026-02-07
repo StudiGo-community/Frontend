@@ -24,4 +24,5 @@ export const mypageKeys = {
     [...mypageKeys.all, 'comments', 'list', page, size, sort] as const,
   likesList: (page: number, size: number, sort: 'latest' | 'oldest') =>
     [...mypageKeys.all, 'liked-posts', 'list', page, size, sort] as const,
+  timeline: () => [...mypageKeys.all, 'timeline', 'history'] as const,
 }

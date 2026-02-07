@@ -16,7 +16,7 @@ import MyLike from '@/features/mypage/ui/MyLike'
 import MyPageActionMenu from '@/features/mypage/ui/MyPageActionMenu'
 import { Pagination } from '@/shared/ui/pagination-je'
 import Profile from '@/features/mypage/ui/Profile'
-import TimeLine, { TimelineItem } from '@/features/mypage/ui/TimeLine'
+import TimeLine, { type TimelineItem } from '@/features/mypage/ui/TimeLine'
 import type {
   MyCommentItem,
   MyPagePostItem,
@@ -27,7 +27,7 @@ import { useMyComments } from '@/features/mypage/hook/useMyComments'
 import { useLikedPosts } from '@/features/mypage/hook/useLikes'
 import { useDeleteMyPosts } from '@/features/mypage/hook/useDeleteMyPost'
 import { useDeleteMyComments } from '@/features/mypage/hook/useDeleteMyComments'
-import { MY_TIMELINE } from '@/shared/api/mocks/handlers/mypage-handlers'
+import { useTimelineHistory } from '@/features/mypage/hook/useTimeline'
 
 type TabType = 'post' | 'comment' | 'like'
 
@@ -45,6 +45,42 @@ const formatDateParts = (input: string): { date: string; time: string } => {
   const hh = String(dateObj.getHours()).padStart(2, '0')
   const min = String(dateObj.getMinutes()).padStart(2, '0')
   return { date: `${yyyy}.${mm}.${dd}`, time: `${hh}:${min}` }
+}
+
+const getKstNow = () => {
+  const now = new Date()
+  const utc = now.getTime() + now.getTimezoneOffset() * 60_000
+  return new Date(utc + 9 * 60 * 60_000)
+}
+
+const startOfKstDay = () => {
+  const d = getKstNow()
+  d.setHours(0, 0, 0, 0)
+  return d
+}
+
+const addDays = (base: Date, offset: number) => {
+  const d = new Date(base)
+  d.setDate(base.getDate() + offset)
+  return d
+}
+
+const toYmd = (d: Date) => {
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}`
+}
+
+const toMmDd = (d: Date) => {
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${mm}.${dd}`
+}
+
+const toKoreanDay = (d: Date) => {
+  const days = ['일', '월', '화', '수', '목', '금', '토'] as const
+  return days[d.getDay()]
 }
 
 const DEFAULT_THUMBNAIL = '/images/mypage/post-example.png'
@@ -90,7 +126,47 @@ const MyPage = () => {
 
   const lastErrorKeyRef = useRef<string | null>(null)
 
-  const timeline = useMemo<TimelineItem[]>(() => MY_TIMELINE, [])
+  const timelineHistoryQuery = useTimelineHistory(isClient)
+
+  const noHistoryToastOnceRef = useRef(false)
+  useEffect(() => {
+    if (!timelineHistoryQuery.isSuccess) return
+    if (noHistoryToastOnceRef.current) return
+
+    const results = timelineHistoryQuery.data?.results ?? []
+    if (results.length === 0) {
+      noHistoryToastOnceRef.current = true
+      toast('아직 출석 기록이 없습니다')
+    }
+  }, [timelineHistoryQuery.isSuccess, timelineHistoryQuery.data?.results])
+
+  const timeline = useMemo<TimelineItem[]>(() => {
+    const today = startOfKstDay()
+    const results = timelineHistoryQuery.data?.results ?? []
+
+    const submittedMap = new Map<string, boolean>()
+    for (const r of results) submittedMap.set(r.date, !!r.is_submitted)
+
+    const items: TimelineItem[] = []
+    for (let offset = -3; offset <= 3; offset += 1) {
+      const d = addDays(today, offset)
+      const ymd = toYmd(d)
+      const submitted = submittedMap.get(ymd) ?? false
+
+      let status: TimelineItem['status'] = 'upcoming'
+      if (offset > 0) status = 'upcoming'
+      else if (offset === 0) status = submitted ? 'done' : 'go'
+      else status = submitted ? 'done' : 'fail'
+
+      items.push({
+        date: toMmDd(d),
+        day: toKoreanDay(d),
+        status,
+      })
+    }
+
+    return items
+  }, [timelineHistoryQuery.data?.results])
 
   const profile = useMemo(() => {
     return {
@@ -342,7 +418,7 @@ const MyPage = () => {
 
             <div className="border-brand-gray-200 w-full pb-10">
               <div className="mx-auto max-w-6xl px-5">
-                <TimeLine items={timeline} />
+                <TimeLine items={timeline} goHref="/community" />
               </div>
             </div>
           </div>

@@ -6,7 +6,9 @@ import {
 
 export const getTimelineHistoryApi =
   async (): Promise<TimelineHistoryResponse> => {
-    const res = await api.get('/daily-questions/history')
+    const res = await api.get<TimelineHistoryResponse>(
+      '/daily-questions/history'
+    )
 
     const parsed = TimelineHistoryResponseSchema.safeParse(res.data)
     if (!parsed.success) throw parsed.error
