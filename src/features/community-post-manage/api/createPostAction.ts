@@ -1,6 +1,6 @@
 'use server'
 
-import { handleActionError } from '@/shared/api/handle-action-error'
+import { handleActionError } from '@/shared/api/handleActionError'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { api } from '@/shared/api/client'

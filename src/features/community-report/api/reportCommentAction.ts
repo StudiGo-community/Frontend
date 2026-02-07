@@ -1,6 +1,7 @@
 'use server'
 
-import { handleActionError } from '@/shared/api/handle-action-error'
+import { handleActionError } from '@/shared/api/handleActionError'
+import { isAxiosError } from 'axios'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { api } from '@/shared/api/client'
@@ -36,6 +37,9 @@ export const reportCommentAction = async (
 
     return CommentReportResponseSchema.parse(response.data)
   } catch (error: unknown) {
+    if (isAxiosError(error) && error.response?.status === 409) {
+      throw new Error('이미 신고 처리된 댓글입니다.')
+    }
     return handleActionError(error, '댓글 신고에 실패했습니다.')
   }
 }

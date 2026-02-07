@@ -6,7 +6,7 @@ import {
   CommentCreateFormSchema,
 } from '@/features/community-comment-manage/model/comment-create.schema'
 import { api } from '@/shared/api/client'
-import { handleActionError } from '@/shared/api/handle-action-error'
+import { handleActionError } from '@/shared/api/handleActionError'
 import { revalidatePath } from 'next/cache'
 import { Comment, CommentSchema } from '@/entities/post/model/comment.schema'
 
