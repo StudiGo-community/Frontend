@@ -8,7 +8,7 @@ interface PostStatsProps {
   className?: string
 }
 
-export default async function PostStats({
+export default function PostStats({
   viewCount,
   likeCount,
   commentCount,

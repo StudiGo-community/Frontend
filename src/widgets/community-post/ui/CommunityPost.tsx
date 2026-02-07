@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import getPost from '@/widgets/community-post/api/getPost'
-import PostStats from '@/entities/post/ui/PostStats'
+import PostDetailStats from '@/features/community-post-like/ui/PostDetailStats'
 import PostActionMenu from '@/features/community-post-manage/ui/PostActionMenu'
 import { MessageSquare } from 'lucide-react'
 import { getUser } from '@/shared/api/getUser'
@@ -62,7 +62,8 @@ export default async function CommunityPost({ id }: CommunityPostProps) {
           </div>
 
           {/* 횟수: (조회수, 좋아요, 댓글) */}
-          <PostStats
+          <PostDetailStats
+            postId={post.id}
             viewCount={post.viewCount}
             likeCount={post.likeCount}
             commentCount={post.commentCount}
