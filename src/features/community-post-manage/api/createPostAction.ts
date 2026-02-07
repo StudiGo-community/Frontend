@@ -1,28 +1,22 @@
 'use server'
 
-import { handleActionError } from '@/shared/api/handle-action-error'
+import { handleActionError } from '@/shared/api/handleActionError'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { api } from '@/shared/api/client'
 import {
   PostCreateForm,
   PostCreateFormSchema,
+  PostCreateResponse,
+  PostCreateResponseSchema,
 } from '@/features/community-post-manage/model/post-create.schema'
+import { validateData } from '@/shared/lib/validateData'
 
-export const createPostAction = async (data: PostCreateForm) => {
+export const createPostAction = async (
+  data: PostCreateForm
+): Promise<PostCreateResponse> => {
   // 입력값 검증 (혹시 클라이언트 측 RHF이 뚫릴 경우를 대비)
-  const parsed = PostCreateFormSchema.safeParse(data)
-
-  if (!parsed.success) {
-    // parsed.error.issues 배열을 순회하며 메시지만 뽑아서 합침 (' / '로 연결)
-    const errorMessage = parsed.error.issues
-      .map((issue) => issue.message)
-      .join(' / ')
-    throw new Error(errorMessage)
-  }
-
-  // 스네이크 케이스로 변환
-  const { thumbnailUrl, ...rest } = parsed.data
+  const { thumbnailUrl, ...rest } = validateData(PostCreateFormSchema, data)
   const payload = {
     ...rest,
     thumbnail_url: thumbnailUrl,
@@ -41,9 +35,9 @@ export const createPostAction = async (data: PostCreateForm) => {
     // 캐시 갱신 (경로: /community)
     revalidatePath('/community')
 
-    return response.data
+    return PostCreateResponseSchema.parse(response.data)
   } catch (error: unknown) {
     // 에러를 던져줌 (훅에서 받아서 처리)
-    handleActionError(error, '게시글 등록에 실패했습니다.')
+    return handleActionError(error, '게시글 등록에 실패했습니다.')
   }
 }

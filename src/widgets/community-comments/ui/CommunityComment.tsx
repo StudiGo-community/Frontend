@@ -59,7 +59,9 @@ export default async function CommunityComment({
         )}
 
         {/* 타인일 때: 신고 버튼 */}
-        {isAuthenticated && !isAuthor && <CommentReportButton />}
+        {isAuthenticated && !isAuthor && (
+          <CommentReportButton postId={postId} commentId={comment.id} />
+        )}
 
         {/* UI에만 존재하고 '댓글 좋아요' API가 없어서 컴포넌트 분리 진행하지 않았음. */}
         {/* <LikeButton isLiked={comment.isLiked} /> */}

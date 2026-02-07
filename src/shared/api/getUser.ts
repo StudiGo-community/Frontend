@@ -1,9 +1,10 @@
 import { cache } from 'react'
 import { cookies } from 'next/headers'
-import { AxiosError } from 'axios'
+import { isAxiosError } from 'axios'
 import { api } from '@/shared/api/client'
 import type { User } from '@/shared/model/user'
 import { UserResponseSchema } from '@/shared/model/user.schema'
+import { handleActionError } from '@/shared/api/handleActionError'
 
 // TODO: adapter: fetch 가게되면 캐싱 방법 변경 (현재 React.cache 사용)
 export const getUser = cache(async (): Promise<User | null> => {
@@ -18,10 +19,11 @@ export const getUser = cache(async (): Promise<User | null> => {
   } catch (error) {
     // 인터셉터가 토큰 갱신을 시도한 후에도 실패한 경우에만 이곳에 도달.
     // 401은 null 반환 주의하세요!
-    if (error instanceof AxiosError && error.response?.status === 401) {
+    if (isAxiosError(error) && error.response?.status === 401) {
       return null
     }
-    throw error
+
+    return handleActionError(error, '유저 정보를 불러오는데 실패했습니다.')
   }
 })
 

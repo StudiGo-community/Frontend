@@ -5,22 +5,31 @@ import { Siren } from 'lucide-react'
 import { Button } from '@/shared/ui/Button'
 import { cn } from '@/shared/lib/cn'
 import { ReportModal } from '@/features/community-report/ui/ReportModal'
+import { useReportPostMutation } from '@/features/community-report/model/useReportPostMutation'
+import { ReportForm } from '@/features/community-report/model/schema'
 
 interface PostReportButtonProps {
-  onClick?: () => void
+  postId: number
   className?: string
 }
 
 export default function PostReportButton({
-  onClick,
+  postId,
   className,
 }: PostReportButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const handleConfirm = (reason: string) => {
-    console.log('신고 사유:', reason)
-    setIsModalOpen(false)
-    onClick?.()
+  const { mutate, isPending } = useReportPostMutation()
+
+  const handleConfirm = (data: ReportForm) => {
+    mutate(
+      { postId, data },
+      {
+        onSettled: () => {
+          setIsModalOpen(false)
+        },
+      }
+    )
   }
 
   return (
@@ -44,6 +53,7 @@ export default function PostReportButton({
         onConfirm={handleConfirm}
         title="게시글 신고"
         targetName="게시글"
+        isPending={isPending}
       />
     </>
   )

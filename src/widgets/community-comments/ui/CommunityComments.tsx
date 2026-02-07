@@ -13,9 +13,10 @@ export default async function CommunityComments({
   postId,
   page,
 }: CommunityCommentsProps) {
-  const { comments, pagination } = await getComments(postId, page)
-
-  const user = await getUser()
+  const [{ comments, pagination }, user] = await Promise.all([
+    getComments(postId, page),
+    getUser(),
+  ])
 
   return (
     <section className="mb-16">

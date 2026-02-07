@@ -29,7 +29,7 @@ export default function SubmitButton({ isSubmitting }: SubmitButtonProps) {
       <ConfirmModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        onConfirm={() => setIsOpen(false)} // Submit handles the action via form
+        onConfirm={() => setIsOpen(false)}
         title="글을 등록하시겠어요?"
         confirmText={isSubmitting ? '등록 중...' : '등록하기'}
         isPending={isSubmitting}

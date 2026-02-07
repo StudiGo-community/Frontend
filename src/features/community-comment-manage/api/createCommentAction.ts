@@ -4,26 +4,18 @@ import { cookies } from 'next/headers'
 import {
   CommentCreateForm,
   CommentCreateFormSchema,
-} from '../model/comment-create.schema'
+} from '@/features/community-comment-manage/model/comment-create.schema'
 import { api } from '@/shared/api/client'
-import { handleActionError } from '@/shared/api/handle-action-error'
+import { handleActionError } from '@/shared/api/handleActionError'
 import { revalidatePath } from 'next/cache'
+import { Comment, CommentSchema } from '@/entities/post/model/comment.schema'
+import { validateData } from '@/shared/lib/validateData'
 
 export const createCommentAction = async (
   postId: number,
   data: CommentCreateForm
-) => {
-  const parsed = CommentCreateFormSchema.safeParse(data)
-
-  if (!parsed.success) {
-    const errorMessage = parsed.error.issues
-      .map((issue) => issue.message)
-      .join(' / ')
-    throw new Error(errorMessage)
-  }
-
-  const payload = parsed.data
-  console.log(payload)
+): Promise<Comment> => {
+  const payload = validateData(CommentCreateFormSchema, data)
 
   try {
     const cookieStore = await cookies()
@@ -35,8 +27,8 @@ export const createCommentAction = async (
 
     revalidatePath(`/community/${postId}`)
 
-    return response.data
+    return CommentSchema.parse(response.data)
   } catch (error: unknown) {
-    handleActionError(error, '댓글 등록에 실패했습니다.')
+    return handleActionError(error, '댓글 등록에 실패했습니다.')
   }
 }

@@ -1,11 +1,11 @@
 'use server'
 
 import { api } from '@/shared/api/client'
-import { handleActionError } from '@/shared/api/handle-action-error'
+import { handleActionError } from '@/shared/api/handleActionError'
 import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 
-export const deletePostAction = async (postId: number) => {
+export const deletePostAction = async (postId: number): Promise<void> => {
   try {
     const cookieStore = await cookies()
     await api.delete(`/posts/${postId}`, {
@@ -14,7 +14,8 @@ export const deletePostAction = async (postId: number) => {
       },
     })
     revalidatePath(`/community`)
+    return
   } catch (error: unknown) {
-    handleActionError(error, '게시글 삭제에 실패했습니다.')
+    return handleActionError(error, '게시글 삭제에 실패했습니다.')
   }
 }

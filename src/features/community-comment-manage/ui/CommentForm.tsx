@@ -21,7 +21,7 @@ interface CommentFormProps {
 export default function CommentForm({ postId }: CommentFormProps) {
   const [isOpen, setIsOpen] = useState(false)
 
-  const { mutate, isPending } = useCreateCommentMutation(postId)
+  const { mutate, isPending } = useCreateCommentMutation()
 
   const form = useForm<CommentCreateForm>({
     resolver: zodResolver(CommentCreateFormSchema),
@@ -37,14 +37,17 @@ export default function CommentForm({ postId }: CommentFormProps) {
   })
 
   const onSubmit = (data: CommentCreateForm) => {
-    mutate(data, {
-      onSuccess: () => {
-        form.reset()
-      },
-      onSettled: () => {
-        setIsOpen(false)
-      },
-    })
+    mutate(
+      { postId, data },
+      {
+        onSuccess: () => {
+          form.reset()
+        },
+        onSettled: () => {
+          setIsOpen(false)
+        },
+      }
+    )
   }
 
   return (
