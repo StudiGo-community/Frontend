@@ -5,24 +5,28 @@ import { Heart } from 'lucide-react'
 import { Button } from '@/shared/ui/Button'
 import { cn } from '@/shared/lib/cn'
 import { ConfirmModal } from '@/shared/ui/ConfirmModal'
+import { useLikePostMutation } from '@/features/community-post-like/model/useLikePostMutation'
 
 interface PostLikeButtonProps {
+  postId: number
   isLiked: boolean
-  onClick?: () => void
   className?: string
 }
 
 export default function PostLikeButton({
+  postId,
   isLiked,
-  onClick,
   className,
 }: PostLikeButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const { mutate, isPending } = useLikePostMutation()
 
   const handleConfirm = () => {
-    console.log('좋아요')
-    setIsModalOpen(false)
-    onClick?.()
+    mutate(postId, {
+      onSettled: () => {
+        setIsModalOpen(false)
+      },
+    })
   }
 
   return (
@@ -49,6 +53,7 @@ export default function PostLikeButton({
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirm}
         title="알림"
+        isPending={isPending}
       >
         게시글을 <span className="text-brand-second">좋아요</span> 하시겠습니까?
       </ConfirmModal>

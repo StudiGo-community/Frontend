@@ -3,16 +3,17 @@ import { toast } from 'sonner'
 import { reportCommentAction } from '@/features/community-report/api/reportCommentAction'
 import { ReportForm } from '@/features/community-report/model/schema'
 
-export function useReportCommentMutation({
-  postId,
-  commentId,
-}: {
-  postId: number
-  commentId: number
-}) {
+export function useReportCommentMutation() {
   return useMutation({
-    mutationFn: (data: ReportForm) =>
-      reportCommentAction(postId, commentId, data),
+    mutationFn: ({
+      postId,
+      commentId,
+      data,
+    }: {
+      postId: number
+      commentId: number
+      data: ReportForm
+    }) => reportCommentAction(postId, commentId, data),
     onSuccess: () => {
       toast.success('댓글이 신고되었습니다.')
     },

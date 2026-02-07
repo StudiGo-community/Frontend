@@ -79,7 +79,9 @@ export default async function CommunityPost({ id }: CommunityPostProps) {
         {/* 버튼: (좋아요, 신고하기), 댓글 수 */}
         <div className="flex items-end justify-between py-4">
           <div className="flex items-center gap-2">
-            {isAuthenticated && <PostLikeButton isLiked={post.isLiked} />}
+            {isAuthenticated && (
+              <PostLikeButton postId={post.id} isLiked={post.isLiked} />
+            )}
             {isAuthenticated && !isAuthor && (
               <PostReportButton postId={post.id} />
             )}

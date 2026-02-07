@@ -11,7 +11,7 @@ interface EditPostFormProps {
 }
 
 export default function EditPostForm({ post }: EditPostFormProps) {
-  const { mutate, isPending } = useUpdatePostMutation(post.id)
+  const { mutate, isPending } = useUpdatePostMutation()
 
   const onSubmit = (data: PostCreateForm) => {
     const images = extractImagesUrl(data)
@@ -21,7 +21,7 @@ export default function EditPostForm({ post }: EditPostFormProps) {
       thumbnailUrl: images?.[0]?.url || null,
     }
 
-    mutate(payload)
+    mutate({ postId: post.id, data: payload })
   }
 
   return (

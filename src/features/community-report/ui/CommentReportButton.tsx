@@ -21,17 +21,17 @@ export default function CommentReportButton({
 }: CommentReportButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const { mutate, isPending } = useReportCommentMutation({
-    postId,
-    commentId,
-  })
+  const { mutate, isPending } = useReportCommentMutation()
 
   const handleConfirm = (data: ReportForm) => {
-    mutate(data, {
-      onSettled: () => {
-        setIsModalOpen(false)
-      },
-    })
+    mutate(
+      { postId, commentId, data },
+      {
+        onSettled: () => {
+          setIsModalOpen(false)
+        },
+      }
+    )
   }
 
   return (

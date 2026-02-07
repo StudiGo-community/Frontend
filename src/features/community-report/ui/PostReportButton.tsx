@@ -19,16 +19,17 @@ export default function PostReportButton({
 }: PostReportButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const { mutate, isPending } = useReportPostMutation({
-    postId,
-  })
+  const { mutate, isPending } = useReportPostMutation()
 
   const handleConfirm = (data: ReportForm) => {
-    mutate(data, {
-      onSettled: () => {
-        setIsModalOpen(false)
-      },
-    })
+    mutate(
+      { postId, data },
+      {
+        onSettled: () => {
+          setIsModalOpen(false)
+        },
+      }
+    )
   }
 
   return (

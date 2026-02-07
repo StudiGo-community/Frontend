@@ -29,12 +29,15 @@ export default function CommentActionMenu({
     copyToClipboard(url)
   }
 
-  const { mutate, isPending } = useDeleteCommentMutation(postId)
+  const { mutate, isPending } = useDeleteCommentMutation()
 
   const handleDelete = () => {
-    mutate(commentId, {
-      onSettled: () => setIsDeleteModalOpen(false),
-    })
+    mutate(
+      { postId, commentId },
+      {
+        onSettled: () => setIsDeleteModalOpen(false),
+      }
+    )
   }
 
   return (
