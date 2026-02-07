@@ -15,3 +15,13 @@ export const communityKeys = {
   comments: (postId: number) =>
     [...communityKeys.post(postId), 'comments'] as const,
 }
+
+export const mypageKeys = {
+  all: ['mypage'] as const,
+  myPostsList: (page: number, size: number, sort: 'latest' | 'oldest') =>
+    [...mypageKeys.all, 'posts', 'list', page, size, sort] as const,
+  myCommentsList: (page: number, size: number, sort: 'latest' | 'oldest') =>
+    [...mypageKeys.all, 'comments', 'list', page, size, sort] as const,
+  likedPostsList: (page: number, size: number, sort: 'latest' | 'oldest') =>
+    [...mypageKeys.all, 'liked-posts', 'list', page, size, sort] as const,
+}
