@@ -4,6 +4,14 @@ export const handleActionError = (
   error: unknown,
   defaultMessage: string = '요청 처리에 실패했습니다.'
 ): never => {
+  console.error(
+    '\n--------------------------[Server Action Error]--------------------------'
+  )
+  console.error(error)
+  console.error(
+    '-------------------------------------------------------------------------\n'
+  )
+
   if (isAxiosError(error)) {
     const status = error.response?.status
 

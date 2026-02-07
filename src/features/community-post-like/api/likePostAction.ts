@@ -14,13 +14,15 @@ export const likePostAction = async (
 ): Promise<LikeToggleResponse> => {
   try {
     const cookieStore = await cookies()
-    const response = await api.post(`/posts/${postId}/like`, {
-      headers: {
-        Cookie: cookieStore.toString(),
-      },
-    })
-
-    console.log('[백엔드 서버 응답]: ', JSON.stringify(response.data, null, 2))
+    const response = await api.post(
+      `/posts/${postId}/like`,
+      {},
+      {
+        headers: {
+          Cookie: cookieStore.toString(),
+        },
+      }
+    )
 
     revalidatePath(`/community/${postId}`)
 
