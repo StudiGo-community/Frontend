@@ -7,19 +7,17 @@ import { api } from '@/shared/api/client'
 import {
   PostEditFormSchema,
   PostEditForm,
+  PostEditResponse,
+  PostEditResponseSchema,
 } from '@/features/community-post-manage/model/post-edit.schema'
 
-export const updatePostAction = async (postId: number, data: PostEditForm) => {
-  const parsed = PostEditFormSchema.safeParse(data)
+import { validateData } from '@/shared/lib/validateData'
 
-  if (!parsed.success) {
-    const errorMessage = parsed.error.issues
-      .map((issue) => issue.message)
-      .join(' / ')
-    throw new Error(errorMessage)
-  }
-
-  const { thumbnailUrl, ...rest } = parsed.data
+export const updatePostAction = async (
+  postId: number,
+  data: PostEditForm
+): Promise<PostEditResponse> => {
+  const { thumbnailUrl, ...rest } = validateData(PostEditFormSchema, data)
   const payload = {
     ...rest,
     thumbnail_url: thumbnailUrl,
@@ -36,8 +34,8 @@ export const updatePostAction = async (postId: number, data: PostEditForm) => {
     revalidatePath('/community')
     revalidatePath(`/community/${postId}`)
 
-    return response.data
+    return PostEditResponseSchema.parse(response.data)
   } catch (error: unknown) {
-    handleActionError(error, '게시글 수정에 실패했습니다.')
+    return handleActionError(error, '게시글 수정에 실패했습니다.')
   }
 }

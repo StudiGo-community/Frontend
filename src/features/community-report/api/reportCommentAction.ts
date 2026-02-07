@@ -5,25 +5,20 @@ import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { api } from '@/shared/api/client'
 import {
+  CommentReportResponse,
+  CommentReportResponseSchema,
   ReportForm,
   ReportFormSchema,
 } from '@/features/community-report/model/schema'
+
+import { validateData } from '@/shared/lib/validateData'
 
 export const reportCommentAction = async (
   postId: number,
   commentId: number,
   data: ReportForm
-): Promise<ReportForm> => {
-  const parsed = ReportFormSchema.safeParse(data)
-
-  if (!parsed.success) {
-    const errorMessage = parsed.error.issues
-      .map((issue) => issue.message)
-      .join(' / ')
-    throw new Error(errorMessage)
-  }
-
-  const payload = parsed.data
+): Promise<CommentReportResponse> => {
+  const payload = validateData(ReportFormSchema, data)
 
   try {
     const cookieStore = await cookies()
@@ -39,7 +34,7 @@ export const reportCommentAction = async (
 
     revalidatePath(`/community/${postId}`)
 
-    return response.data
+    return CommentReportResponseSchema.parse(response.data)
   } catch (error: unknown) {
     return handleActionError(error, '댓글 신고에 실패했습니다.')
   }

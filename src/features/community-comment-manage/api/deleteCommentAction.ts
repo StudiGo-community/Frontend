@@ -8,7 +8,7 @@ import { cookies } from 'next/headers'
 export const deleteCommentAction = async (
   postId: number,
   commentId: number
-) => {
+): Promise<void> => {
   try {
     const cookieStore = await cookies()
     await api.delete(`/posts/${postId}/comments/${commentId}`, {
@@ -17,7 +17,8 @@ export const deleteCommentAction = async (
       },
     })
     revalidatePath(`/community/${postId}`)
+    return
   } catch (error: unknown) {
-    handleActionError(error, '댓글 삭제에 실패했습니다.')
+    return handleActionError(error, '댓글 삭제에 실패했습니다.')
   }
 }
