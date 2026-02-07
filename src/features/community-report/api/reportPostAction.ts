@@ -5,38 +5,33 @@ import { isAxiosError } from 'axios'
 import { cookies } from 'next/headers'
 import { api } from '@/shared/api/client'
 import {
-  CommentReportResponse,
-  CommentReportResponseSchema,
+  PostReportResponse,
+  PostReportResponseSchema,
   ReportForm,
   ReportFormSchema,
 } from '@/features/community-report/model/schema'
 
 import { validateData } from '@/shared/lib/validateData'
 
-export const reportCommentAction = async (
+export const reportPostAction = async (
   postId: number,
-  commentId: number,
   data: ReportForm
-): Promise<CommentReportResponse> => {
+): Promise<PostReportResponse> => {
   const payload = validateData(ReportFormSchema, data)
 
   try {
     const cookieStore = await cookies()
-    const response = await api.post(
-      `/posts/${postId}/comments/${commentId}/reports`,
-      payload,
-      {
-        headers: {
-          Cookie: cookieStore.toString(),
-        },
-      }
-    )
+    const response = await api.post(`/posts/${postId}/reports`, payload, {
+      headers: {
+        Cookie: cookieStore.toString(),
+      },
+    })
 
-    return CommentReportResponseSchema.parse(response.data)
+    return PostReportResponseSchema.parse(response.data)
   } catch (error: unknown) {
     if (isAxiosError(error) && error.response?.status === 409) {
-      throw new Error('이미 신고 처리된 댓글입니다.')
+      throw new Error('이미 신고 처리된 게시글입니다.')
     }
-    return handleActionError(error, '댓글 신고에 실패했습니다.')
+    return handleActionError(error, '게시글 신고에 실패했습니다.')
   }
 }
