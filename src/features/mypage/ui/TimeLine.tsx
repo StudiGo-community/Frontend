@@ -4,7 +4,7 @@ export type TimelineItem = {
   status: 'done' | 'fail' | 'go' | 'upcoming'
 }
 
-function TimelineDot({ status }: { status: TimelineItem['status'] }) {
+const TimelineDot = ({ status }: { status: TimelineItem['status'] }) => {
   if (status === 'done') {
     return (
       <div className="bg-brand-green text-brand-white shadow-brand-sm border-brand-green flex h-11 w-11 items-center justify-center rounded-full border-2">
@@ -34,7 +34,7 @@ function TimelineDot({ status }: { status: TimelineItem['status'] }) {
   )
 }
 
-export default function TimeLine({ items }: { items: TimelineItem[] }) {
+const TimeLine = ({ items }: { items: TimelineItem[] }) => {
   return (
     <div className="relative min-h-14 w-full px-5">
       <div
@@ -62,3 +62,5 @@ export default function TimeLine({ items }: { items: TimelineItem[] }) {
     </div>
   )
 }
+
+export default TimeLine

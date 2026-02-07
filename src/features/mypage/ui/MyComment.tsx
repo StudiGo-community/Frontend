@@ -4,45 +4,39 @@ import Image from 'next/image'
 import { useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Avatar } from '@/shared/ui/Avatar'
-import type { MyCommentItem } from '@/shared/api/mocks/handlers/mypage-handlers'
 import type { SortOption } from '@/features/mypage/ui/PostFilter'
+import type { MyCommentItem } from '@/entities/mypage/model/mypage-ui-types'
 
 interface MyCommentProps {
-  page: number
   items?: MyCommentItem[]
-  pageSize?: number
   sortBy: SortOption
   checkedMap: Record<string, boolean>
   onToggleOne: (commentId: string) => void
   profileImageSrc: string | null
 }
 
-const DEFAULT_PAGE_SIZE = 15
-
-function truncate100(text?: string | null) {
+const truncate100 = (text?: string | null) => {
   if (!text) return ''
   return text.length <= 100 ? text : `${text.slice(0, 100)}...`
 }
 
-function formatDateTime(input: string) {
-  const d = new Date(input)
-  const yyyy = d.getFullYear()
-  const mm = String(d.getMonth() + 1).padStart(2, '0')
-  const dd = String(d.getDate()).padStart(2, '0')
-  const hh = String(d.getHours()).padStart(2, '0')
-  const min = String(d.getMinutes()).padStart(2, '0')
+const formatDateTime = (input: string) => {
+  const dateObj = new Date(input)
+  const yyyy = dateObj.getFullYear()
+  const mm = String(dateObj.getMonth() + 1).padStart(2, '0')
+  const dd = String(dateObj.getDate()).padStart(2, '0')
+  const hh = String(dateObj.getHours()).padStart(2, '0')
+  const min = String(dateObj.getMinutes()).padStart(2, '0')
   return `${yyyy}.${mm}.${dd} ${hh}:${min}`
 }
 
-export default function MyComment({
-  page,
+const MyComment = ({
   items,
-  pageSize = DEFAULT_PAGE_SIZE,
   sortBy,
   checkedMap,
   onToggleOne,
   profileImageSrc,
-}: MyCommentProps) {
+}: MyCommentProps) => {
   const router = useRouter()
 
   const safeItems = useMemo<MyCommentItem[]>(() => {
@@ -59,11 +53,6 @@ export default function MyComment({
     return copied
   }, [safeItems, sortBy])
 
-  const paged = useMemo(() => {
-    const start = (page - 1) * pageSize
-    return sorted.slice(start, start + pageSize)
-  }, [sorted, page, pageSize])
-
   const goDetail = (item: MyCommentItem) => {
     if (item.postId === null) return
     router.push(`/community/${item.postId}#comment-${item.commentId}`)
@@ -79,7 +68,7 @@ export default function MyComment({
 
   return (
     <div className="divide-brand-gray-100 border-brand-gray-100 divide-y border-t">
-      {paged.map((item) => {
+      {sorted.map((item) => {
         const isDeleted = item.postId === null || item.postTitle === null
 
         const titleText = isDeleted
@@ -160,3 +149,5 @@ export default function MyComment({
     </div>
   )
 }
+
+export default MyComment
