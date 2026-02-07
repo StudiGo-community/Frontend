@@ -80,7 +80,9 @@ export default async function CommunityPost({ id }: CommunityPostProps) {
         <div className="flex items-end justify-between py-4">
           <div className="flex items-center gap-2">
             {isAuthenticated && <PostLikeButton isLiked={post.isLiked} />}
-            {isAuthenticated && !isAuthor && <PostReportButton />}
+            {isAuthenticated && !isAuthor && (
+              <PostReportButton postId={post.id} />
+            )}
           </div>
 
           <span className="text-brand-gray-400 flex items-center gap-1">

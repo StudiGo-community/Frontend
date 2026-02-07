@@ -28,7 +28,7 @@ export default function CommentReportButton({
 
   const handleConfirm = (data: ReportForm) => {
     mutate(data, {
-      onSuccess: () => {
+      onSettled: () => {
         setIsModalOpen(false)
       },
     })
