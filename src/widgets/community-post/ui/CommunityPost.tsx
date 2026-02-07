@@ -8,17 +8,18 @@ import { notFound } from 'next/navigation'
 import { formatCommunityDate } from '@/shared/lib/date'
 import PostLikeButton from '@/features/community-post-like/ui/PostLikeButton'
 import PostReportButton from '@/features/community-report/ui/PostReportButton'
-import TextViewer from '@/shared/ui/text-editor/TextViewer'
+import { convertJsonToHtml } from '@/shared/ui/text-editor/server-utils'
+import { editorContentStyles } from '@/shared/ui/text-editor/styles'
 
 interface CommunityPostProps {
   id: number
 }
 
 export default async function CommunityPost({ id }: CommunityPostProps) {
-  const post = await getPost(id)
+  const [post, user] = await Promise.all([getPost(id), getUser()])
+
   if (!post) notFound()
 
-  const user = await getUser()
   const isAuthenticated = !!user
   const isAuthor = user?.id === post.author.id
 
@@ -74,7 +75,10 @@ export default async function CommunityPost({ id }: CommunityPostProps) {
       {/* 본문 */}
       <section>
         {/* 내용 */}
-        <TextViewer content={post.content} />
+        <div
+          className={editorContentStyles()}
+          dangerouslySetInnerHTML={{ __html: convertJsonToHtml(post.content) }}
+        />
 
         {/* 버튼: (좋아요, 신고하기), 댓글 수 */}
         <div className="flex items-end justify-between py-4">
