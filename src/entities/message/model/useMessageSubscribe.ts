@@ -25,6 +25,13 @@ function useMessageSubscribe(
           case 'MESSAGE_DELETED':
             handleMessageDeleted(roomId, parsedData.messageId)
             break
+          default:
+            console.log(
+              `[${type}]\n${Object.entries(data)
+                .map((item) => item.join(': '))
+                .join('\n')}`
+            )
+            return
         }
       } catch (error) {
         console.error(`[Socket Error] 채팅방 번호: ${roomId}\n`, error)

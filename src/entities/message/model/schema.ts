@@ -1,21 +1,42 @@
 import z from 'zod'
 
-// ---------- 베이스 ----------
-const ChatMessageSenderSchema = z.object({
-  id: z.number(),
-  nickname: z.string(),
-  profile_image_url: z.nullable(z.string()),
-})
+// ---------- 메세지 전송자 ----------
+export const ChatMessageSenderSchema = z
+  .object({
+    id: z.number(),
+    nickname: z.string(),
+    profile_image_url: z.nullable(z.string()),
+  })
+  .transform((data) => ({
+    id: data.id,
+    nickname: data.nickname,
+    profileImageUrl: data.profile_image_url,
+  }))
 
-const ChatMessageBaseSchema = z.object({
-  id: z.number(),
-  sender_user_id: z.number(),
-  sender: ChatMessageSenderSchema,
-  ko_content: z.string(),
-  es_content: z.string(),
-  status: z.enum(['SENT', 'DELETED_BY_ADMIN']),
-  created_at: z.coerce.date(),
-})
+export type MessageSender = z.infer<typeof ChatMessageSenderSchema>
+
+// ---------- 메세지 ----------
+export const ChatMessageSchema = z
+  .object({
+    id: z.number(),
+    sender_user_id: z.number(),
+    sender: ChatMessageSenderSchema,
+    ko_content: z.string(),
+    es_content: z.string(),
+    status: z.enum(['SENT', 'DELETED_BY_ADMIN']),
+    created_at: z.coerce.date(),
+  })
+  .transform((data) => ({
+    id: data.id,
+    senderUserId: data.sender_user_id,
+    sender: data.sender,
+    koContent: data.ko_content,
+    esContent: data.es_content,
+    status: data.status,
+    createdAt: data.created_at,
+  }))
+
+export type Message = z.infer<typeof ChatMessageSchema>
 
 // ---------- 채팅 메세지 조회 ----------
 export const ChatMessageListRequestSchema = z.object({
@@ -27,26 +48,6 @@ export const ChatMessageListRequestSchema = z.object({
 export type ChatMessageListRequest = z.infer<
   typeof ChatMessageListRequestSchema
 >
-
-export const ChatMessageSchema = z
-  .object({
-    ...ChatMessageBaseSchema.shape,
-  })
-  .transform((data) => ({
-    id: data.id,
-    senderUserId: data.sender_user_id,
-    sender: {
-      id: data.sender.id,
-      nickname: data.sender.nickname,
-      profileImageUrl: data.sender.profile_image_url,
-    },
-    koContent: data.ko_content,
-    esContent: data.es_content,
-    status: data.status,
-    createdAt: data.created_at,
-  }))
-
-export type Message = z.infer<typeof ChatMessageSchema>
 
 export const ChatMessageListResponseSchema = z
   .object({
@@ -76,33 +77,8 @@ export type ChatMessageSendRequest = z.infer<
   typeof ChatMessageSendRequestSchema
 >
 
-export const ChatSendMessageSchema = z
-  .object({
-    id: z.number(),
-    room_id: z.number(),
-    sender_id: z.number(),
-    content: z.string(),
-    status: z.enum(['SENT', 'DELETED_BY_ADMIN']),
-    created_at: z.coerce.date(),
-  })
-  .transform((data) => ({
-    id: data.id,
-    roomId: data.room_id,
-    senderId: data.sender_id,
-    content: data.content,
-    status: data.status,
-    createdAt: data.created_at,
-  }))
-
-export type SendMessage = z.infer<typeof ChatSendMessageSchema>
-
-export const ChatMessageSendResponseSchema = z
-  .object({
-    message: ChatSendMessageSchema,
-  })
-  .transform((data) => ({
-    message: data.message,
-  }))
+// 스키마 변경 대비해서 따로 관리
+export const ChatMessageSendResponseSchema = ChatMessageSchema
 
 export type ChatMessageSendResponse = z.infer<
   typeof ChatMessageSendResponseSchema

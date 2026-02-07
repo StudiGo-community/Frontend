@@ -13,8 +13,7 @@ function ChatRoomList() {
   const [targetRoom, setTargetRoom] = useState<ChatRoom | null>(null)
   const searchParams = useSearchParams()
   const sort = searchParams.get('sort') ?? 'desc'
-  const { data, isLoading, error } = useChatRoomList(sort)
-  const chatRooms = data?.rooms ?? []
+  const { data: chatRooms, isLoading, error } = useChatRoomList(sort)
 
   const handleModalClose = () => setTargetRoom(null)
 
@@ -32,7 +31,7 @@ function ChatRoomList() {
   return (
     <div>
       <ul className="flex flex-col">
-        {chatRooms.map((chatRoom) => (
+        {chatRooms?.map((chatRoom) => (
           <ChatRoomItem
             key={chatRoom.id}
             chatRoom={chatRoom}

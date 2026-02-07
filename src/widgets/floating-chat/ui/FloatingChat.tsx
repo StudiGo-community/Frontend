@@ -10,8 +10,8 @@ import { useChatStore } from '@/entities/chat-room/model/store'
 function FloatingChat() {
   const [isOpen, setIsOpen] = useState(false)
   const enteredRoomId = useChatStore((state) => state.enteredRoomId)
-  const { data } = useChatRoomList()
-  const currentChatRoom = data?.rooms.find((room) => room.id === enteredRoomId)
+  const { data: chatRooms } = useChatRoomList()
+  const currentChatRoom = chatRooms?.find((room) => room.id === enteredRoomId)
 
   const handleClick = () => setIsOpen((prev) => !prev)
 

@@ -34,7 +34,8 @@ function useSwitchChat() {
         },
         onError: (error) =>
           toast.error(
-            error.response?.data.detail ?? '채팅방 입장에 실패했습니다.'
+            error.response?.data.detail ?? '채팅방 입장에 실패했습니다.',
+            { id: LOADING_TOAST_ID }
           ),
       })
     },
