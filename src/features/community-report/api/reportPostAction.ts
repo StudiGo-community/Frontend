@@ -10,7 +10,6 @@ import {
   ReportForm,
   ReportFormSchema,
 } from '@/features/community-report/model/schema'
-
 import { validateData } from '@/shared/lib/validateData'
 
 export const reportPostAction = async (

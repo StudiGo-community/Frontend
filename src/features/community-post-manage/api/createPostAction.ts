@@ -10,7 +10,6 @@ import {
   PostCreateResponse,
   PostCreateResponseSchema,
 } from '@/features/community-post-manage/model/post-create.schema'
-
 import { validateData } from '@/shared/lib/validateData'
 
 export const createPostAction = async (

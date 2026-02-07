@@ -9,7 +9,6 @@ import { api } from '@/shared/api/client'
 import { handleActionError } from '@/shared/api/handleActionError'
 import { revalidatePath } from 'next/cache'
 import { Comment, CommentSchema } from '@/entities/post/model/comment.schema'
-
 import { validateData } from '@/shared/lib/validateData'
 
 export const createCommentAction = async (

@@ -10,7 +10,6 @@ import {
   PostEditResponse,
   PostEditResponseSchema,
 } from '@/features/community-post-manage/model/post-edit.schema'
-
 import { validateData } from '@/shared/lib/validateData'
 
 export const updatePostAction = async (
