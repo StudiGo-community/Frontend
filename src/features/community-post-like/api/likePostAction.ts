@@ -1,7 +1,6 @@
 'use server'
 
 import { handleActionError } from '@/shared/api/handleActionError'
-import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { api } from '@/shared/api/client'
 import {
@@ -23,8 +22,6 @@ export const likePostAction = async (
         },
       }
     )
-
-    revalidatePath(`/community/${postId}`)
 
     return LikeToggleResponseSchema.parse(response.data)
   } catch (error: unknown) {
