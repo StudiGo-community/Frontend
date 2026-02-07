@@ -1,9 +1,9 @@
 import Image from 'next/image'
 import { Button } from '@/shared/ui/Button'
 import { useRouter } from 'next/navigation'
-import type { MyPageProfile } from '@/shared/api/mocks/handlers/mypage-handlers'
+import type { MyPageProfile } from '@/entities/mypage/model/mypage-ui-types'
 
-function PinProfile({ src }: { src: string }) {
+const PinProfile = ({ src }: { src: string }) => {
   return (
     <div className="relative flex flex-col items-center">
       <div className="border-brand-green bg-brand-white shadow-brand-md relative flex h-28 w-28 items-center justify-center rounded-full border-4 max-lg:h-20 max-lg:w-20">
@@ -23,7 +23,7 @@ function PinProfile({ src }: { src: string }) {
   )
 }
 
-function Balloon({
+const Balloon = ({
   children,
   variant = 'default',
   tail = 'left',
@@ -33,7 +33,7 @@ function Balloon({
   variant?: 'default' | 'green'
   tail?: 'left' | 'right'
   className?: string
-}) {
+}) => {
   const isGreen = variant === 'green'
   const tailLeft = tail === 'left'
   return (
@@ -74,7 +74,7 @@ function Balloon({
   )
 }
 
-export default function Profile({ profile }: { profile: MyPageProfile }) {
+const Profile = ({ profile }: { profile: MyPageProfile }) => {
   const router = useRouter()
   return (
     <div className="mb-10 flex w-full flex-row items-center justify-center gap-2 max-lg:gap-5 sm:gap-4 md:gap-8">
@@ -134,3 +134,5 @@ export default function Profile({ profile }: { profile: MyPageProfile }) {
     </div>
   )
 }
+
+export default Profile

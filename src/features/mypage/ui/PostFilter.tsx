@@ -12,7 +12,7 @@ interface TabButtonProps {
   onClick: () => void
 }
 
-function TabButton({ active, children, onClick }: TabButtonProps) {
+const TabButton = ({ active, children, onClick }: TabButtonProps) => {
   return (
     <button
       type="button"
@@ -43,7 +43,7 @@ interface PostFilterProps {
   onChangeSortBy: (value: SortOption) => void
 }
 
-export default function PostFilter({
+const PostFilter = ({
   tab,
   onChangeTab,
   selectedBoard,
@@ -52,7 +52,7 @@ export default function PostFilter({
   onChangeSearch,
   sortBy,
   onChangeSortBy,
-}: PostFilterProps) {
+}: PostFilterProps) => {
   const [isSortOpen, setIsSortOpen] = useState(false)
   const sortRef = useRef<HTMLDivElement | null>(null)
 
@@ -169,3 +169,5 @@ export default function PostFilter({
     </div>
   )
 }
+
+export default PostFilter

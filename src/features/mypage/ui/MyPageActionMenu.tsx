@@ -8,10 +8,7 @@ interface MyPageActionMenuProps {
   onClickAction: () => void
 }
 
-export default function MyPageActionMenu({
-  label,
-  onClickAction,
-}: MyPageActionMenuProps) {
+const MyPageActionMenu = ({ label, onClickAction }: MyPageActionMenuProps) => {
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
@@ -41,3 +38,5 @@ export default function MyPageActionMenu({
     </DropdownMenu>
   )
 }
+
+export default MyPageActionMenu

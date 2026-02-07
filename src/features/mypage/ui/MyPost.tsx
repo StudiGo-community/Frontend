@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import { Avatar } from '@/shared/ui/Avatar'
 import HeartIcon from '@/features/mypage/assets/heart-icon.svg'
 import CommentIcon from '@/features/mypage/assets/comment-icon.svg'
-import type { MyPagePostItem } from '@/shared/api/mocks/handlers/mypage-handlers'
 import type { SortOption } from '@/features/mypage/ui/PostFilter'
+import type { MyPagePostItem } from '@/entities/mypage/model/mypage-ui-types'
 
 interface MyPostProps {
   items: MyPagePostItem[]
@@ -15,19 +15,14 @@ interface MyPostProps {
   onToggleOne: (id: string) => void
 }
 
-function getPostTimeMs(post: MyPagePostItem): number {
+const getPostTimeMs = (post: MyPagePostItem): number => {
   const date = post.date.replace(/\./g, '-')
   const time = post.time.length === 5 ? `${post.time}:00` : post.time
-  const t = new Date(`${date}T${time}`).getTime()
-  return Number.isNaN(t) ? 0 : t
+  const timestamp = new Date(`${date}T${time}`).getTime()
+  return Number.isNaN(timestamp) ? 0 : timestamp
 }
 
-export default function MyPost({
-  items,
-  sortBy,
-  checkedMap,
-  onToggleOne,
-}: MyPostProps) {
+const MyPost = ({ items, sortBy, checkedMap, onToggleOne }: MyPostProps) => {
   const router = useRouter()
 
   const sortedItems = [...items].sort((a, b) => {
@@ -36,9 +31,15 @@ export default function MyPost({
     return sortBy === 'latest' ? tb - ta : ta - tb
   })
 
-  const goDetail = (postId: number) => {
-    router.push(`/community/${postId}`)
+  if (sortedItems.length === 0) {
+    return (
+      <div className="py-14 text-center">
+        <p className="text-brand-gray-500 text-sm">작성한 글이 없습니다</p>
+      </div>
+    )
   }
+
+  const goDetail = (postId: number) => router.push(`/community/${postId}`)
 
   return (
     <div>
@@ -52,9 +53,7 @@ export default function MyPost({
             onClick={() => goDetail(post.id)}
             role="button"
             tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') goDetail(post.id)
-            }}
+            onKeyDown={(e) => e.key === 'Enter' && goDetail(post.id)}
           >
             <div className="flex items-start gap-4">
               <input
@@ -121,3 +120,5 @@ export default function MyPost({
     </div>
   )
 }
+
+export default MyPost

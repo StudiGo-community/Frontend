@@ -10,13 +10,26 @@ export const PageParamsSchema = z.object({
 })
 export type PageParams = z.infer<typeof PageParamsSchema>
 
-export const PaginationSchema = z.object({
-  page: z.number(),
-  size: z.number(),
-  totalCount: z.number(),
-  totalPages: z.number(),
-  hasNext: z.boolean(),
-})
+export const PaginationSchema = z
+  .object({
+    page: z.number().int().min(1).optional().default(1),
+    size: z.number().int().min(1).max(100).optional().default(10),
+    totalCount: z.number().optional(),
+    total_count: z.number().optional(),
+    totalPages: z.number().optional(),
+    total_pages: z.number().optional(),
+    hasNext: z.boolean().optional(),
+    has_next: z.boolean().optional(),
+  })
+  .transform((v) => {
+    return {
+      page: v.page,
+      size: v.size,
+      totalCount: v.totalCount ?? v.total_count ?? 0,
+      totalPages: v.totalPages ?? v.total_pages ?? 1,
+      hasNext: v.hasNext ?? v.has_next ?? false,
+    }
+  })
 export type Pagination = z.infer<typeof PaginationSchema>
 
 export const BulkDeleteBodySchema = z.object({

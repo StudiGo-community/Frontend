@@ -4,8 +4,8 @@ import {
   type PageParams,
 } from '@/entities/mypage/model/common-schema'
 import type { GetLikesResponse } from '@/entities/mypage/model/my-likes-schema'
-import { getLikedPostsApi } from '@/entities/mypage/api/my-likes-api'
 import { mypageKeys } from '@/shared/api/query-keys'
+import { getLikesApi } from '@/entities/mypage/api/my-likes-api'
 
 export const useLikedPosts = (
   raw: Partial<{ page: number; size: number; sort: 'latest' | 'oldest' }>,
@@ -19,7 +19,7 @@ export const useLikedPosts = (
 
   return useQuery({
     queryKey: mypageKeys.likesList(params.page, params.size, params.sort),
-    queryFn: () => getLikedPostsApi(params),
+    queryFn: () => getLikesApi(params),
     ...options,
   })
 }
