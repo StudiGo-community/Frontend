@@ -19,8 +19,7 @@ export type ReportForm = z.infer<typeof ReportFormSchema>
 export const ReportResponseBaseSchema = z.object({
   report_id: z.number().int().positive(),
   reason: z.string(),
-  // TODO: enum ["PENDING", "RESOLVED", "REJECTED"] 중에 하나여야 하는데, 일단 RECEIVED만 나옴
-  status: 'RECEIVED',
+  status: z.enum(['RECEIVED', 'PENDING', 'RESOLVED', 'REJECTED']), // 명세서와 달라서 일단 이렇게...
   created_at: z.string(),
 })
 

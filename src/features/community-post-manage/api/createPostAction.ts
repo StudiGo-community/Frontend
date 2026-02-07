@@ -33,6 +33,9 @@ export const createPostAction = async (
       },
     })
 
+    // 서버 액션은 백엔드와의 통신 내용은 보이지 않으므로, 개발시에 로그를 남겨보세요.
+    // console.log('[백엔드 서버 응답]: ', JSON.stringify(response.data, null, 2))
+
     // 캐시 갱신 (경로: /community)
     revalidatePath('/community')
 

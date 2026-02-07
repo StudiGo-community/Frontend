@@ -15,7 +15,7 @@ import { Textarea } from '@/shared/ui/Textarea'
 interface ReportModalProps {
   isOpen: boolean
   onClose: () => void
-  onConfirm: (reason: string) => void
+  onConfirm: (data: ReportForm) => void
   title: string
   targetName: string
   isPending?: boolean
@@ -49,7 +49,7 @@ export function ReportModal({
   }, [isOpen, reset])
 
   const onFormSubmit = (data: ReportForm) => {
-    onConfirm(data.reason)
+    onConfirm(data)
   }
 
   return (
