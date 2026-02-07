@@ -8,13 +8,10 @@ import {
   LikeToggleResponse,
   LikeToggleResponseSchema,
 } from '@/features/community-post-like/model/schema'
-// import { useRouter } from 'next/navigation'
 
 export const likePostAction = async (
   postId: number
 ): Promise<LikeToggleResponse> => {
-  // const router = useRouter()
-
   try {
     const cookieStore = await cookies()
     const response = await api.post(`/posts/${postId}/like`, {
@@ -26,7 +23,6 @@ export const likePostAction = async (
     console.log('[백엔드 서버 응답]: ', JSON.stringify(response.data, null, 2))
 
     revalidatePath(`/community/${postId}`)
-    // router.refresh()
 
     return LikeToggleResponseSchema.parse(response.data)
   } catch (error: unknown) {
