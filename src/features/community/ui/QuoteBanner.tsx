@@ -2,16 +2,10 @@
 
 import { Volume2 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
-
-interface BannerData {
-  id: number
-  type: 'quote' | 'quiz'
-  content: string
-  subContent?: string
-}
+import { Quote } from '@/entities/quiz/model/schema'
 
 interface QuoteBannerProps {
-  data: BannerData
+  data: Quote
   isActive: boolean
   onClick: () => void
   imageSrc: string
@@ -62,10 +56,10 @@ export function QuoteBanner({
         {isActive && (
           <div className="animate-in fade-in slide-in-from-left-4 mt-6 ml-52 duration-500">
             <div className="mb-3 flex items-center gap-3">
-              <h2 className="text-2xl font-black italic">{data.content}</h2>
+              <h2 className="text-2xl font-black italic">{data.quotes.es}</h2>
               <Volume2 size={28} className="cursor-pointer hover:opacity-80" />
             </div>
-            <p className="text-xl font-bold opacity-90">{data.subContent}</p>
+            <p className="text-xl font-bold opacity-90">{data.quotes.ko}</p>
           </div>
         )}
       </div>
