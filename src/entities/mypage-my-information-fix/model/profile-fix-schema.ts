@@ -24,16 +24,9 @@ export const GetMyProfileResponseSchema = z.object({
 })
 export type GetMyProfileResponse = z.infer<typeof GetMyProfileResponseSchema>
 
-export const PatchMyProfileRequestSchema = z
-  .object({
-    nickname: z.string().min(1).optional(),
-    phone: z.string().min(1).optional(),
-  })
-  .refine(
-    (value) => value.nickname !== undefined || value.phone !== undefined,
-    'nickname 또는 phone 중 하나는 필요합니다.'
-  )
-
+export const PatchMyProfileRequestSchema = z.object({
+  nickname: z.string().min(1),
+})
 export type PatchMyProfileRequest = z.infer<typeof PatchMyProfileRequestSchema>
 
 export const PatchMyProfileResponseSchema = z.object({
@@ -73,7 +66,8 @@ export const ChangePasswordRequestSchema = z
     new_password_confirm: z.string().min(1),
   })
   .refine(
-    (value) => value.new_password === value.new_password_confirm,
+    (requestBody) =>
+      requestBody.new_password === requestBody.new_password_confirm,
     'new_password와 new_password_confirm이 일치해야 합니다.'
   )
 
