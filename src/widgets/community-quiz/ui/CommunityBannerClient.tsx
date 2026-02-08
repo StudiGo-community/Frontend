@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { QuizBanner } from '@/features/community/ui/QuizBanner'
-import { QuoteBanner } from '@/features/community/ui/QuoteBanner'
+import { QuizBanner } from '@/widgets/community-quiz/ui/QuizBanner'
+import { QuoteBanner } from '@/widgets/community-quiz/ui/QuoteBanner'
 import {
   Quote,
   BeforeQuizResponse,

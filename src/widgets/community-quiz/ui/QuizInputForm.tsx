@@ -10,20 +10,14 @@ import {
   QuizAnswerForm,
   QuizAnswerFormSchema,
 } from '@/entities/quiz/model/schema'
+import { useAnswerQuizMutation } from '@/widgets/community-quiz/model/useAnswerQuizMutation'
 
-interface QuizInputFormProps {
-  onSubmit: () => void
-}
+export function QuizInputForm() {
+  const [isOpen, setIsOpen] = useState(false)
 
-export function QuizInputForm({ onSubmit }: QuizInputFormProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const { mutate, isPending } = useAnswerQuizMutation()
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isValid },
-  } = useForm<QuizAnswerForm>({
+  const form = useForm<QuizAnswerForm>({
     resolver: zodResolver(QuizAnswerFormSchema),
     mode: 'onChange',
     defaultValues: {
@@ -31,30 +25,29 @@ export function QuizInputForm({ onSubmit }: QuizInputFormProps) {
     },
   })
 
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsModalOpen(true)
-  }
-
-  const handleConfirm = () => {
-    onSubmit()
-    setIsModalOpen(false)
+  const onSubmit = (data: QuizAnswerForm) => {
+    mutate(data, {
+      onSettled: () => {
+        setIsOpen(false)
+      },
+    })
   }
 
   return (
     <>
       <form
-        onSubmit={handleFormSubmit}
+        onSubmit={form.handleSubmit(onSubmit)}
         className="flex w-full items-center gap-4"
       >
         <Input
-          {...register('submittedAnswerText')}
+          {...form.register('submittedAnswerText')}
           placeholder="빈칸에 들어갈 단어를 입력해주세요"
           className="h-10 rounded-lg border-none bg-white pr-16 text-black placeholder:text-gray-400"
         />
 
         <Button
-          type="submit"
+          type="button"
+          onClick={() => setIsOpen(true)}
           className="h-10 shrink-0 rounded-lg border-2 border-white bg-transparent px-6 font-bold text-white transition-all hover:bg-white/10 max-sm:px-2"
         >
           제출
@@ -62,11 +55,12 @@ export function QuizInputForm({ onSubmit }: QuizInputFormProps) {
       </form>
 
       <ConfirmModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onConfirm={handleConfirm}
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        onConfirm={form.handleSubmit(() => onSubmit(form.getValues()))}
         title="정답 제출"
         confirmText="제출"
+        isPending={isPending}
       >
         정답을 제출하시겠습니까?
       </ConfirmModal>
