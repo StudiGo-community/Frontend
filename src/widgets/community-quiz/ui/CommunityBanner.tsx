@@ -1,14 +1,11 @@
-import { MOCK_BANNER_DATA } from '@/entities/quiz/bannerMockData'
 import CommunityBannerClient from '@/widgets/community-quiz/ui/CommunityBannerClient'
 import { Suspense } from 'react'
 import ApiErrorBoundary from '@/shared/ui/ApiErrorBoundary'
 import { getQuote } from '@/widgets/community-quiz/api/getQuote'
+import { getQuiz } from '@/widgets/community-quiz/api/getQuiz'
 
 export default async function CommunityBanner() {
-  const quote = await getQuote()
-  console.log(quote)
-
-  const quiz = MOCK_BANNER_DATA.find((b) => b.type === 'quiz')
+  const [quote, quiz] = await Promise.all([getQuote(), getQuiz()])
 
   return (
     <ApiErrorBoundary>
