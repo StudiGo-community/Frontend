@@ -6,6 +6,7 @@ import { cn } from '@/shared/lib/cn'
 import { Quote } from '@/entities/quiz/model/schema'
 import { Button } from '@/shared/ui/Button'
 import QuoteImage from '@/features/community/assets/quote-image.png'
+import useTts from '@/shared/lib/useTts'
 
 interface QuoteBannerProps {
   data: Quote
@@ -14,6 +15,8 @@ interface QuoteBannerProps {
 }
 
 export function QuoteBanner({ data, isActive, onClick }: QuoteBannerProps) {
+  const { speak } = useTts()
+
   return (
     <div
       onClick={onClick}
@@ -64,7 +67,7 @@ export function QuoteBanner({ data, isActive, onClick }: QuoteBannerProps) {
             )}
             onClick={(e) => {
               e.stopPropagation()
-              console.log('읽어주기')
+              speak(data.quotes.es, 'spanish')
             }}
           >
             <Volume2 size={28} className="size-8" />
