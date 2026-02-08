@@ -7,17 +7,14 @@ export const QuoteSchema = z
   .object({
     date: z.string(),
     quotes: z.object({
+      es: z.string(),
       ko: z.string(),
-      en: z.string(),
     }),
     refreshed_at: z.string(),
   })
   .transform((data) => ({
     date: new Date(data.date),
-    quotes: {
-      ko: data.quotes.ko,
-      en: data.quotes.en,
-    },
+    quotes: data.quotes,
     refreshedAt: new Date(data.refreshed_at),
   }))
 
