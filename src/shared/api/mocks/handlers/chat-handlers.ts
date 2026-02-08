@@ -1,3 +1,4 @@
+import { ws } from 'msw'
 // import { http, HttpResponse, ws } from 'msw'
 // import {
 //   CHAT_ROOMS,
@@ -147,50 +148,71 @@
 // )
 
 // ---------- 채팅 웹소켓 이벤트 수신 ----------
-// const protocol = globalThis.location?.protocol === 'https' ? 'wss' : 'ws'
-// const url = `${protocol}://${process.env.NEXT_PUBLIC_WS_HOST}/ws/chat/rooms/:roomId`
-// const chat = ws.link(url)
+const url = new RegExp(
+  `wss://${process.env.NEXT_PUBLIC_WS_HOST}/ws/chat/rooms/\\d+.*`
+)
+const chat = ws.link(url)
 
-// const chatSocketHandlers = [
-//   chat.addEventListener('connection', async ({ client }) => {
-//     // 웹소켓 연결 성공
-//     console.log('✨ 웹소켓 연결 완료!')
+const chatSocketHandlers = [
+  chat.addEventListener('connection', async ({ client }) => {
+    // 웹소켓 연결 성공
+    const roomId = Number(client.url.pathname.split('/').at(-2))
 
-//     // 새로운 메세지
-//     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-//     for (const [_, message] of SOCKET_MESSAGES.entries()) {
-//       await new Promise((resolve) => setTimeout(resolve, 500)).then(() =>
-//         client.send(JSON.stringify({ type: 'NEW_MESSAGE', message }))
-//       )
-//     }
+    console.log('✨ 웹소켓 연결 완료!')
+    client.send(
+      JSON.stringify({ type: 'system', message: 'connected', room_id: roomId })
+    )
 
-//     // 관리자가 메세지 삭제
-//     const url = client.url.toString()
-//     const roomId = Number(url.split('/')[6])
-//     await new Promise((resolve) => setTimeout(resolve, 1000)).then(() =>
-//       client.send(
-//         JSON.stringify({
-//           type: 'MESSAGE_DELETED',
-//           room_id: roomId,
-//           message_id: 104,
-//         })
-//       )
-//     )
+    // 클라이언트 이벤트 수신
+    client.addEventListener('message', async (event) => {
+      const data = JSON.parse(event.data as string)
+      const message = data.message
+      const payload = JSON.stringify({
+        type: 'NEW_MESSAGE',
+        message: {
+          id: message.id,
+          sender_user_id: message.senderUserId,
+          sender: {
+            id: message.sender.id,
+            nickname: message.sender.nickname,
+            profile_image_url: message.sender.profileImageUrl,
+          },
+          ko_content: message.koContent,
+          es_content: message.esContent,
+          status: message.status,
+          created_at: new Date(message.createdAt).toISOString(),
+        },
+      })
 
-//     // 웹소켓 연결 종료
-//     client.addEventListener('close', () => {
-//       console.log('✨ 웹소켓 연결 종료!')
-//     })
-//   }),
-// ]
+      // 메세지 브로드캐스트
+      chat.broadcast(payload)
+    })
 
-// const chatHandlers = [
-//   getChatRoomList,
-//   enterChatRoom,
-//   getChatMessageList,
-//   sendChatMessage,
-//   exitChatRoom,
-//   ...chatSocketHandlers,
-// ]
+    // // 관리자가 메세지 삭제
+    // await new Promise((resolve) => setTimeout(resolve, 1000)).then(() =>
+    //   client.send(
+    //     JSON.stringify({
+    //       type: 'MESSAGE_DELETED',
+    //       room_id: roomId,
+    //       message_id: 104,
+    //     })
+    //   )
+    // ),
 
-// export { chatHandlers }
+    // 웹소켓 연결 종료
+    client.addEventListener('close', () => {
+      console.log('✨ 웹소켓 연결 종료!')
+    })
+  }),
+]
+
+const chatHandlers = [
+  //   getChatRoomList,
+  //   enterChatRoom,
+  //   getChatMessageList,
+  //   sendChatMessage,
+  //   exitChatRoom,
+  ...chatSocketHandlers,
+]
+
+export { chatHandlers }
