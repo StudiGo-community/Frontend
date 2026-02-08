@@ -29,6 +29,10 @@ const nextConfig = {
         hostname: 'localhost',
         hostname: '**',
       },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
     ],
   },
 
