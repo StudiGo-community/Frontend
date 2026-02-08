@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 import useMessageCacheHandler from '@/entities/message/model/useMessageCacheHandler'
 import { type Message } from '@/entities/message/model/schema'
 import { LoaderCircleIcon } from 'lucide-react'
+import { useChatSocketStore } from '@/entities/message/model/store'
 
 interface MessageInputProps {
   enteredRoomId: number
@@ -18,9 +19,15 @@ interface MessageInputProps {
 function MessageInput({ enteredRoomId, className }: MessageInputProps) {
   const { handleNewMessage } = useMessageCacheHandler()
   const formRef = useRef<HTMLFormElement>(null)
+  const socket = useChatSocketStore((state) => state.socket)
 
   const handleSubmitSuccess = (data: Message) => {
     handleNewMessage(enteredRoomId, data)
+
+    // 웹소켓 모킹을 위한 이벤트 발신
+    if (socket) {
+      socket.send(JSON.stringify({ message: data }))
+    }
 
     const form = formRef.current
     if (!form) return
