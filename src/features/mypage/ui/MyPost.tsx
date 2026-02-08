@@ -22,6 +22,22 @@ const getPostTimeMs = (post: MyPagePostItem): number => {
   return Number.isNaN(timestamp) ? 0 : timestamp
 }
 
+const normalizeThumbUrl = (raw: string): string => {
+  const url = raw.trim()
+  if (!url) return ''
+
+  if (
+    url.includes('placehold.co') &&
+    !/\.(png|jpe?g|webp|gif)(\?|$)/i.test(url)
+  ) {
+    return url.replace(/placehold\.co\/(\d+x\d+)(?!\/)/i, 'placehold.co/$1/png')
+  }
+
+  return url
+}
+
+const isSvgUrl = (url: string): boolean => /\.svg(\?|$)/i.test(url)
+
 const MyPost = ({ items, sortBy, checkedMap, onToggleOne }: MyPostProps) => {
   const router = useRouter()
 
@@ -45,6 +61,11 @@ const MyPost = ({ items, sortBy, checkedMap, onToggleOne }: MyPostProps) => {
     <div>
       {sortedItems.map((post) => {
         const id = String(post.id)
+
+        const rawThumb =
+          typeof post.thumbnail === 'string' ? post.thumbnail : ''
+        const thumb = normalizeThumbUrl(rawThumb)
+        const hasThumb = thumb.length > 0
 
         return (
           <div
@@ -103,15 +124,29 @@ const MyPost = ({ items, sortBy, checkedMap, onToggleOne }: MyPostProps) => {
                   </div>
                 </div>
 
-                <div className="bg-brand-gray-100 relative hidden h-30 w-30 shrink-0 overflow-hidden rounded-lg md:block">
-                  <Image
-                    src={post.thumbnail}
-                    alt="thumbnail"
-                    fill
-                    sizes="120px"
-                    className="object-cover"
-                  />
-                </div>
+                {hasThumb && (
+                  <div className="bg-brand-gray-100 relative hidden h-30 w-30 shrink-0 overflow-hidden rounded-lg md:block">
+                    {isSvgUrl(thumb) ? (
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={thumb}
+                          alt="thumbnail"
+                          className="h-full w-full object-cover"
+                          loading="lazy"
+                        />
+                      </>
+                    ) : (
+                      <Image
+                        src={thumb}
+                        alt="thumbnail"
+                        fill
+                        sizes="120px"
+                        className="object-cover"
+                      />
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>

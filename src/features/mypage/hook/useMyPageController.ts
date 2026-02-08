@@ -8,6 +8,7 @@ import {
   useSyncExternalStore,
 } from 'react'
 import { toast } from 'sonner'
+import { useQueries } from '@tanstack/react-query'
 
 import type { SortOption } from '@/features/mypage/ui/PostFilter'
 import type {
@@ -35,11 +36,65 @@ import {
 } from '@/features/mypage/lib/data-kst'
 
 import type { TimelineItem } from '@/features/mypage/ui/TimeLine'
+import { extractFirstImageUrl } from '@/features/mypage/lib/extract-first-image-url'
+import { getPostDetailApi } from '@/entities/mypage/api/post-detail-api'
 
 type TabType = 'post' | 'comment' | 'like'
 
-const DEFAULT_THUMBNAIL = '/images/mypage/post-example.png'
 const DEFAULT_AVATAR = '/images/profiles/default-1.webp'
+
+function pickString(obj: unknown, key: string): string | undefined {
+  if (!obj || typeof obj !== 'object') return undefined
+  const rec = obj as Record<string, unknown>
+  const value = rec[key]
+  return typeof value === 'string' ? value : undefined
+}
+
+function pickFirstString(obj: unknown, keys: string[]): string {
+  for (const k of keys) {
+    const v = pickString(obj, k)
+    if (v) return v
+  }
+  return ''
+}
+
+function pickContentPreview(obj: unknown): string {
+  return pickFirstString(obj, ['contentPreview', 'content_preview'])
+}
+
+function pickDetailContent(detail: unknown): string {
+  return pickFirstString(detail, [
+    'content',
+    'content_preview',
+    'contentPreview',
+  ])
+}
+
+function pickDetailThumbnail(detail: unknown): string {
+  if (!detail || typeof detail !== 'object') return ''
+  const rec = detail as Record<string, unknown>
+
+  const thumb = rec['thumbnail_url']
+  if (typeof thumb === 'string' && thumb.trim()) return thumb
+
+  const images = rec['images']
+  if (Array.isArray(images) && images.length > 0) {
+    const first = images[0]
+    if (typeof first === 'string' && first.trim()) return first
+    if (first && typeof first === 'object') {
+      const f = first as Record<string, unknown>
+      const url =
+        (typeof f['url'] === 'string' && f['url']) ||
+        (typeof f['src'] === 'string' && f['src']) ||
+        (typeof f['image_url'] === 'string' && f['image_url']) ||
+        ''
+      if (url) return url
+    }
+  }
+
+  const content = pickDetailContent(detail)
+  return extractFirstImageUrl(content)
+}
 
 export function useMyPageController() {
   const [tab, setTab] = useState<TabType>('post')
@@ -53,7 +108,6 @@ export function useMyPageController() {
 
   const sessionUser = useSessionStore((state) => state.user)
 
-  // 기존 동작 유지: SSR 시점에는 user=null 유지
   const isClient = useSyncExternalStore(
     (onStoreChange) => {
       queueMicrotask(onStoreChange)
@@ -102,19 +156,17 @@ export function useMyPageController() {
     const results = timelineHistoryQuery.data?.results ?? []
 
     const submittedMap = new Map<string, boolean>()
-    for (const resultItem of results) {
-      submittedMap.set(resultItem.date, !!resultItem.is_submitted)
-    }
+    for (const r of results) submittedMap.set(r.date, !!r.is_submitted)
 
     const items: TimelineItem[] = []
-    for (let offsetDays = -3; offsetDays <= 3; offsetDays += 1) {
-      const dateObject = addDays(today, offsetDays)
-      const yearMonthDay = toYearMonthDay(dateObject)
-      const submitted = submittedMap.get(yearMonthDay) ?? false
+    for (let d = -3; d <= 3; d += 1) {
+      const dateObject = addDays(today, d)
+      const ymd = toYearMonthDay(dateObject)
+      const submitted = submittedMap.get(ymd) ?? false
 
       let status: TimelineItem['status'] = 'upcoming'
-      if (offsetDays > 0) status = 'upcoming'
-      else if (offsetDays === 0) status = submitted ? 'done' : 'go'
+      if (d > 0) status = 'upcoming'
+      else if (d === 0) status = submitted ? 'done' : 'go'
       else status = submitted ? 'done' : 'fail'
 
       items.push({
@@ -123,7 +175,6 @@ export function useMyPageController() {
         status,
       })
     }
-
     return items
   }, [timelineHistoryQuery.data?.results])
 
@@ -137,118 +188,171 @@ export function useMyPageController() {
         title: '오늘도 힘내봐요!',
         subtitle: 'Hazlo lo mejor que puedas hoy también',
       },
-      balloonRight: {
-        title: 'STUDY GO !',
-      },
+      balloonRight: { title: 'STUDY GO !' },
     }
   }, [user?.email, user?.nickname, user?.profileImageUrl])
 
-  const posts = useMemo<MyPagePostItem[]>(() => {
+  const basePosts = useMemo<MyPagePostItem[]>(() => {
     const author = user?.nickname ?? ''
-    const profileImageUrl = user?.profileImageUrl
-    const safeAvatar = profileImageUrl ?? DEFAULT_AVATAR
+    const safeAvatar = user?.profileImageUrl ?? DEFAULT_AVATAR
 
-    return (myPostsQuery.data?.posts ?? []).map((postItem) => {
-      const { date, time } = formatDateParts(postItem.createdAt)
+    return (myPostsQuery.data?.posts ?? []).map((p) => {
+      const { date, time } = formatDateParts(p.createdAt)
+      const thumb = extractFirstImageUrl(pickContentPreview(p))
       return {
-        id: postItem.id,
+        id: p.id,
         author,
         date,
         time,
-        title: postItem.title,
+        title: p.title,
         views: 0,
         likes: 0,
         comments: 0,
         avatar: safeAvatar,
-        thumbnail: DEFAULT_THUMBNAIL,
+        thumbnail: thumb,
         board: 'free',
       }
     })
   }, [myPostsQuery.data?.posts, user?.nickname, user?.profileImageUrl])
 
-  const likedPosts = useMemo<MyPagePostItem[]>(() => {
+  const baseLikedPosts = useMemo<MyPagePostItem[]>(() => {
     const author = user?.nickname ?? ''
-    const profileImageUrl = user?.profileImageUrl
-    const safeAvatar = profileImageUrl ?? DEFAULT_AVATAR
+    const safeAvatar = user?.profileImageUrl ?? DEFAULT_AVATAR
 
-    return (likedPostsQuery.data?.posts ?? []).map((postItem) => {
-      const createdAt = postItem.likedAt ?? postItem.createdAt ?? ''
+    return (likedPostsQuery.data?.posts ?? []).map((p) => {
+      const createdAt = p.likedAt ?? p.createdAt ?? ''
       const { date, time } = formatDateParts(createdAt)
+      const thumb = extractFirstImageUrl(pickContentPreview(p))
       return {
-        id: postItem.id,
+        id: p.id,
         author,
         date,
         time,
-        title: postItem.title,
+        title: p.title,
         views: 0,
         likes: 0,
         comments: 0,
         avatar: safeAvatar,
-        thumbnail: DEFAULT_THUMBNAIL,
+        thumbnail: thumb,
         board: 'free',
       }
     })
   }, [likedPostsQuery.data?.posts, user?.nickname, user?.profileImageUrl])
 
+  const needDetailPostIds = useMemo(() => {
+    if (tab !== 'post') return []
+    return basePosts
+      .filter((p) => !p.thumbnail)
+      .map((p) => p.id)
+      .slice(0, 10)
+  }, [tab, basePosts])
+
+  const needDetailLikeIds = useMemo(() => {
+    if (tab !== 'like') return []
+    return baseLikedPosts
+      .filter((p) => !p.thumbnail)
+      .map((p) => p.id)
+      .slice(0, 10)
+  }, [tab, baseLikedPosts])
+
+  const postDetailQueries = useQueries({
+    queries: needDetailPostIds.map((id) => ({
+      queryKey: ['post-detail', id],
+      queryFn: () => getPostDetailApi(id),
+      enabled: isClient && tab === 'post',
+      staleTime: 1000 * 60 * 10,
+    })),
+  })
+
+  const likeDetailQueries = useQueries({
+    queries: needDetailLikeIds.map((id) => ({
+      queryKey: ['post-detail', id],
+      queryFn: () => getPostDetailApi(id),
+      enabled: isClient && tab === 'like',
+      staleTime: 1000 * 60 * 10,
+    })),
+  })
+
+  const posts = useMemo<MyPagePostItem[]>(() => {
+    if (tab !== 'post') return basePosts
+
+    const map = new Map<number, string>()
+    for (let i = 0; i < needDetailPostIds.length; i += 1) {
+      const id = needDetailPostIds[i]
+      const detail = postDetailQueries[i]?.data
+      if (!detail) continue
+      const thumb = pickDetailThumbnail(detail)
+      if (thumb) map.set(id, thumb)
+    }
+
+    return basePosts.map((p) => ({
+      ...p,
+      thumbnail: p.thumbnail || map.get(p.id) || '',
+    }))
+  }, [tab, basePosts, needDetailPostIds, postDetailQueries])
+
+  const likedPosts = useMemo<MyPagePostItem[]>(() => {
+    if (tab !== 'like') return baseLikedPosts
+
+    const map = new Map<number, string>()
+    for (let i = 0; i < needDetailLikeIds.length; i += 1) {
+      const id = needDetailLikeIds[i]
+      const detail = likeDetailQueries[i]?.data
+      if (!detail) continue
+      const thumb = pickDetailThumbnail(detail)
+      if (thumb) map.set(id, thumb)
+    }
+
+    return baseLikedPosts.map((p) => ({
+      ...p,
+      thumbnail: p.thumbnail || map.get(p.id) || '',
+    }))
+  }, [tab, baseLikedPosts, needDetailLikeIds, likeDetailQueries])
+
   const comments = useMemo<MyCommentItem[]>(() => {
-    const commentItems = myCommentsQuery.data?.comments ?? []
-    return commentItems.map((commentItem) => {
-      return {
-        commentId: String(commentItem.id),
-        postId: commentItem.postId == null ? null : String(commentItem.postId),
-        postTitle: commentItem.postTitle ?? null,
-        content: commentItem.content ?? null,
-        createdAt: commentItem.createdAt,
-        board: null,
-      }
-    })
+    const items = myCommentsQuery.data?.comments ?? []
+    return items.map((c) => ({
+      commentId: String(c.id),
+      postId: c.postId == null ? null : String(c.postId),
+      postTitle: c.postTitle ?? null,
+      content: c.content ?? null,
+      createdAt: c.createdAt,
+      board: null,
+    }))
   }, [myCommentsQuery.data?.comments])
 
   const filteredPosts = useMemo(() => {
-    const normalizedBoard = normalize(selectedBoard)
-    const normalizedSearch = normalize(search)
-
-    return posts.filter((postItem) => {
-      const matchesBoard =
-        !normalizedBoard || normalize(postItem.board) === normalizedBoard
-      const matchesSearch =
-        !normalizedSearch ||
-        normalize(postItem.title).includes(normalizedSearch) ||
-        normalize(postItem.author).includes(normalizedSearch)
-
-      return matchesBoard && matchesSearch
+    const b = normalize(selectedBoard)
+    const s = normalize(search)
+    return posts.filter((p) => {
+      const okBoard = !b || normalize(p.board) === b
+      const okSearch =
+        !s || normalize(p.title).includes(s) || normalize(p.author).includes(s)
+      return okBoard && okSearch
     })
   }, [posts, selectedBoard, search])
 
   const filteredLikes = useMemo(() => {
-    const normalizedBoard = normalize(selectedBoard)
-    const normalizedSearch = normalize(search)
-
-    return likedPosts.filter((postItem) => {
-      const matchesBoard =
-        !normalizedBoard || normalize(postItem.board) === normalizedBoard
-      const matchesSearch =
-        !normalizedSearch ||
-        normalize(postItem.title).includes(normalizedSearch) ||
-        normalize(postItem.author).includes(normalizedSearch)
-
-      return matchesBoard && matchesSearch
+    const b = normalize(selectedBoard)
+    const s = normalize(search)
+    return likedPosts.filter((p) => {
+      const okBoard = !b || normalize(p.board) === b
+      const okSearch =
+        !s || normalize(p.title).includes(s) || normalize(p.author).includes(s)
+      return okBoard && okSearch
     })
   }, [likedPosts, selectedBoard, search])
 
   const filteredComments = useMemo(() => {
-    const normalizedBoard = normalize(selectedBoard)
-    const normalizedSearch = normalize(search)
-
-    return comments.filter((commentItem) => {
-      const matchesBoard =
-        !normalizedBoard || normalize(commentItem.board) === normalizedBoard
-      const matchesSearch =
-        !normalizedSearch ||
-        normalize(commentItem.postTitle).includes(normalizedSearch) ||
-        normalize(commentItem.content).includes(normalizedSearch)
-
-      return matchesBoard && matchesSearch
+    const b = normalize(selectedBoard)
+    const s = normalize(search)
+    return comments.filter((c) => {
+      const okBoard = !b || normalize(c.board) === b
+      const okSearch =
+        !s ||
+        normalize(c.postTitle).includes(s) ||
+        normalize(c.content).includes(s)
+      return okBoard && okSearch
     })
   }, [comments, selectedBoard, search])
 
@@ -270,17 +374,15 @@ export function useMyPageController() {
 
     const message =
       error instanceof Error ? error.message : error ? String(error) : ''
-    const errorKey = `${tab}:${message}`
+    const key = `${tab}:${message}`
+    if (lastErrorKeyRef.current === key) return
+    lastErrorKeyRef.current = key
 
-    if (lastErrorKeyRef.current === errorKey) return
-    lastErrorKeyRef.current = errorKey
-
-    if (message) {
-      console.error('[MyPage] query error:', error)
-      toast.error(`마이페이지 데이터를 불러오지 못했습니다. (${message})`)
-    } else {
-      toast.error('마이페이지 데이터를 불러오지 못했습니다.')
-    }
+    toast.error(
+      message
+        ? `마이페이지 데이터를 불러오지 못했습니다. (${message})`
+        : '마이페이지 데이터를 불러오지 못했습니다.'
+    )
   }, [
     tab,
     myPostsQuery.error,
@@ -316,42 +418,35 @@ export function useMyPageController() {
   }
 
   const handleToggleOne = (identifier: string) => {
-    setCheckedMap((previous) => ({
-      ...previous,
-      [identifier]: !previous[identifier],
-    }))
+    setCheckedMap((prev) => ({ ...prev, [identifier]: !prev[identifier] }))
   }
 
   const actionLabel = tab === 'like' ? '해지하기' : '삭제하기'
 
   const handleClickAction = async () => {
-    const selectedIdentifiers = Object.entries(checkedMap)
-      .filter(([, selected]) => selected)
-      .map(([identifier]) => Number(identifier))
-      .filter((identifier) => Number.isFinite(identifier))
+    const selectedIds = Object.entries(checkedMap)
+      .filter(([, v]) => v)
+      .map(([k]) => Number(k))
+      .filter((n) => Number.isFinite(n))
 
-    const selectedCount = selectedIdentifiers.length
-
-    if (selectedCount === 0) {
+    if (selectedIds.length === 0) {
       toast.error('선택된 항목이 없습니다.')
       return
     }
 
     try {
       if (tab === 'post') {
-        await deleteMyPosts.mutateAsync(selectedIdentifiers)
+        await deleteMyPosts.mutateAsync(selectedIds)
         toast.success('선택한 게시글을 삭제했습니다.')
         setCheckedMap({})
         return
       }
-
       if (tab === 'comment') {
-        await deleteMyComments.mutateAsync(selectedIdentifiers)
+        await deleteMyComments.mutateAsync(selectedIds)
         toast.success('선택한 댓글을 삭제했습니다.')
         setCheckedMap({})
         return
       }
-
       toast.success('좋아요를 해지했습니다.')
       setCheckedMap({})
     } catch {
