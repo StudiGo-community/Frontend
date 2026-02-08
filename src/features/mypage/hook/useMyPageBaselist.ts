@@ -19,6 +19,15 @@ type UserLike = {
 type MyPostsItem = GetMyPostsResponse['posts'][number]
 type LikesItem = GetLikesResponse['posts'][number]
 
+type CountFields = {
+  viewCount?: number
+  likeCount?: number
+  commentCount?: number
+  view_count?: number
+  like_count?: number
+  comment_count?: number
+}
+
 export function useMyPageBasePosts(params: {
   user: UserLike
   posts: GetMyPostsResponse['posts'] | undefined
@@ -33,15 +42,17 @@ export function useMyPageBasePosts(params: {
       const { date, time } = formatDateParts(postItem.createdAt)
       const thumb = extractFirstImageUrl(pickContentPreview(postItem))
 
+      const counts = postItem as unknown as CountFields
+
       return {
         id: postItem.id,
         author,
         date,
         time,
         title: postItem.title,
-        views: 0,
-        likes: 0,
-        comments: 0,
+        views: counts.viewCount ?? counts.view_count ?? 0,
+        likes: counts.likeCount ?? counts.like_count ?? 0,
+        comments: counts.commentCount ?? counts.comment_count ?? 0,
         avatar: safeAvatar,
         thumbnail: thumb,
         board: 'free',
@@ -67,15 +78,17 @@ export function useMyPageBaseLikedPosts(params: {
       const { date, time } = formatDateParts(createdAt)
       const thumb = extractFirstImageUrl(pickContentPreview(postItem))
 
+      const counts = postItem as unknown as CountFields
+
       return {
         id: postItem.id,
         author,
         date,
         time,
         title: postItem.title,
-        views: 0,
-        likes: 0,
-        comments: 0,
+        views: counts.viewCount ?? counts.view_count ?? 0,
+        likes: counts.likeCount ?? counts.like_count ?? 0,
+        comments: counts.commentCount ?? counts.comment_count ?? 0,
         avatar: safeAvatar,
         thumbnail: thumb,
         board: 'free',
