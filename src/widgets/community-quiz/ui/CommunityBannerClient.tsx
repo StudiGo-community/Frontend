@@ -8,7 +8,6 @@ import {
   BeforeQuizResponse,
   AfterQuizResponse,
 } from '@/entities/quiz/model/schema'
-import QuizImage from '@/features/community/assets/quiz-image.png'
 
 interface CommunityBannerClientProps {
   quiz: BeforeQuizResponse | AfterQuizResponse
@@ -35,7 +34,6 @@ export default function CommunityBannerClient({
           data={quiz}
           isActive={activeType === 'quiz'}
           onClick={() => setActiveType('quiz')}
-          imageSrc={QuizImage.src}
         />
       )}
     </section>

@@ -12,7 +12,10 @@ export const QuizSchema = z.object({
 // 오늘의 퀴즈 제출
 // 요청
 export const QuizAnswerFormSchema = z.object({
-  submittedAnswerText: z.string(),
+  submittedAnswerText: z
+    .string()
+    .min(1, '답변을 입력해주세요')
+    .max(100, '답변은 100자 이내로 입력해주세요'),
 })
 
 export type QuizAnswerForm = z.infer<typeof QuizAnswerFormSchema>
