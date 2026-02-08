@@ -1,7 +1,7 @@
 import { http, HttpResponse, passthrough } from 'msw'
 import { communityHandlers } from '@/shared/api/mocks/handlers/community-handlers'
 import { chatHandlers } from '@/shared/api/mocks/handlers/chat-handlers'
-import { mypageHandlers } from '@/shared/api/mocks/handlers/mypage-handlers'
+// import { mypageHandlers } from '@/shared/api/mocks/handlers/mypage-handlers'
 // import { authHandlers } from '@/shared/api/mocks/handlers/auth-handlers'
 
 const handlers = [
@@ -16,7 +16,7 @@ const handlers = [
 
   ...communityHandlers,
   ...chatHandlers,
-  ...mypageHandlers,
+  // ...mypageHandlers,
 
   // ...authHandlers,
 ]
