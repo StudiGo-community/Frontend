@@ -69,11 +69,11 @@ const MyComment = ({
   return (
     <div className="divide-brand-gray-100 border-brand-gray-100 divide-y border-t">
       {sorted.map((item) => {
-        const isDeleted = item.postId === null || item.postTitle === null
+        const isDeleted = item.postId === null
 
         const titleText = isDeleted
           ? '삭제된 게시글 입니다'
-          : truncate100(item.postTitle)
+          : truncate100(item.postTitle ?? '제목 없음')
 
         const commentText = truncate100(item.content)
 

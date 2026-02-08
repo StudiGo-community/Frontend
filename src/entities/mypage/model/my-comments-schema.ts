@@ -4,7 +4,10 @@ import { PaginationSchema } from '@/entities/mypage/model/common-schema'
 export const MyCommentSchema = z
   .object({
     id: z.number(),
+
     content: z.string().nullable().optional(),
+    content_preview: z.string().nullable().optional(),
+    contentPreview: z.string().nullable().optional(),
 
     createdAt: z.string().optional(),
     created_at: z.string().optional(),
@@ -18,12 +21,17 @@ export const MyCommentSchema = z
     post_title: z.string().nullable().optional(),
   })
   .transform((v) => {
+    const isDeleted = v.is_deleted === true
+
+    const content = v.content ?? v.contentPreview ?? v.content_preview ?? null
+
+    const postId = isDeleted ? null : (v.postId ?? v.post_id ?? null)
+
     return {
       id: v.id,
-      content: v.content ?? null,
+      content,
       createdAt: v.createdAt ?? v.created_at ?? '',
-      is_deleted: v.is_deleted,
-      postId: v.postId ?? v.post_id ?? null,
+      postId,
       postTitle: v.postTitle ?? v.post_title ?? null,
     }
   })

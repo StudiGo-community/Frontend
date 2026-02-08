@@ -371,19 +371,19 @@ const MyPage = () => {
     try {
       if (tab === 'post') {
         await deleteMyPosts.mutateAsync(selectedIds)
-        toast.success('선택한 항목을 삭제했습니다.')
+        toast.success('선택한 게시글을 삭제했습니다.')
         setCheckedMap({})
         return
       }
 
       if (tab === 'comment') {
         await deleteMyComments.mutateAsync(selectedIds)
-        toast.success('선택한 항목을 삭제했습니다.')
+        toast.success('선택한 댓글을 삭제했습니다.')
         setCheckedMap({})
         return
       }
 
-      toast.success('선택한 좋아요를 해지했습니다.')
+      toast.success('좋아요를 해지했습니다.')
       setCheckedMap({})
     } catch {
       toast.error('요청 처리에 실패했습니다.')
