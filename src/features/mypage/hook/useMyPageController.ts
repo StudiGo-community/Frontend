@@ -1,6 +1,8 @@
 'use client'
 
 import { useMemo, useState, useSyncExternalStore } from 'react'
+import { toast } from 'sonner'
+
 import type { SortOption } from '@/features/mypage/ui/PostFilter'
 
 import { useSessionStore } from '@/entities/session/store/session-store'
@@ -28,7 +30,6 @@ import {
   useMyPageFilteredPosts,
 } from '@/features/mypage/hook/useMyPageFilteredList'
 import { useMyPageErrorToast } from '@/features/mypage/hook/useMyPageErrorToast'
-import { toast } from 'sonner'
 
 type TabType = 'post' | 'comment' | 'like'
 
@@ -53,31 +54,33 @@ export function useMyPageController() {
     () => false
   )
 
-  const user = isClient ? sessionUser : null
+  const isClientEnvironment = isClient
+  const user = isClientEnvironment ? sessionUser : null
 
   const myPostsQuery = useMyPosts(
     { page, size: 10, sort: sortBy },
-    { enabled: isClient && tab === 'post' }
+    { enabled: isClientEnvironment && tab === 'post' }
   )
   const myCommentsQuery = useMyComments(
     { page, size: 15, sort: sortBy },
-    { enabled: isClient && tab === 'comment' }
+    { enabled: isClientEnvironment && tab === 'comment' }
   )
   const likedPostsQuery = useLikedPosts(
     { page, size: 10, sort: sortBy },
-    { enabled: isClient && tab === 'like' }
+    { enabled: isClientEnvironment && tab === 'like' }
   )
 
   const deleteMyPosts = useDeleteMyPosts()
   const deleteMyComments = useDeleteMyComments()
 
-  const { timeline } = useMyPageTimeline(isClient)
+  const { timeline } = useMyPageTimeline(isClientEnvironment)
   const { profile } = useMyPageProfile(user)
 
   const { basePosts } = useMyPageBasePosts({
     user,
     posts: myPostsQuery.data?.posts,
   })
+
   const { baseLikedPosts } = useMyPageBaseLikedPosts({
     user,
     posts: likedPostsQuery.data?.posts,
@@ -85,12 +88,13 @@ export function useMyPageController() {
 
   const { posts } = useMyPagePostsWithDetailThumbnail({
     tab,
-    isClient,
+    isClientEnvironment,
     basePosts,
   })
+
   const { likedPosts } = useMyPageLikedPostsWithDetailThumbnail({
     tab,
-    isClient,
+    isClientEnvironment,
     baseLikedPosts,
   })
 
@@ -101,11 +105,13 @@ export function useMyPageController() {
     selectedBoard,
     search,
   })
+
   const { filteredLikes } = useMyPageFilteredLikes({
     likedPosts,
     selectedBoard,
     search,
   })
+
   const { filteredComments } = useMyPageFilteredComments({
     comments,
     selectedBoard,
@@ -144,35 +150,40 @@ export function useMyPageController() {
   }
 
   const handleToggleOne = (identifier: string) => {
-    setCheckedMap((prev) => ({ ...prev, [identifier]: !prev[identifier] }))
+    setCheckedMap((previousCheckedMap) => ({
+      ...previousCheckedMap,
+      [identifier]: !previousCheckedMap[identifier],
+    }))
   }
 
   const actionLabel = tab === 'like' ? '해지하기' : '삭제하기'
 
   const handleClickAction = async () => {
-    const selectedIds = Object.entries(checkedMap)
-      .filter(([, v]) => v)
-      .map(([k]) => Number(k))
-      .filter((n) => Number.isFinite(n))
+    const selectedIdNumbers = Object.entries(checkedMap)
+      .filter(([, isSelected]) => isSelected)
+      .map(([identifier]) => Number(identifier))
+      .filter((selectedIdNumber) => Number.isFinite(selectedIdNumber))
 
-    if (selectedIds.length === 0) {
+    if (selectedIdNumbers.length === 0) {
       toast.error('선택된 항목이 없습니다.')
       return
     }
 
     try {
       if (tab === 'post') {
-        await deleteMyPosts.mutateAsync(selectedIds)
+        await deleteMyPosts.mutateAsync(selectedIdNumbers)
         toast.success('선택한 게시글을 삭제했습니다.')
         setCheckedMap({})
         return
       }
+
       if (tab === 'comment') {
-        await deleteMyComments.mutateAsync(selectedIds)
+        await deleteMyComments.mutateAsync(selectedIdNumbers)
         toast.success('선택한 댓글을 삭제했습니다.')
         setCheckedMap({})
         return
       }
+
       toast.success('좋아요를 해지했습니다.')
       setCheckedMap({})
     } catch {
@@ -181,10 +192,18 @@ export function useMyPageController() {
   }
 
   const totalPages = useMemo(() => {
-    if (tab === 'post') return myPostsQuery.data?.pagination.totalPages ?? 1
-    if (tab === 'comment')
+    if (tab === 'post') {
+      return myPostsQuery.data?.pagination.totalPages ?? 1
+    }
+
+    if (tab === 'comment') {
       return myCommentsQuery.data?.pagination.totalPages ?? 1
-    if (tab === 'like') return likedPostsQuery.data?.pagination.totalPages ?? 1
+    }
+
+    if (tab === 'like') {
+      return likedPostsQuery.data?.pagination.totalPages ?? 1
+    }
+
     return 1
   }, [
     tab,
@@ -194,7 +213,7 @@ export function useMyPageController() {
   ])
 
   const isCurrentTabLoading =
-    !isClient ||
+    !isClientEnvironment ||
     (tab === 'post' && myPostsQuery.isLoading) ||
     (tab === 'comment' && myCommentsQuery.isLoading) ||
     (tab === 'like' && likedPostsQuery.isLoading)
@@ -210,9 +229,11 @@ export function useMyPageController() {
     user,
     profile,
     timeline,
+
     filteredPosts,
     filteredComments,
     filteredLikes,
+
     totalPages,
     actionLabel,
     isCurrentTabLoading,

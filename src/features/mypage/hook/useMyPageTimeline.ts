@@ -11,47 +11,63 @@ import {
 } from '@/features/mypage/lib/data-kst'
 import type { TimelineItem } from '@/features/mypage/ui/TimeLine'
 
-export function useMyPageTimeline(isClient: boolean) {
-  const timelineHistoryQuery = useTimelineHistory(isClient)
+export function useMyPageTimeline(isClientEnvironment: boolean) {
+  const timelineHistoryQuery = useTimelineHistory(isClientEnvironment)
 
-  const noHistoryToastOnceRef = useRef(false)
+  const hasShownNoHistoryToastRef = useRef(false)
+
   useEffect(() => {
-    if (!timelineHistoryQuery.isSuccess) return
-    if (noHistoryToastOnceRef.current) return
+    if (!timelineHistoryQuery.isSuccess) {
+      return
+    }
 
-    const results = timelineHistoryQuery.data?.results ?? []
-    if (results.length === 0) {
-      noHistoryToastOnceRef.current = true
+    if (hasShownNoHistoryToastRef.current) {
+      return
+    }
+
+    const historyResults = timelineHistoryQuery.data?.results ?? []
+
+    if (historyResults.length === 0) {
+      hasShownNoHistoryToastRef.current = true
       toast('아직 출석 기록이 없습니다')
     }
   }, [timelineHistoryQuery.isSuccess, timelineHistoryQuery.data?.results])
 
-  const timeline = useMemo<TimelineItem[]>(() => {
-    const today = startOfKoreaStandardTimeDay()
-    const results = timelineHistoryQuery.data?.results ?? []
+  const timelineItems = useMemo<TimelineItem[]>(() => {
+    const todayDate = startOfKoreaStandardTimeDay()
+    const historyResults = timelineHistoryQuery.data?.results ?? []
 
-    const submittedMap = new Map<string, boolean>()
-    for (const r of results) submittedMap.set(r.date, !!r.is_submitted)
+    const submittedDateMap = new Map<string, boolean>()
+    for (const historyItem of historyResults) {
+      submittedDateMap.set(historyItem.date, Boolean(historyItem.is_submitted))
+    }
 
     const items: TimelineItem[] = []
-    for (let d = -3; d <= 3; d += 1) {
-      const dateObject = addDays(today, d)
-      const ymd = toYearMonthDay(dateObject)
-      const submitted = submittedMap.get(ymd) ?? false
+
+    for (let dayOffset = -3; dayOffset <= 3; dayOffset += 1) {
+      const currentDate = addDays(todayDate, dayOffset)
+      const yearMonthDay = toYearMonthDay(currentDate)
+      const isSubmitted = submittedDateMap.get(yearMonthDay) ?? false
 
       let status: TimelineItem['status'] = 'upcoming'
-      if (d > 0) status = 'upcoming'
-      else if (d === 0) status = submitted ? 'done' : 'go'
-      else status = submitted ? 'done' : 'fail'
+
+      if (dayOffset > 0) {
+        status = 'upcoming'
+      } else if (dayOffset === 0) {
+        status = isSubmitted ? 'done' : 'go'
+      } else {
+        status = isSubmitted ? 'done' : 'fail'
+      }
 
       items.push({
-        date: toMonthDay(dateObject),
-        day: toKoreanDay(dateObject),
+        date: toMonthDay(currentDate),
+        day: toKoreanDay(currentDate),
         status,
       })
     }
+
     return items
   }, [timelineHistoryQuery.data?.results])
 
-  return { timeline }
+  return { timeline: timelineItems }
 }

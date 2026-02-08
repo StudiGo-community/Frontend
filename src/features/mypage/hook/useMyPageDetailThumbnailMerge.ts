@@ -5,92 +5,140 @@ import type { MyPagePostItem } from '@/entities/mypage/model/mypage-ui-types'
 import { getPostDetailApi } from '@/entities/mypage/api/post-detail-api'
 import { pickDetailThumbnail } from '@/features/mypage/lib/mypage-content-picker'
 
+type TabType = 'post' | 'comment' | 'like'
+
 export function useMyPagePostsWithDetailThumbnail(params: {
-  tab: 'post' | 'comment' | 'like'
-  isClient: boolean
+  tab: TabType
+  isClientEnvironment: boolean
   basePosts: MyPagePostItem[]
 }) {
-  const { tab, isClient, basePosts } = params
+  const { tab, isClientEnvironment, basePosts } = params
 
-  const needDetailPostIds = useMemo(() => {
-    if (tab !== 'post') return []
+  const postIdentifiersNeedingDetailThumbnail = useMemo(() => {
+    if (tab !== 'post') {
+      return []
+    }
+
     return basePosts
-      .filter((p) => !p.thumbnail)
-      .map((p) => p.id)
+      .filter((postItem) => !postItem.thumbnail)
+      .map((postItem) => postItem.id)
       .slice(0, 10)
   }, [tab, basePosts])
 
   const postDetailQueries = useQueries({
-    queries: needDetailPostIds.map((id) => ({
-      queryKey: ['post-detail', id],
-      queryFn: () => getPostDetailApi(id),
-      enabled: isClient && tab === 'post',
+    queries: postIdentifiersNeedingDetailThumbnail.map((postIdentifier) => ({
+      queryKey: ['post-detail', postIdentifier],
+      queryFn: () => getPostDetailApi(postIdentifier),
+      enabled: isClientEnvironment && tab === 'post',
       staleTime: 1000 * 60 * 10,
     })),
   })
 
-  const posts = useMemo<MyPagePostItem[]>(() => {
-    if (tab !== 'post') return basePosts
-
-    const map = new Map<number, string>()
-    for (let i = 0; i < needDetailPostIds.length; i += 1) {
-      const id = needDetailPostIds[i]
-      const detail = postDetailQueries[i]?.data
-      if (!detail) continue
-      const thumb = pickDetailThumbnail(detail)
-      if (thumb) map.set(id, thumb)
+  const postsWithMergedThumbnails = useMemo<MyPagePostItem[]>(() => {
+    if (tab !== 'post') {
+      return basePosts
     }
 
-    return basePosts.map((p) => ({
-      ...p,
-      thumbnail: p.thumbnail || map.get(p.id) || '',
-    }))
-  }, [tab, basePosts, needDetailPostIds, postDetailQueries])
+    const thumbnailUrlByPostIdentifierMap = new Map<number, string>()
 
-  return { posts }
+    for (
+      let queryIndex = 0;
+      queryIndex < postIdentifiersNeedingDetailThumbnail.length;
+      queryIndex += 1
+    ) {
+      const postIdentifier = postIdentifiersNeedingDetailThumbnail[queryIndex]
+      const postDetailData = postDetailQueries[queryIndex]?.data
+
+      if (!postDetailData) {
+        continue
+      }
+
+      const thumbnailUrl = pickDetailThumbnail(postDetailData)
+      if (thumbnailUrl) {
+        thumbnailUrlByPostIdentifierMap.set(postIdentifier, thumbnailUrl)
+      }
+    }
+
+    return basePosts.map((postItem) => ({
+      ...postItem,
+      thumbnail:
+        postItem.thumbnail ||
+        thumbnailUrlByPostIdentifierMap.get(postItem.id) ||
+        '',
+    }))
+  }, [tab, basePosts, postIdentifiersNeedingDetailThumbnail, postDetailQueries])
+
+  return { posts: postsWithMergedThumbnails }
 }
 
 export function useMyPageLikedPostsWithDetailThumbnail(params: {
-  tab: 'post' | 'comment' | 'like'
-  isClient: boolean
+  tab: TabType
+  isClientEnvironment: boolean
   baseLikedPosts: MyPagePostItem[]
 }) {
-  const { tab, isClient, baseLikedPosts } = params
+  const { tab, isClientEnvironment, baseLikedPosts } = params
 
-  const needDetailLikeIds = useMemo(() => {
-    if (tab !== 'like') return []
+  const likedPostIdentifiersNeedingDetailThumbnail = useMemo(() => {
+    if (tab !== 'like') {
+      return []
+    }
+
     return baseLikedPosts
-      .filter((p) => !p.thumbnail)
-      .map((p) => p.id)
+      .filter((postItem) => !postItem.thumbnail)
+      .map((postItem) => postItem.id)
       .slice(0, 10)
   }, [tab, baseLikedPosts])
 
-  const likeDetailQueries = useQueries({
-    queries: needDetailLikeIds.map((id) => ({
-      queryKey: ['post-detail', id],
-      queryFn: () => getPostDetailApi(id),
-      enabled: isClient && tab === 'like',
-      staleTime: 1000 * 60 * 10,
-    })),
+  const likedPostDetailQueries = useQueries({
+    queries: likedPostIdentifiersNeedingDetailThumbnail.map(
+      (postIdentifier) => ({
+        queryKey: ['post-detail', postIdentifier],
+        queryFn: () => getPostDetailApi(postIdentifier),
+        enabled: isClientEnvironment && tab === 'like',
+        staleTime: 1000 * 60 * 10,
+      })
+    ),
   })
 
-  const likedPosts = useMemo<MyPagePostItem[]>(() => {
-    if (tab !== 'like') return baseLikedPosts
-
-    const map = new Map<number, string>()
-    for (let i = 0; i < needDetailLikeIds.length; i += 1) {
-      const id = needDetailLikeIds[i]
-      const detail = likeDetailQueries[i]?.data
-      if (!detail) continue
-      const thumb = pickDetailThumbnail(detail)
-      if (thumb) map.set(id, thumb)
+  const likedPostsWithMergedThumbnails = useMemo<MyPagePostItem[]>(() => {
+    if (tab !== 'like') {
+      return baseLikedPosts
     }
 
-    return baseLikedPosts.map((p) => ({
-      ...p,
-      thumbnail: p.thumbnail || map.get(p.id) || '',
-    }))
-  }, [tab, baseLikedPosts, needDetailLikeIds, likeDetailQueries])
+    const thumbnailUrlByPostIdentifierMap = new Map<number, string>()
 
-  return { likedPosts }
+    for (
+      let queryIndex = 0;
+      queryIndex < likedPostIdentifiersNeedingDetailThumbnail.length;
+      queryIndex += 1
+    ) {
+      const postIdentifier =
+        likedPostIdentifiersNeedingDetailThumbnail[queryIndex]
+      const postDetailData = likedPostDetailQueries[queryIndex]?.data
+
+      if (!postDetailData) {
+        continue
+      }
+
+      const thumbnailUrl = pickDetailThumbnail(postDetailData)
+      if (thumbnailUrl) {
+        thumbnailUrlByPostIdentifierMap.set(postIdentifier, thumbnailUrl)
+      }
+    }
+
+    return baseLikedPosts.map((postItem) => ({
+      ...postItem,
+      thumbnail:
+        postItem.thumbnail ||
+        thumbnailUrlByPostIdentifierMap.get(postItem.id) ||
+        '',
+    }))
+  }, [
+    tab,
+    baseLikedPosts,
+    likedPostIdentifiersNeedingDetailThumbnail,
+    likedPostDetailQueries,
+  ])
+
+  return { likedPosts: likedPostsWithMergedThumbnails }
 }
