@@ -1,65 +1,83 @@
 'use client'
 
 import { Volume2 } from 'lucide-react'
+import Image from 'next/image'
 import { cn } from '@/shared/lib/cn'
 import { Quote } from '@/entities/quiz/model/schema'
+import { Button } from '@/shared/ui/Button'
+import QuoteImage from '@/features/community/assets/quote-image.png'
 
 interface QuoteBannerProps {
   data: Quote
   isActive: boolean
   onClick: () => void
-  imageSrc: string
 }
 
-export function QuoteBanner({
-  data,
-  isActive,
-  onClick,
-  imageSrc,
-}: QuoteBannerProps) {
+export function QuoteBanner({ data, isActive, onClick }: QuoteBannerProps) {
   return (
     <div
       onClick={onClick}
       className={cn(
-        'relative cursor-pointer overflow-hidden rounded-2xl transition-all duration-500 ease-in-out',
-        isActive ? 'flex-[2.5] bg-[#B50000]' : 'flex-1 bg-[#FF766D]'
+        'relative flex cursor-pointer overflow-hidden rounded-2xl transition-all duration-500 ease-in-out',
+        isActive ? 'bg-brand-main flex-[2.5]' : 'bg-brand-second flex-1'
       )}
     >
-      <div
+      {/* 이미지 */}
+      <Image
+        src={QuoteImage}
+        alt="Quote Background"
+        width={200}
+        height={200}
         className={cn(
-          'absolute inset-0 bg-bottom-left bg-no-repeat transition-all duration-500',
+          'transition-all duration-500 max-lg:hidden',
           isActive
             ? 'translate-y-0 scale-100 opacity-100'
             : 'translate-y-2 scale-95 opacity-60'
         )}
-        style={{
-          backgroundImage: `url(${imageSrc})`,
-          backgroundSize: 'contain',
-        }}
       />
-      {!isActive && (
-        <div className="absolute inset-0 bg-[#FF766D]/30 backdrop-blur-[0.5px]" />
-      )}
 
       <div className="relative z-10 flex h-full flex-col justify-start p-6 text-white">
+        {/* 제목, tts 버튼 */}
         <div
           className={cn(
-            'flex flex-col transition-all duration-500',
-            isActive ? 'ml-52' : 'ml-35'
+            'relative flex transition-all duration-500',
+            isActive ? 'justify-between' : ''
           )}
         >
-          <div className="mb-2 flex items-center text-2xl leading-none font-bold">
-            오늘의 문장 {isActive ? '' : '〉'}
-          </div>
+          <span
+            className={cn(
+              'border-brand-white relative mb-4 flex items-center border-b text-xl font-semibold whitespace-nowrap transition-all duration-500 ease-in-out',
+              // 핵심 슬라이딩 로직
+              isActive ? 'left-0 translate-x-0' : ''
+            )}
+          >
+            오늘의 문장 {!isActive && '〉'}
+          </span>
+          <Button
+            variant="outline"
+            size="md"
+            className={cn(
+              'text-brand-white h-12 w-12 border-none bg-transparent p-0 transition-all duration-500 hover:scale-120 hover:font-extrabold',
+              isActive
+                ? 'visible opacity-100 delay-200'
+                : 'pointer-events-none invisible opacity-0 delay-0 duration-0'
+            )}
+            onClick={(e) => {
+              e.stopPropagation()
+              console.log('읽어주기')
+            }}
+          >
+            <Volume2 size={28} className="size-8" />
+          </Button>
         </div>
 
+        {/* 문장 */}
         {isActive && (
-          <div className="animate-in fade-in slide-in-from-left-4 mt-6 ml-52 duration-500">
-            <div className="mb-3 flex items-center gap-3">
-              <h2 className="text-2xl font-black italic">{data.quotes.es}</h2>
-              <Volume2 size={28} className="cursor-pointer hover:opacity-80" />
-            </div>
-            <p className="text-xl font-bold opacity-90">{data.quotes.ko}</p>
+          <div className="animate-in fade-in slide-in-from-left-4 flex flex-col gap-2 duration-500">
+            <span className="text-base font-semibold sm:text-lg md:text-xl lg:text-2xl">
+              {data.quotes.es}
+            </span>
+            <span className="text-xl font-medium">{data.quotes.ko}</span>
           </div>
         )}
       </div>

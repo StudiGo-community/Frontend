@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { BannerData, MOCK_BANNER_DATA } from '@/entities/quiz/bannerMockData'
 import { QuizBanner } from '@/features/community/ui/QuizBanner'
 import { QuoteBanner } from '@/features/community/ui/QuoteBanner'
-import QuoteImage from '@/features/community/assets/quote-image.png'
 import QuizImage from '@/features/community/assets/quiz-image.png'
 import { useQuiz } from '@/features/community/api/queries'
 import { Quote } from '@/entities/quiz/model/schema'
@@ -30,7 +29,6 @@ export default function CommunityBannerClient({
           data={quote}
           isActive={activeType === 'quote'}
           onClick={() => setActiveType('quote')}
-          imageSrc={QuoteImage.src}
         />
       )}
       {quizData && (
