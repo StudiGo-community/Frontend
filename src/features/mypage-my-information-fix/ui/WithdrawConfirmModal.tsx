@@ -11,12 +11,14 @@ interface WithdrawConfirmModalProps {
   isOpen: boolean
   onClose: () => void
   onConfirm: () => void
+  isPending: boolean
 }
 
 export function WithdrawConfirmModal({
   isOpen,
   onClose,
   onConfirm,
+  isPending,
 }: WithdrawConfirmModalProps) {
   const [enabled, setEnabled] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -37,6 +39,8 @@ export function WithdrawConfirmModal({
   }, [isOpen])
 
   const handleClose = () => {
+    if (isPending) return
+
     setEnabled(false)
     if (timerRef.current) {
       clearTimeout(timerRef.current)
@@ -46,6 +50,8 @@ export function WithdrawConfirmModal({
   }
 
   const handleConfirm = () => {
+    if (isPending) return
+
     setEnabled(false)
     if (timerRef.current) {
       clearTimeout(timerRef.current)
@@ -83,6 +89,7 @@ export function WithdrawConfirmModal({
           size="md"
           className="flex-1"
           onClick={handleClose}
+          disabled={isPending}
         >
           취소
         </Button>
@@ -93,7 +100,7 @@ export function WithdrawConfirmModal({
           size="md"
           className={cn('flex-1', 'bg-brand-main hover:bg-brand-main/90')}
           onClick={handleConfirm}
-          disabled={!enabled}
+          disabled={!enabled || isPending}
         >
           탈퇴하기
         </Button>

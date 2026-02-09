@@ -1,26 +1,49 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+
 import { Modal } from '@/shared/ui/Modal'
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input'
 import { cn } from '@/shared/lib/cn'
-
 import { Dropdown } from '@/shared/ui/dropdown/Dropdown'
 
-import { WithdrawConfirmModal } from './WithdrawConfirmModal'
+import { WithdrawConfirmModal } from '@/features/mypage-my-information-fix/ui/WithdrawConfirmModal'
 import {
   REASON_LABEL,
   type WithdrawalReason,
 } from '@/features/mypage-my-information-fix/ui/withdraw-types'
-import { toast } from 'sonner'
+
+import { normalizeWithdrawalTokenError } from '@/features/mypage-my-information-fix/lib/normalize-withdrawal-token-error'
+import { normalizeWithdrawalError } from '@/features/mypage-my-information-fix/lib/normalize-withdrawal-error'
+import { useWithdrawalTokenStep } from '../hook/useWithdrawalTokenStep'
+import { useWithdrawal } from '../hook/useWithdrawal'
+import { useWithdrawalTokenByPassword } from '../hook/useWithdrawalTokenByPassword'
 
 type Step = 'GUIDE' | 'REASON' | 'PASSWORD'
 
 interface WithdrawFlowModalProps {
   isOpen: boolean
   onClose: () => void
+}
+
+function buildWithdrawalSocialReauthUrl(provider: 'google' | 'kakao'): string {
+  const baseUrlFromEnv = process.env.NEXT_PUBLIC_API_BASE_URL
+  const base = typeof baseUrlFromEnv === 'string' ? baseUrlFromEnv : ''
+
+  // base가 '.../api/v1' 를 포함하는 경우가 많아서 안전하게 정리
+  const trimmedBase = base.endsWith('/') ? base.slice(0, -1) : base
+  const baseWithoutApiV1 = trimmedBase.endsWith('/api/v1')
+    ? trimmedBase.slice(0, -'/api/v1'.length)
+    : trimmedBase
+
+  if (baseWithoutApiV1.length === 0) {
+    return `/api/v1/oauth/${provider}/callback?purpose=withdrawal`
+  }
+
+  return `${baseWithoutApiV1}/api/v1/oauth/${provider}/callback?purpose=withdrawal`
 }
 
 export function WithdrawFlowModal({ isOpen, onClose }: WithdrawFlowModalProps) {
@@ -32,16 +55,24 @@ export function WithdrawFlowModal({ isOpen, onClose }: WithdrawFlowModalProps) {
   const [agree2, setAgree2] = useState(false)
 
   // 탈퇴사유 2
-  const [reason, setReason] = useState<WithdrawalReason>('') // '' = 선택 안 함(placeholder)
+  const [reason, setReason] = useState<WithdrawalReason>('')
   const [etcText, setEtcText] = useState('')
 
-  // 비밀번호 3
+  // 비밀번호 3 (명세상: 비밀번호로 "탈퇴 인증 토큰" 발급)
   const [password, setPassword] = useState('')
 
   // 경고창 4
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
 
-  // 1
+  const { data: tokenStepData, isError: isTokenStepError } =
+    useWithdrawalTokenStep(isOpen)
+
+  const tokenByPasswordMutation = useWithdrawalTokenByPassword()
+  const withdrawalMutation = useWithdrawal()
+
+  const isPending =
+    tokenByPasswordMutation.isPending || withdrawalMutation.isPending
+
   const reset = () => {
     setStep('GUIDE')
     setAgree1(false)
@@ -50,14 +81,33 @@ export function WithdrawFlowModal({ isOpen, onClose }: WithdrawFlowModalProps) {
     setEtcText('')
     setPassword('')
     setIsConfirmOpen(false)
+    tokenByPasswordMutation.reset()
+    withdrawalMutation.reset()
   }
 
   const handleClose = () => {
+    if (isPending) return
     reset()
     onClose()
   }
 
-  if (!isOpen) return null
+  useEffect(() => {
+    if (!isOpen) return
+    if (isTokenStepError) return
+    if (!tokenStepData) return
+
+    if (tokenStepData.next_step === 'social') {
+      const provider = tokenStepData.providers[0]
+      if (!provider) {
+        toast.error('소셜 재인증 제공자를 찾을 수 없습니다.')
+        return
+      }
+
+      toast.message('회원탈퇴를 위해 소셜 재인증이 필요합니다.')
+      const url = buildWithdrawalSocialReauthUrl(provider)
+      window.location.href = url
+    }
+  }, [isOpen, isTokenStepError, tokenStepData])
 
   const canNextGuide = agree1 && agree2
   const etcTooLong = etcText.length > 500
@@ -65,11 +115,19 @@ export function WithdrawFlowModal({ isOpen, onClose }: WithdrawFlowModalProps) {
   const canNextPassword = password.trim().length > 0
 
   const goPrev = () => {
+    if (isPending) return
     if (step === 'REASON') setStep('GUIDE')
     else if (step === 'PASSWORD') setStep('REASON')
   }
 
   const goNext = () => {
+    if (isPending) return
+
+    if (tokenStepData?.next_step === 'social') {
+      // 소셜은 useEffect에서 바로 이동 처리한다.
+      return
+    }
+
     if (step === 'GUIDE') {
       if (!canNextGuide) return
       setStep('REASON')
@@ -89,13 +147,52 @@ export function WithdrawFlowModal({ isOpen, onClose }: WithdrawFlowModalProps) {
   }
 
   const handleConfirmWithdraw = () => {
-    // TODO: API 연동 자리
-    setIsConfirmOpen(false)
-    toast.success('회원탈퇴 처리 완료되었습니다.')
-    reset()
-    onClose()
-    router.replace('/')
+    if (isPending) return
+
+    if (!tokenStepData) {
+      toast.error('회원탈퇴 인증 정보를 불러오지 못했습니다.')
+      return
+    }
+
+    if (tokenStepData.next_step !== 'password') {
+      toast.error('비밀번호 인증이 필요한 계정이 아닙니다.')
+      return
+    }
+
+    const trimmedPassword = password.trim()
+    if (trimmedPassword.length === 0) {
+      toast.error('비밀번호를 입력해 주세요.')
+      return
+    }
+
+    tokenByPasswordMutation.mutate(
+      { password: trimmedPassword },
+      {
+        onSuccess: (tokenRes) => {
+          withdrawalMutation.mutate(
+            { withdrawal_token: tokenRes.withdrawal_token },
+            {
+              onSuccess: (withdrawRes) => {
+                setIsConfirmOpen(false)
+                toast.success(withdrawRes.detail)
+                reset()
+                onClose()
+                router.replace('/')
+              },
+              onError: (error) => {
+                toast.error(normalizeWithdrawalError(error))
+              },
+            }
+          )
+        },
+        onError: (error) => {
+          toast.error(normalizeWithdrawalTokenError(error))
+        },
+      }
+    )
   }
+
+  if (!isOpen) return null
 
   return (
     <>
@@ -167,7 +264,7 @@ export function WithdrawFlowModal({ isOpen, onClose }: WithdrawFlowModalProps) {
                 size="reg"
                 className="w-full"
                 onClick={goNext}
-                disabled={!canNextGuide}
+                disabled={!canNextGuide || isPending}
               >
                 다음
               </Button>
@@ -175,7 +272,6 @@ export function WithdrawFlowModal({ isOpen, onClose }: WithdrawFlowModalProps) {
           </div>
         )}
 
-        {/* 2 */}
         {step === 'REASON' && (
           <div>
             <p className="text-brand-black font-bold">탈퇴사유</p>
@@ -225,6 +321,7 @@ export function WithdrawFlowModal({ isOpen, onClose }: WithdrawFlowModalProps) {
                 size="md"
                 className="flex-1"
                 onClick={goPrev}
+                disabled={isPending}
               >
                 이전
               </Button>
@@ -234,7 +331,7 @@ export function WithdrawFlowModal({ isOpen, onClose }: WithdrawFlowModalProps) {
                 size="md"
                 className={cn('flex-1', 'bg-brand-main hover:bg-brand-main/90')}
                 onClick={goNext}
-                disabled={!canNextReason}
+                disabled={!canNextReason || isPending}
               >
                 다음
               </Button>
@@ -242,7 +339,6 @@ export function WithdrawFlowModal({ isOpen, onClose }: WithdrawFlowModalProps) {
           </div>
         )}
 
-        {/* 3 */}
         {step === 'PASSWORD' && (
           <div>
             <p className="text-brand-gray-400 mb-2 text-sm">비밀번호</p>
@@ -252,6 +348,7 @@ export function WithdrawFlowModal({ isOpen, onClose }: WithdrawFlowModalProps) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="비밀번호를 입력해주세요"
+              disabled={isPending}
             />
 
             <div className="mt-6 flex gap-3">
@@ -261,6 +358,7 @@ export function WithdrawFlowModal({ isOpen, onClose }: WithdrawFlowModalProps) {
                 size="md"
                 className="flex-1"
                 onClick={goPrev}
+                disabled={isPending}
               >
                 이전
               </Button>
@@ -270,7 +368,7 @@ export function WithdrawFlowModal({ isOpen, onClose }: WithdrawFlowModalProps) {
                 size="md"
                 className={cn('flex-1', 'bg-brand-main hover:bg-brand-main/90')}
                 onClick={goNext}
-                disabled={!canNextPassword}
+                disabled={!canNextPassword || isPending}
               >
                 다음
               </Button>
@@ -279,11 +377,14 @@ export function WithdrawFlowModal({ isOpen, onClose }: WithdrawFlowModalProps) {
         )}
       </Modal>
 
-      {/* 4 */}
       <WithdrawConfirmModal
         isOpen={isConfirmOpen}
-        onClose={() => setIsConfirmOpen(false)}
+        onClose={() => {
+          if (isPending) return
+          setIsConfirmOpen(false)
+        }}
         onConfirm={handleConfirmWithdraw}
+        isPending={isPending}
       />
     </>
   )
