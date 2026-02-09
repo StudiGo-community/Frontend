@@ -17,6 +17,28 @@ interface QuizBannerProps {
   onClick: () => void
 }
 
+const highlightAnswer = (text: string, answer: string) => {
+  if (!answer) return text
+
+  // escape special characters just in case
+  const escapedAnswer = answer.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const parts = text.split(new RegExp(`(${escapedAnswer})`, 'gi'))
+
+  return (
+    <>
+      {parts.map((part, index) =>
+        part.toLowerCase() === answer.toLowerCase() ? (
+          <span key={index} className="border-brand-white border-b-2">
+            ( {part} )
+          </span>
+        ) : (
+          <span key={index}>{part}</span>
+        )
+      )}
+    </>
+  )
+}
+
 export function QuizBanner({ data, isActive, onClick }: QuizBannerProps) {
   const checkIsSubmitted = (
     data: BeforeQuizResponse | AfterQuizResponse
@@ -43,7 +65,11 @@ export function QuizBanner({ data, isActive, onClick }: QuizBannerProps) {
           {/* TODO: 밑줄 다섯번 읽는거 제거하기 */}
           <TtsButton
             isActive={isActive}
-            text={isSubmitted ? data.explanation : data.question.prompt}
+            text={
+              isSubmitted
+                ? data.explanation
+                : data.question.prompt.replace(/_____/g, '  ')
+            }
           />
         </div>
 
@@ -52,7 +78,9 @@ export function QuizBanner({ data, isActive, onClick }: QuizBannerProps) {
           <div className="animate-in fade-in slide-in-from-right-4 mt-4 flex flex-col duration-500">
             <div className="mb-4 flex items-center gap-3">
               <span className="text-base font-semibold sm:text-lg md:text-xl lg:text-2xl">
-                {isSubmitted ? data.explanation : data.question.prompt}
+                {isSubmitted
+                  ? highlightAnswer(data.explanation, data.correctAnswer)
+                  : data.question.prompt.replace(/_____/g, '( _____ )')}
               </span>
             </div>
             <div
