@@ -36,7 +36,7 @@ export default async function CommunityComments({
           ) : (
             <li className="text-brand-gray-300 flex flex-col gap-4 py-20 text-center">
               <span>아직 작성된 댓글이 없습니다.</span>
-              <span>첫 댓글을 작성해 보세요!</span>
+              {user && <span>첫 댓글을 작성해 보세요!</span>}
             </li>
           )}
         </ul>
@@ -48,7 +48,7 @@ export default async function CommunityComments({
       </div>
 
       {/* 댓글 작성 */}
-      <CommentForm postId={postId} />
+      {user && <CommentForm postId={postId} />}
     </section>
   )
 }

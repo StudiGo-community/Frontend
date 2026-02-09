@@ -32,10 +32,10 @@ const serverExtensions = [
         ...this.parent?.(),
         referrerPolicy: {
           default: 'no-referrer',
-          parseHTML: (element) => element.getAttribute('referrerPolicy'),
+          parseHTML: (element) => element.getAttribute('referrerpolicy'),
           renderHTML: (attributes) => {
             return {
-              referrerPolicy: attributes.referrerPolicy,
+              referrerpolicy: attributes.referrerPolicy,
             }
           },
         },

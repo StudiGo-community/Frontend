@@ -1,109 +1,96 @@
 import z from 'zod'
 
-// ---------- 퀴즈 조회 ----------
+// ---------- 퀴즈 ----------
+// 파츠
 export const QuizSchema = z.object({
-  id: z.number(),
+  id: z.number().int().positive(),
   title: z.string(),
-  description: z.string(),
+  description: z.string().nullable(),
   prompt: z.string(),
 })
 
-export const QuizResponseSchema = z
+// 오늘의 퀴즈 제출
+// 요청
+export const QuizAnswerFormSchema = z.object({
+  submittedAnswerText: z
+    .string()
+    .min(1, '답변을 입력해주세요')
+    .max(100, '답변은 100자 이내로 입력해주세요'),
+})
+
+export type QuizAnswerForm = z.infer<typeof QuizAnswerFormSchema>
+
+// 응답
+export const QuizAnswerResponseSchema = z
+  .object({
+    date: z.string(),
+    explanation: z.string(),
+    answer_correct: z.string(),
+    answer_user: z.string(),
+    is_correct: z.boolean(),
+  })
+  .transform((data) => ({
+    date: new Date(data.date),
+    explanation: data.explanation,
+    correctAnswer: data.answer_correct,
+    userAnswer: data.answer_user,
+    isCorrect: data.is_correct,
+  }))
+
+export type QuizAnswerResponse = z.infer<typeof QuizAnswerResponseSchema>
+
+// 오늘의 퀴즈 조회
+// 문제 풀기 이전
+export const BeforeQuizResponseSchema = z
   .object({
     question_date: z.string(),
-    daily_question_id: z.number(),
+    daily_question_id: z.number().int().positive(),
     question: QuizSchema,
     expires_at: z.string(),
   })
   .transform((data) => ({
-    questionDate: data.question_date,
+    questionDate: new Date(data.question_date),
     dailyQuestionId: data.daily_question_id,
-    question: {
-      id: data.question.id,
-      title: data.question.title,
-      description: data.question.description,
-      prompt: data.question.prompt,
-    },
+    question: data.question,
     expiresAt: new Date(data.expires_at),
   }))
 
-export type QuizResponse = z.infer<typeof QuizResponseSchema>
+export type BeforeQuizResponse = z.infer<typeof BeforeQuizResponseSchema>
 
-// ---------- 퀴즈 제출 ----------
-export const QuizSubmissionRequestSchema = z.object({
-  submittedAnswerText: z.string(),
-})
+// 문제 푼 이후
+export type AfterQuizResponse = QuizAnswerResponse
 
-export type QuizSubmissionRequest = z.infer<typeof QuizSubmissionRequestSchema>
-
-const QuizSubmissionSchema = z.object({
-  id: z.number(),
-  submitted_at: z.string(),
-  is_correct: z.boolean(),
-})
-
-const AttendanceSchema = z.object({
-  id: z.number(),
-  created_date: z.string(),
-  created_at: z.string(),
-})
-
-export const QuizSubmissionResponseSchema = z
+// 참여 기록 조회
+export const QuizHistoryItemSchema = z
   .object({
     date: z.string(),
-    question_id: z.number(),
-    submission: QuizSubmissionSchema,
-    answer_test: z.string(),
-    explanation: z.string(),
-    attendance: AttendanceSchema,
+    is_submitted: z.boolean(),
   })
   .transform((data) => ({
-    date: data.date,
-    questionId: data.question_id,
-    submission: {
-      id: data.submission.id,
-      submittedAt: data.submission.submitted_at,
-      isCorrect: data.submission.is_correct,
-    },
-    answerTest: data.answer_test,
-    explanation: data.explanation,
-    attendance: {
-      id: data.attendance.id,
-      createdDate: data.attendance.created_date,
-      createdAt: data.attendance.created_at,
-    },
+    date: new Date(data.date),
+    isSubmitted: data.is_submitted,
   }))
 
-export type QuizSubmissionResponse = z.infer<
-  typeof QuizSubmissionResponseSchema
->
+export const QuizHistoryResponseSchema = z.object({
+  results: z.array(QuizHistoryItemSchema),
+})
 
-// ---------- 퀴즈 결과 조회 ----------
-export const QuizResultResponseSchema = z
+export type QuizHistoryResponse = z.infer<typeof QuizHistoryResponseSchema>
+
+// ---------- 문장 ----------
+export const QuoteSchema = z
   .object({
-    question_date: z.string(),
-    status: z.enum(['COMPLETED', 'PENDING']),
-    daily_question_id: z.number(),
-    question: QuizSchema,
-    submission: QuizSubmissionSchema,
-    explanation: z.string(),
+    date: z.string(),
+    quotes: z.object({
+      es: z.string(),
+      ko: z.string(),
+    }),
+    refreshed_at: z.string(),
   })
   .transform((data) => ({
-    questionDate: data.question_date,
-    status: data.status,
-    dailyQuestionId: data.daily_question_id,
-    question: {
-      id: data.question.id,
-      title: data.question.title,
-      description: data.question.description,
-      prompt: data.question.prompt,
-    },
-    submission: {
-      id: data.submission.id,
-      submittedAt: data.submission.submitted_at,
-      isCorrect: data.submission.is_correct,
-    },
-    explanation: data.explanation,
+    date: new Date(data.date),
+    quotes: data.quotes,
+    refreshedAt: new Date(data.refreshed_at),
   }))
 
-export type QuizResultResponse = z.infer<typeof QuizResultResponseSchema>
+export type Quote = z.infer<typeof QuoteSchema>

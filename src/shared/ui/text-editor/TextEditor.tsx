@@ -32,7 +32,13 @@ export default function TextEditor({
         placeholder: '내용을 입력하세요...',
       }),
     ],
-    content: value,
+    content: (() => {
+      try {
+        return value ? JSON.parse(value) : ''
+      } catch {
+        return value
+      }
+    })(),
     immediatelyRender: false,
     editorProps: {
       attributes: {

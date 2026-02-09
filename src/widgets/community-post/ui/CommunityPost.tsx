@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import getPost from '@/widgets/community-post/api/getPost'
+import getPost from '@/entities/post/api/getPost'
 import PostStats from '@/entities/post/ui/PostStats'
 import PostActionMenu from '@/features/community-post-manage/ui/PostActionMenu'
 import { MessageSquare } from 'lucide-react'
@@ -48,6 +48,8 @@ export default async function CommunityPost({ id }: CommunityPostProps) {
                 width={40}
                 height={40}
                 className="size-10 shrink-0 rounded-full object-cover"
+                unoptimized
+                referrerPolicy="no-referrer"
               />
             ) : (
               <div className="bg-brand-gray-200 h-10 w-10 shrink-0 rounded-full" />
