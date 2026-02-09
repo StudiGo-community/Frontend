@@ -17,14 +17,17 @@ function getInitialUser(): SessionUser | null {
   }
 }
 
+type SessionUserPatch = Partial<SessionUser>
+
 interface SessionStore {
   user: SessionUser | null
   setUser: (user: SessionUser | null) => void
+  patchUser: (patch: SessionUserPatch) => void
   clearUser: () => void
   initializeUser: () => void
 }
 
-export const useSessionStore = create<SessionStore>((set) => ({
+export const useSessionStore = create<SessionStore>((set, get) => ({
   user: getInitialUser(),
 
   setUser: (user) => {
@@ -37,6 +40,17 @@ export const useSessionStore = create<SessionStore>((set) => ({
     } else {
       sessionStorage.removeItem(SESSION_USER_STORAGE_KEY)
     }
+  },
+
+  patchUser: (patch) => {
+    const current = get().user
+    if (!current) return
+
+    const next: SessionUser = { ...current, ...patch }
+    set({ user: next })
+
+    if (typeof window === 'undefined') return
+    sessionStorage.setItem(SESSION_USER_STORAGE_KEY, JSON.stringify(next))
   },
 
   clearUser: () => {
