@@ -7,7 +7,7 @@ import {
 } from '@/entities/quiz/model/schema'
 import QuizImage from '@/features/community/assets/quiz-image.png'
 import Image from 'next/image'
-import { useState } from 'react'
+import { QuizAnswerDisplay } from './QuizAnswerDisplay'
 import { QuizInputForm } from './QuizInputForm'
 import TtsButton from './TtsButton'
 
@@ -23,13 +23,6 @@ export function QuizBanner({ data, isActive, onClick }: QuizBannerProps) {
   ): data is AfterQuizResponse => 'isCorrect' in data
 
   const isSubmitted = checkIsSubmitted(data)
-
-  const isCorrect = isSubmitted ? data.isCorrect : undefined
-
-  const handleQuizSubmit = () => {
-    // API Call logic here
-    console.log('Submit')
-  }
 
   console.log(data)
 
@@ -47,12 +40,6 @@ export function QuizBanner({ data, isActive, onClick }: QuizBannerProps) {
           <span className="border-brand-white border-b-2 text-xl font-semibold whitespace-nowrap">
             {isActive ? '' : '〈 '}오늘의 문제
           </span>
-          {/* {isActive && isSubmitted && (
-            <div className="ml-2 flex items-center gap-2 rounded-xl border-2 border-white bg-transparent px-2 py-1 text-sm font-bold text-white">
-              <CheckCircle2Icon size={16} />
-              <span>풀이 완료</span>
-            </div>
-          )} */}
           {/* TODO: 밑줄 다섯번 읽는거 제거하기 */}
           <TtsButton
             isActive={isActive}
@@ -73,11 +60,12 @@ export function QuizBanner({ data, isActive, onClick }: QuizBannerProps) {
               onClick={(e) => e.stopPropagation()}
             >
               {isSubmitted ? (
-                <span className="text-xl font-bold opacity-90">
-                  {data.userAnswer}
-                </span>
+                <QuizAnswerDisplay
+                  answer={data.userAnswer}
+                  isCorrect={data.isCorrect}
+                />
               ) : (
-                <QuizInputForm onSubmit={handleQuizSubmit} />
+                <QuizInputForm />
               )}
             </div>
           </div>

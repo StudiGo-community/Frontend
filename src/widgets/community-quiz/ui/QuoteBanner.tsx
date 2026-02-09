@@ -35,7 +35,7 @@ export function QuoteBanner({ data, isActive, onClick }: QuoteBannerProps) {
         )}
       />
 
-      <div className="relative z-10 flex h-full flex-col justify-start p-6 text-white">
+      <div className="relative z-10 flex h-full grow flex-col justify-start p-6 text-white">
         {/* 제목, tts 버튼 */}
         <div
           className={cn(
