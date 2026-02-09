@@ -1,22 +1,14 @@
 'use client'
 
-import Image from 'next/image'
 import { useMemo, useRef, useState, type ChangeEventHandler } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
-import { Input } from '@/shared/ui/input'
-import { Button } from '@/shared/ui/Button'
-import { cn } from '@/shared/lib/cn'
-
-import { WithdrawFlowModal } from './WithdrawFlowModal'
-
+import type { UserProfile } from '@/entities/mypage-my-information-fix/model/profile-fix-schema'
 import {
   DEFAULT_PROFILE_IMAGE_URL,
-  DEFAULT_PROFILE_IMAGE_URL_LIST,
   isDefaultProfileImageUrl,
 } from '@/entities/mypage-my-information-fix/model/default-profile-images'
-import type { UserProfile } from '@/entities/mypage-my-information-fix/model/profile-fix-schema'
 
 import { useMyProfile } from '@/features/mypage-my-information-fix/hook/useMyProfile'
 import { usePatchMyProfile } from '@/features/mypage-my-information-fix/hook/usePatchMyProfile'
@@ -24,129 +16,35 @@ import { usePatchProfileImage } from '@/features/mypage-my-information-fix/hook/
 import { useDeleteProfileImage } from '@/features/mypage-my-information-fix/hook/useDeleteProfileImage'
 import { useChangePassword } from '@/features/mypage-my-information-fix/hook/useChangePassword'
 import { useCheckNickname } from '@/features/mypage-my-information-fix/hook/useCheckNickname'
-import { normalizeImageSrcForNextImage } from '@/entities/mypage-my-information-fix/lib/normalize-image-src'
 
 import { useSessionStore } from '@/entities/session/store/session-store'
 
-type UserRole = 'user' | 'admin' | 'instructor'
+import { WithdrawFlowModal } from './WithdrawFlowModal'
 
-function formatJoinedAt(createdAt: string | undefined): string {
-  if (!createdAt) return ''
-  const datePart = createdAt.split('T')[0] ?? ''
-  const [year, month, day] = datePart.split('-')
-  if (!year || !month || !day) return ''
-  return `${year}.${month}.${day}`
-}
+import {
+  formatJoinedAt,
+  mapUserRoleToUiRole,
+} from '@/features/mypage-my-information-fix/lib/format'
+import {
+  validateNickname,
+  validateNewPassword,
+} from '@/features/mypage-my-information-fix/lib/validation'
+import {
+  getApiErrorMessageFromUnknownError,
+  getHttpStatusFromUnknownError,
+  normalizePasswordErrorMessage,
+} from '@/features/mypage-my-information-fix/lib/error'
 
-function mapUserRoleToUiRole(role: string | undefined): UserRole {
-  if (!role) return 'user'
-  const normalizedRole = role.toLowerCase()
-  if (normalizedRole === 'admin') return 'admin'
-  if (normalizedRole === 'instructor') return 'instructor'
-  return 'user'
-}
-
-function validateNickname(nickname: string): {
-  isLengthOk: boolean
-  isCharacterOk: boolean
-} {
-  const isLengthOk = nickname.length >= 2 && nickname.length <= 12
-  const isCharacterOk = /^[A-Za-z0-9가-힣]+$/.test(nickname)
-  return { isLengthOk, isCharacterOk }
-}
-
-function validateNewPassword(newPassword: string): {
-  isMinimumLengthOk: boolean
-  isCombinationOk: boolean
-} {
-  const isMinimumLengthOk = newPassword.length >= 8
-  const hasLetter = /[A-Za-z]/.test(newPassword)
-  const hasNumber = /\d/.test(newPassword)
-  const hasSpecialCharacter = /[^A-Za-z0-9]/.test(newPassword)
-  const isCombinationOk = hasLetter && hasNumber && hasSpecialCharacter
-  return { isMinimumLengthOk, isCombinationOk }
-}
-
-function getHttpStatusFromUnknownError(error: unknown): number | null {
-  if (!error || typeof error !== 'object') return null
-  const record = error as Record<string, unknown>
-
-  const response = record['response']
-  if (!response || typeof response !== 'object') return null
-
-  const responseRecord = response as Record<string, unknown>
-  const status = responseRecord['status']
-  return typeof status === 'number' ? status : null
-}
-
-function getApiErrorMessageFromUnknownError(error: unknown): string | null {
-  if (!error || typeof error !== 'object') return null
-  const errorRecord = error as Record<string, unknown>
-
-  const response = errorRecord['response']
-  if (!response || typeof response !== 'object') return null
-
-  const responseRecord = response as Record<string, unknown>
-  const data = responseRecord['data']
-  if (!data || typeof data !== 'object') return null
-
-  const dataRecord = data as Record<string, unknown>
-
-  const backendErrorMessage = dataRecord['error']
-  if (
-    typeof backendErrorMessage === 'string' &&
-    backendErrorMessage.length > 0
-  ) {
-    return backendErrorMessage
-  }
-
-  const backendMessage = dataRecord['message']
-  if (typeof backendMessage === 'string' && backendMessage.length > 0) {
-    return backendMessage
-  }
-
-  const backendDetail = dataRecord['detail']
-  if (typeof backendDetail === 'string' && backendDetail.length > 0) {
-    return backendDetail
-  }
-
-  for (const value of Object.values(dataRecord)) {
-    if (
-      Array.isArray(value) &&
-      value.every((item) => typeof item === 'string')
-    ) {
-      const joined = value.join('\n').trim()
-      if (joined.length > 0) return joined
-    }
-  }
-
-  return null
-}
-
-function normalizePasswordErrorMessage(backendMessage: string | null): string {
-  if (!backendMessage) return '현재 비밀번호가 일치하지 않습니다'
-
-  const normalized = backendMessage.trim()
-
-  if (normalized.includes('소셜')) {
-    return '소셜 로그인 계정은 비밀번호를 사용하지 않습니다'
-  }
-
-  if (normalized.includes('동일') && normalized.includes('비밀번호')) {
-    return '현재 비밀번호와 동일합니다'
-  }
-
-  if (
-    normalized.includes('현재 비밀번호') ||
-    normalized.includes('기존 비밀번호') ||
-    normalized.includes('올바르지') ||
-    normalized.includes('틀')
-  ) {
-    return '현재 비밀번호가 일치하지 않습니다'
-  }
-
-  return normalized
-}
+import { HeaderSection } from '@/features/mypage-my-information-fix/ui/sections/HeaderSection'
+import { ProfileSection } from '@/features/mypage-my-information-fix/ui/sections/ProfileSection'
+import { BasicInfoSection } from '@/features/mypage-my-information-fix/ui/sections/BasicInfoSection'
+import { NicknameSection } from '@/features/mypage-my-information-fix/ui/sections/NicknameSection'
+import { EmailSection } from '@/features/mypage-my-information-fix/ui/sections/EmailSection'
+import { PhoneSection } from '@/features/mypage-my-information-fix/ui/sections/PhoneSection'
+import { PasswordSection } from '@/features/mypage-my-information-fix/ui/sections/PasswordSection'
+import { MarketingSection } from '@/features/mypage-my-information-fix/ui/sections/MarketingSection'
+import { FooterSection } from '@/features/mypage-my-information-fix/ui/sections/FooterSection'
+import { DefaultImageSelectorModal } from '@/features/mypage-my-information-fix/ui/DefaultImageSelectorModal'
 
 function normalizeProfileImageUrlForApi(
   profileImageUrl: string
@@ -161,15 +59,11 @@ function normalizeProfileImageUrlForApi(
   return null
 }
 
-interface MyInformationFixFormProps {
-  userProfile: UserProfile
-  onOpenWithdraw: () => void
-}
-
-function MyInformationFixForm({
+function MyInformationFixContent({
   userProfile,
-  onOpenWithdraw,
-}: MyInformationFixFormProps) {
+}: {
+  userProfile: UserProfile
+}) {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -478,364 +372,75 @@ function MyInformationFixForm({
   return (
     <main className="bg-brand-white w-full">
       <section className="mx-auto w-full max-w-6xl px-6 py-10">
-        <h1 className="text-brand-black text-3xl font-bold">내 정보 수정</h1>
-        <div className="bg-brand-gray-200 mt-6 h-px w-full" />
+        <HeaderSection title="내 정보 수정" />
 
         <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-2">
-          <div className="flex items-start gap-10">
-            <div className="flex flex-col items-center">
-              <div
-                className={cn(
-                  'bg-brand-gray-100 relative h-36 w-36 overflow-hidden rounded-full border-4',
-                  profileBorderClass
-                )}
-              >
-                <Image
-                  src={normalizeImageSrcForNextImage(selectedProfileImageUrl)}
-                  alt="프로필 이미지"
-                  fill
-                  sizes="144px"
-                  className="object-cover"
-                  priority
-                />
-              </div>
-            </div>
+          <ProfileSection
+            selectedProfileImageUrl={selectedProfileImageUrl}
+            profileBorderClass={profileBorderClass}
+            fileInputRef={fileInputRef}
+            onChangeFile={handleChangeFile}
+            onClickUpload={handleClickUpload}
+            onOpenDefaultImageSelector={() =>
+              setIsDefaultImageSelectorOpen(true)
+            }
+          />
 
-            <div className="text-brand-gray-300 pt-3 text-sm leading-7">
-              <p>• 최대 5MB까지 업로드 가능합니다.</p>
-              <p>• 확장자는 JPG, PNG 사용 가능합니다.</p>
-
-              <div className="mt-4 flex items-center gap-3">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/png, image/jpeg"
-                  className="hidden"
-                  onChange={handleChangeFile}
-                />
-
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={handleClickUpload}
-                >
-                  업로드
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsDefaultImageSelectorOpen(true)}
-                >
-                  기본 이미지
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          <div className="w-full max-w-lg">
-            <div className="grid grid-cols-1 gap-6">
-              <div>
-                <p className="text-brand-gray-400 mb-2 text-sm">이름</p>
-                <Input value={userProfile.name} disabled />
-              </div>
-
-              <div>
-                <p className="text-brand-gray-400 mb-2 text-sm">최초 가입일</p>
-                <Input value={joinedAtValue} disabled />
-              </div>
-            </div>
-          </div>
+          <BasicInfoSection
+            name={userProfile.name}
+            joinedAtValue={joinedAtValue}
+          />
         </div>
 
-        <div className="mt-10">
-          <div className="flex items-end gap-4">
-            <div className="flex-1">
-              <p className="text-brand-gray-400 mb-2 text-sm">닉네임</p>
-              <Input
-                value={nickname}
-                onChange={(event) => {
-                  setNickname(event.target.value)
-                  resetNicknameCheckState()
-                }}
-                placeholder="닉네임을 입력해 주세요"
-              />
-            </div>
+        <NicknameSection
+          nickname={nickname}
+          onChangeNickname={(next) => {
+            setNickname(next)
+            resetNicknameCheckState()
+          }}
+          onClickCheckNickname={handleClickCheckNickname}
+          isCheckNicknamePending={isCheckNicknamePending}
+          nicknameValidation={nicknameValidation}
+          nicknameRuleTextColor={nicknameRuleTextColor}
+          isNicknameChanged={isNicknameChanged}
+          isNicknameCheckValid={isNicknameCheckValid}
+        />
 
-            <Button
-              type="button"
-              variant="secondary"
-              size="md"
-              className="min-w-32"
-              onClick={handleClickCheckNickname}
-              disabled={isCheckNicknamePending}
-            >
-              중복 확인
-            </Button>
-          </div>
+        <EmailSection email={userProfile.email} />
+        <PhoneSection phone={userProfile.phone ?? ''} />
 
-          <div className="mt-3 text-xs leading-5">
-            <p className={nicknameRuleTextColor(nicknameValidation.isLengthOk)}>
-              ✓ 최소 2글자 최대 12글자
-            </p>
-            <p
-              className={nicknameRuleTextColor(
-                nicknameValidation.isCharacterOk
-              )}
-            >
-              ✓ 한글, 영문, 숫자만 사용 가능 (특수문자, 공백 불가)
-            </p>
-            <p className="text-brand-green">✓ 금지어 포함 불가</p>
+        <PasswordSection
+          isPasswordEditing={isPasswordEditing}
+          currentPassword={currentPassword}
+          newPassword={newPassword}
+          newPasswordConfirm={newPasswordConfirm}
+          onChangeCurrentPassword={setCurrentPassword}
+          onChangeNewPassword={setNewPassword}
+          onChangeNewPasswordConfirm={setNewPasswordConfirm}
+          onTogglePasswordEdit={togglePasswordEdit}
+          passwordRuleTextColor={passwordRuleTextColor}
+          newPasswordValidation={newPasswordValidation}
+          isNewPasswordMismatch={isNewPasswordMismatch}
+        />
 
-            {isNicknameChanged && (
-              <p
-                className={cn(
-                  'mt-2',
-                  isNicknameCheckValid ? 'text-brand-green' : 'text-brand-main'
-                )}
-              >
-                {isNicknameCheckValid
-                  ? '✓ 중복 확인 완료'
-                  : '✕ 중복 확인이 필요합니다'}
-              </p>
-            )}
-          </div>
-        </div>
+        <MarketingSection
+          marketingAgree={marketingAgree}
+          onChangeMarketingAgree={setMarketingAgree}
+        />
 
-        <div className="mt-8">
-          <div className="flex items-end gap-4">
-            <div className="flex-1">
-              <p className="text-brand-gray-400 mb-2 text-sm">이메일</p>
-              <Input value={userProfile.email} disabled />
-            </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="md"
-              className="min-w-32"
-              disabled
-            >
-              인증 완료
-            </Button>
-          </div>
-        </div>
-
-        <div className="mt-8">
-          <div className="flex items-end gap-4">
-            <div className="flex-1">
-              <p className="text-brand-gray-400 mb-2 text-sm">전화번호</p>
-              <Input value={userProfile.phone ?? ''} disabled />
-              <p className="text-brand-gray-300 mt-2 text-xs">
-                전화번호는 보안 정책상 수정할 수 없습니다.
-              </p>
-            </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="md"
-              className="min-w-32"
-              disabled
-            >
-              인증 완료
-            </Button>
-          </div>
-        </div>
-
-        <div className="mt-8">
-          <div className="flex items-end gap-4">
-            <div className="flex-1">
-              <p className="text-brand-gray-400 mb-2 text-sm">현재 비밀번호</p>
-              <Input
-                type="password"
-                value={currentPassword}
-                onChange={(event) => setCurrentPassword(event.target.value)}
-                placeholder="현재 비밀번호를 입력해 주세요."
-                disabled={!isPasswordEditing}
-              />
-            </div>
-
-            <Button
-              type="button"
-              variant="secondary"
-              size="md"
-              className="min-w-32"
-              onClick={togglePasswordEdit}
-            >
-              {isPasswordEditing ? '변경 취소' : '비밀번호 변경'}
-            </Button>
-          </div>
-
-          {isPasswordEditing && (
-            <div className="mt-6 grid grid-cols-1 gap-6">
-              <div>
-                <p className="text-brand-gray-400 mb-2 text-sm">새 비밀번호</p>
-
-                <Input
-                  type="password"
-                  value={newPassword}
-                  onChange={(event) => setNewPassword(event.target.value)}
-                  placeholder="새 비밀번호를 입력해주세요."
-                />
-
-                <div className="mt-3 text-sm leading-6">
-                  <p
-                    className={cn(
-                      passwordRuleTextColor(
-                        newPasswordValidation.isMinimumLengthOk
-                      )
-                    )}
-                  >
-                    ✓ 최소 8글자
-                  </p>
-                  <p
-                    className={cn(
-                      passwordRuleTextColor(
-                        newPasswordValidation.isCombinationOk
-                      )
-                    )}
-                  >
-                    ✓ 영문, 숫자, 특수문자 조합
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-brand-gray-400 mb-2 text-sm">
-                  새 비밀번호 확인
-                </p>
-
-                <Input
-                  type="password"
-                  value={newPasswordConfirm}
-                  onChange={(event) =>
-                    setNewPasswordConfirm(event.target.value)
-                  }
-                  placeholder="새 비밀번호를 한 번 더 입력해주세요."
-                />
-
-                {isNewPasswordMismatch && (
-                  <p className="text-brand-main mt-2 text-sm">
-                    새 비밀번호가 일치하지 않습니다
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="mt-12">
-          <h2 className="text-brand-black text-base font-bold">선택 정보</h2>
-          <div className="bg-brand-gray-200 mt-4 h-px w-full" />
-
-          <div className="mt-6 flex items-start gap-4">
-            <label className="flex cursor-pointer items-start gap-3 select-none">
-              <div className="text-sm leading-6">
-                <p className="text-brand-black font-medium">마케팅 수신 동의</p>
-              </div>
-
-              <input
-                type="checkbox"
-                checked={marketingAgree}
-                onChange={(event) => setMarketingAgree(event.target.checked)}
-                className={cn(
-                  'border-brand-gray-300 mt-0.5 ml-2 h-4 w-4 rounded border',
-                  'accent-brand-main'
-                )}
-              />
-
-              <div className="text-brand-gray-400 text-sm leading-6">
-                <p>
-                  스터디고 스페셜한 소식을 이메일, 문자, 카카오 알림톡 등 다양한
-                  채널로 받아봅니다.
-                </p>
-                <p className="text-brand-gray-300 mt-1 text-xs leading-5">
-                  ※ 이용약관의 변경이나 관계법령에 따라 회원님께 안내되어야 할
-                  중요 고지사항은
-                  <br />
-                  마케팅 수신 동의와 상관없이 안내될 수 있습니다.
-                </p>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <div className="mt-10 flex items-center justify-between">
-          <button
-            type="button"
-            className="text-brand-gray-300 text-sm underline underline-offset-4"
-            onClick={onOpenWithdraw}
-          >
-            회원탈퇴
-          </button>
-
-          <Button
-            type="button"
-            variant="primary"
-            size="reg"
-            className="min-w-44"
-            onClick={handleSave}
-            disabled={isSaving}
-          >
-            내 정보 저장하기
-          </Button>
-        </div>
+        <FooterSection
+          onOpenWithdraw={() => {}}
+          onClickSave={handleSave}
+          isSaving={isSaving}
+        />
       </section>
 
       {isDefaultImageSelectorOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6">
-          <div className="bg-brand-white w-full max-w-lg rounded-2xl p-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-brand-black text-lg font-bold">
-                기본 이미지 선택
-              </h2>
-              <button
-                type="button"
-                className="text-brand-gray-400 text-sm"
-                onClick={() => setIsDefaultImageSelectorOpen(false)}
-              >
-                닫기
-              </button>
-            </div>
-
-            <div className="mt-6 grid grid-cols-4 gap-4">
-              {DEFAULT_PROFILE_IMAGE_URL_LIST.map((profileImageUrl) => {
-                const isSelected = profileImageUrl === selectedProfileImageUrl
-                return (
-                  <button
-                    key={profileImageUrl}
-                    type="button"
-                    className={cn(
-                      'relative aspect-square overflow-hidden rounded-full border-4',
-                      isSelected ? 'border-brand-green' : 'border-transparent'
-                    )}
-                    onClick={() => handleSelectDefaultImage(profileImageUrl)}
-                  >
-                    <Image
-                      src={normalizeImageSrcForNextImage(profileImageUrl)}
-                      alt="기본 프로필 이미지"
-                      fill
-                      sizes="96px"
-                      className="object-cover"
-                    />
-                  </button>
-                )
-              })}
-            </div>
-
-            <div className="mt-6 flex justify-end">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setIsDefaultImageSelectorOpen(false)}
-              >
-                취소
-              </Button>
-            </div>
-          </div>
-        </div>
+        <DefaultImageSelectorModal
+          selectedProfileImageUrl={selectedProfileImageUrl}
+          onClose={() => setIsDefaultImageSelectorOpen(false)}
+          onSelect={handleSelectDefaultImage}
+        />
       )}
     </main>
   )
@@ -857,11 +462,7 @@ export function MyInformationFix() {
 
   return (
     <>
-      <MyInformationFixForm
-        key={userProfile.id}
-        userProfile={userProfile}
-        onOpenWithdraw={() => setIsWithdrawOpen(true)}
-      />
+      <MyInformationFixContent userProfile={userProfile} />
 
       <WithdrawFlowModal
         isOpen={isWithdrawOpen}
