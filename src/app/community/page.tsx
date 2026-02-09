@@ -1,3 +1,6 @@
+import { Suspense } from 'react'
+import ApiErrorBoundary from '@/shared/ui/ApiErrorBoundary'
+import { CommunityBannerSkeleton } from '@/widgets/community-quiz/ui/CommunityBannerSkeleton'
 import CommunityBanner from '@/widgets/community-quiz/ui/CommunityBanner'
 import CommunityBoard from '@/widgets/community-board/ui/CommunityBoard'
 import { CommunityBoardSearchParams } from '@/widgets/community-board/model/types'
@@ -15,7 +18,11 @@ export default async function Page({ searchParams }: PageProps) {
   return (
     <>
       {/* 오늘의 문장 */}
-      <CommunityBanner />
+      <ApiErrorBoundary>
+        <Suspense fallback={<CommunityBannerSkeleton />}>
+          <CommunityBanner />
+        </Suspense>
+      </ApiErrorBoundary>
 
       {/* 게시판 */}
       <CommunityBoard page={page} category={category} sort={sort} q={q} />
