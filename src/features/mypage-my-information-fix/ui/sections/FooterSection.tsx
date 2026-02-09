@@ -17,7 +17,7 @@ export function FooterSection({
     <div className="mt-10 flex items-center justify-between">
       <button
         type="button"
-        className="text-brand-gray-300 text-sm underline underline-offset-4"
+        className="text-brand-gray-300 cursor-pointer text-sm underline underline-offset-4"
         onClick={onOpenWithdraw}
       >
         회원탈퇴

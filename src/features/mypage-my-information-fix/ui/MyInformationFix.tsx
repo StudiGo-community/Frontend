@@ -61,8 +61,10 @@ function normalizeProfileImageUrlForApi(
 
 function MyInformationFixContent({
   userProfile,
+  onOpenWithdraw,
 }: {
   userProfile: UserProfile
+  onOpenWithdraw: () => void
 }) {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -429,7 +431,7 @@ function MyInformationFixContent({
         />
 
         <FooterSection
-          onOpenWithdraw={() => {}}
+          onOpenWithdraw={onOpenWithdraw}
           onClickSave={handleSave}
           isSaving={isSaving}
         />
@@ -462,7 +464,10 @@ export function MyInformationFix() {
 
   return (
     <>
-      <MyInformationFixContent userProfile={userProfile} />
+      <MyInformationFixContent
+        userProfile={userProfile}
+        onOpenWithdraw={() => setIsWithdrawOpen(true)}
+      />
 
       <WithdrawFlowModal
         isOpen={isWithdrawOpen}
