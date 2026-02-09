@@ -48,6 +48,8 @@ export default async function CommunityPost({ id }: CommunityPostProps) {
                 width={40}
                 height={40}
                 className="size-10 shrink-0 rounded-full object-cover"
+                unoptimized
+                referrerPolicy="no-referrer"
               />
             ) : (
               <div className="bg-brand-gray-200 h-10 w-10 shrink-0 rounded-full" />
