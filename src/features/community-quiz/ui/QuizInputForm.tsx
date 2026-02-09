@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/input/Input'
 import { ConfirmModal } from '@/shared/ui/ConfirmModal'
@@ -10,7 +10,7 @@ import {
   QuizAnswerForm,
   QuizAnswerFormSchema,
 } from '@/entities/quiz/model/schema'
-import { useAnswerQuizMutation } from '@/widgets/community-quiz/model/useAnswerQuizMutation'
+import { useAnswerQuizMutation } from '@/features/community-quiz/model/useAnswerQuizMutation'
 
 export function QuizInputForm() {
   const [isOpen, setIsOpen] = useState(false)

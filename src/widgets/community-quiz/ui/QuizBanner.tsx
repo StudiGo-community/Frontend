@@ -5,10 +5,10 @@ import {
   AfterQuizResponse,
   BeforeQuizResponse,
 } from '@/entities/quiz/model/schema'
-import QuizImage from '@/features/community/assets/quiz-image.png'
+import QuizImage from '@/widgets/community-quiz/assets/quiz-image.png'
 import Image from 'next/image'
 import { QuizAnswerDisplay } from './QuizAnswerDisplay'
-import { QuizInputForm } from './QuizInputForm'
+import { QuizInputForm } from '@/features/community-quiz/ui/QuizInputForm'
 import TtsButton from './TtsButton'
 
 interface QuizBannerProps {
@@ -45,8 +45,6 @@ export function QuizBanner({ data, isActive, onClick }: QuizBannerProps) {
   ): data is AfterQuizResponse => 'isCorrect' in data
 
   const isSubmitted = checkIsSubmitted(data)
-
-  console.log(data)
 
   return (
     <div

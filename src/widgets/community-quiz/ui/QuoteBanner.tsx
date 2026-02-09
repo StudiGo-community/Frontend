@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import { cn } from '@/shared/lib/cn'
 import { Quote } from '@/entities/quiz/model/schema'
-import QuoteImage from '@/features/community/assets/quote-image.png'
+import QuoteImage from '@/widgets/community-quiz/assets/quote-image.png'
 import TtsButton from '@/widgets/community-quiz/ui/TtsButton'
 
 interface QuoteBannerProps {

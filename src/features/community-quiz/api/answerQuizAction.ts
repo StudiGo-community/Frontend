@@ -34,10 +34,6 @@ export const answerQuizAction = async (
 
     revalidatePath('/community')
 
-    console.log('--- [Debug] Quiz Submission Response ---')
-    console.log(JSON.stringify(response.data, null, 2))
-    console.log('----------------------------------------')
-
     return QuizAnswerResponseSchema.parse(response.data)
   } catch (error: unknown) {
     return handleActionError(error, '퀴즈 정답 제출에 실패했습니다.')

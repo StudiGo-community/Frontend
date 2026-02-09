@@ -18,7 +18,6 @@ export default function CommunitySearchForm({
     e.preventDefault()
 
     const formData = new FormData(e.currentTarget)
-    console.log(formData)
     const query = formData.get('query') as string
 
     const newUrl = createUrl('', currentSearchParams, {
