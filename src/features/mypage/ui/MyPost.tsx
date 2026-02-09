@@ -7,6 +7,7 @@ import HeartIcon from '@/features/mypage/assets/heart-icon.svg'
 import CommentIcon from '@/features/mypage/assets/comment-icon.svg'
 import type { SortOption } from '@/features/mypage/ui/PostFilter'
 import type { MyPagePostItem } from '@/entities/mypage/model/mypage-ui-types'
+import { normalizeImageSrcForNextImage } from '@/entities/mypage-my-information-fix/lib/normalize-image-src'
 
 interface MyPostProps {
   items: MyPagePostItem[]
@@ -90,7 +91,7 @@ const MyPost = ({ items, sortBy, checkedMap, onToggleOne }: MyPostProps) => {
                   <div className="flex items-center gap-2">
                     <Avatar className="h-8 w-8">
                       <Image
-                        src={post.avatar}
+                        src={normalizeImageSrcForNextImage(post.avatar)}
                         alt="author"
                         fill
                         sizes="32px"

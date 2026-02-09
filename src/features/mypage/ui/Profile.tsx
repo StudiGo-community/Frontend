@@ -2,14 +2,17 @@ import Image from 'next/image'
 import { Button } from '@/shared/ui/Button'
 import { useRouter } from 'next/navigation'
 import type { MyPageProfile } from '@/entities/mypage/model/mypage-ui-types'
+import { normalizeImageSrcForNextImage } from '@/entities/mypage-my-information-fix/lib/normalize-image-src'
 
 const PinProfile = ({ src }: { src: string }) => {
+  const normalizedSrc = normalizeImageSrcForNextImage(src)
+
   return (
     <div className="relative flex flex-col items-center">
       <div className="border-brand-green bg-brand-white shadow-brand-md relative flex h-28 w-28 items-center justify-center rounded-full border-4 max-lg:h-20 max-lg:w-20">
         <div className="absolute inset-2 overflow-hidden rounded-full max-lg:inset-1.5">
           <Image
-            src={src}
+            src={normalizedSrc}
             alt="profile"
             fill
             sizes="112px"

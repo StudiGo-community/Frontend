@@ -1,7 +1,8 @@
 import { api } from '@/shared/api/client'
 import {
   ChangePasswordRequestSchema,
-  ChangePasswordResponseSchema,
+  CheckNicknameRequestSchema,
+  CheckNicknameResponseSchema,
   DeleteProfileImageResponseSchema,
   GetMyProfileResponseSchema,
   PatchMyProfileRequestSchema,
@@ -9,7 +10,8 @@ import {
   PatchProfileImageRequestSchema,
   PatchProfileImageResponseSchema,
   type ChangePasswordRequest,
-  type ChangePasswordResponse,
+  type CheckNicknameRequest,
+  type CheckNicknameResponse,
   type DeleteProfileImageResponse,
   type GetMyProfileResponse,
   type PatchMyProfileRequest,
@@ -75,7 +77,7 @@ export async function deleteProfileImageApi(): Promise<DeleteProfileImageRespons
   const response = await api.delete('/me/profile/image')
 
   const schemaParseResult = DeleteProfileImageResponseSchema.safeParse(
-    response.data
+    response.data ?? {}
   )
   if (!schemaParseResult.success) {
     throw createSchemaValidationError(
@@ -88,16 +90,21 @@ export async function deleteProfileImageApi(): Promise<DeleteProfileImageRespons
 
 export async function changePasswordApi(
   requestBody: ChangePasswordRequest
-): Promise<ChangePasswordResponse> {
+): Promise<void> {
   const validatedRequestBody = ChangePasswordRequestSchema.parse(requestBody)
-  const response = await api.put('/me/profile/password', validatedRequestBody)
+  await api.put('/me/profile/password', validatedRequestBody)
+}
 
-  const schemaParseResult = ChangePasswordResponseSchema.safeParse(
-    response.data
-  )
+export async function checkNicknameApi(
+  requestBody: CheckNicknameRequest
+): Promise<CheckNicknameResponse> {
+  const validatedRequestBody = CheckNicknameRequestSchema.parse(requestBody)
+  const response = await api.post('/auth/check-nickname', validatedRequestBody)
+
+  const schemaParseResult = CheckNicknameResponseSchema.safeParse(response.data)
   if (!schemaParseResult.success) {
     throw createSchemaValidationError(
-      '비밀번호 변경 응답 형식이 올바르지 않습니다.'
+      '닉네임 중복 확인 응답 형식이 올바르지 않습니다.'
     )
   }
 

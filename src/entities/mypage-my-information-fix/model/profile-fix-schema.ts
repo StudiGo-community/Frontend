@@ -72,10 +72,16 @@ export const ChangePasswordRequestSchema = z
   )
 
 export type ChangePasswordRequest = z.infer<typeof ChangePasswordRequestSchema>
+export type ChangePasswordResponse = void
 
-export const ChangePasswordResponseSchema = z.object({
-  message: z.string().optional(),
+export const CheckNicknameRequestSchema = z.object({
+  nickname: z.string().min(1),
 })
-export type ChangePasswordResponse = z.infer<
-  typeof ChangePasswordResponseSchema
->
+export type CheckNicknameRequest = z.infer<typeof CheckNicknameRequestSchema>
+
+export const CheckNicknameResponseSchema = z.object({
+  message: z.string(),
+  check_token: z.string(),
+  expires_in: z.number(),
+})
+export type CheckNicknameResponse = z.infer<typeof CheckNicknameResponseSchema>

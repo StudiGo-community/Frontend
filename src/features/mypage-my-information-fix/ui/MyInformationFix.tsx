@@ -1,91 +1,245 @@
 'use client'
 
-import { useRef, useState, type ChangeEventHandler } from 'react'
 import Image from 'next/image'
+import { useMemo, useRef, useState, type ChangeEventHandler } from 'react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 
 import { Input } from '@/shared/ui/input'
 import { Button } from '@/shared/ui/Button'
 import { cn } from '@/shared/lib/cn'
 
 import { WithdrawFlowModal } from './WithdrawFlowModal'
-import { toast } from 'sonner'
+
+import {
+  DEFAULT_PROFILE_IMAGE_URL,
+  DEFAULT_PROFILE_IMAGE_URL_LIST,
+  isDefaultProfileImageUrl,
+} from '@/entities/mypage-my-information-fix/model/default-profile-images'
+import type { UserProfile } from '@/entities/mypage-my-information-fix/model/profile-fix-schema'
+
+import { useMyProfile } from '@/features/mypage-my-information-fix/hook/useMyProfile'
+import { usePatchMyProfile } from '@/features/mypage-my-information-fix/hook/usePatchMyProfile'
+import { usePatchProfileImage } from '@/features/mypage-my-information-fix/hook/usePatchProfileImage'
+import { useDeleteProfileImage } from '@/features/mypage-my-information-fix/hook/useDeleteProfileImage'
+import { useChangePassword } from '@/features/mypage-my-information-fix/hook/useChangePassword'
+import { useCheckNickname } from '@/features/mypage-my-information-fix/hook/useCheckNickname'
+import { normalizeImageSrcForNextImage } from '@/entities/mypage-my-information-fix/lib/normalize-image-src'
+
+import { useSessionStore } from '@/entities/session/store/session-store'
 
 type UserRole = 'user' | 'admin' | 'instructor'
 
-interface MyInfoDraft {
-  nickname: string
-  marketingAgree: boolean
-  profileImage?: string | null
+function formatJoinedAt(createdAt: string | undefined): string {
+  if (!createdAt) return ''
+  const datePart = createdAt.split('T')[0] ?? ''
+  const [year, month, day] = datePart.split('-')
+  if (!year || !month || !day) return ''
+  return `${year}.${month}.${day}`
 }
 
-const MYINFO_STORAGE_KEY = 'studigo_myinfo_draft'
-
-const getInitialDraft = (): MyInfoDraft | null => {
-  if (typeof window === 'undefined') return null
-
-  try {
-    const raw = localStorage.getItem(MYINFO_STORAGE_KEY)
-    if (!raw) return null
-
-    const parsed = JSON.parse(raw) as Partial<MyInfoDraft>
-
-    const nickname =
-      typeof parsed.nickname === 'string' ? parsed.nickname : 'fortes42'
-    const marketingAgree =
-      typeof parsed.marketingAgree === 'boolean' ? parsed.marketingAgree : true
-    const profileImage =
-      typeof parsed.profileImage === 'string' || parsed.profileImage === null
-        ? parsed.profileImage
-        : null
-
-    return { nickname, marketingAgree, profileImage }
-  } catch {
-    return null
-  }
+function mapUserRoleToUiRole(role: string | undefined): UserRole {
+  if (!role) return 'user'
+  const normalizedRole = role.toLowerCase()
+  if (normalizedRole === 'admin') return 'admin'
+  if (normalizedRole === 'instructor') return 'instructor'
+  return 'user'
 }
 
-export function MyInformationFix() {
-  const router = useRouter()
+function validateNickname(nickname: string): {
+  isLengthOk: boolean
+  isCharacterOk: boolean
+} {
+  const isLengthOk = nickname.length >= 2 && nickname.length <= 12
+  const isCharacterOk = /^[A-Za-z0-9가-힣]+$/.test(nickname)
+  return { isLengthOk, isCharacterOk }
+}
 
-  const fileRef = useRef<HTMLInputElement>(null)
-
-  const [draft] = useState<MyInfoDraft | null>(() => getInitialDraft())
-
-  const [previewUrl, setPreviewUrl] = useState<string | null>(
-    draft?.profileImage ?? null
-  )
-
-  const userRole: UserRole = 'user' // TODO: 실제 유저 role로 교체
-  const [nickname, setNickname] = useState(draft?.nickname ?? 'fortes42')
-  const [marketingAgree, setMarketingAgree] = useState(
-    draft?.marketingAgree ?? true
-  )
-
-  const nameValue = '박진우'
-  const joinedAtValue = '2026.01.08'
-  const emailValue = 'forteslv42@gmail.com'
-  const phoneValue = '01012345678'
-
-  const [isPasswordEditing, setIsPasswordEditing] = useState(false)
-
-  const [currentPassword] = useState('***************')
-  const [newPassword, setNewPassword] = useState('')
-  const [newPasswordConfirm, setNewPasswordConfirm] = useState('')
-
-  const hasTypedNewPw = isPasswordEditing && newPassword.length > 0
-  const isMin8 = newPassword.length >= 8
+function validateNewPassword(newPassword: string): {
+  isMinimumLengthOk: boolean
+  isCombinationOk: boolean
+} {
+  const isMinimumLengthOk = newPassword.length >= 8
   const hasLetter = /[A-Za-z]/.test(newPassword)
   const hasNumber = /\d/.test(newPassword)
-  const hasSpecial = /[^A-Za-z0-9]/.test(newPassword)
-  const isComboOk = hasLetter && hasNumber && hasSpecial
+  const hasSpecialCharacter = /[^A-Za-z0-9]/.test(newPassword)
+  const isCombinationOk = hasLetter && hasNumber && hasSpecialCharacter
+  return { isMinimumLengthOk, isCombinationOk }
+}
+
+function getHttpStatusFromUnknownError(error: unknown): number | null {
+  if (!error || typeof error !== 'object') return null
+  const record = error as Record<string, unknown>
+
+  const response = record['response']
+  if (!response || typeof response !== 'object') return null
+
+  const responseRecord = response as Record<string, unknown>
+  const status = responseRecord['status']
+  return typeof status === 'number' ? status : null
+}
+
+function getApiErrorMessageFromUnknownError(error: unknown): string | null {
+  if (!error || typeof error !== 'object') return null
+  const errorRecord = error as Record<string, unknown>
+
+  const response = errorRecord['response']
+  if (!response || typeof response !== 'object') return null
+
+  const responseRecord = response as Record<string, unknown>
+  const data = responseRecord['data']
+  if (!data || typeof data !== 'object') return null
+
+  const dataRecord = data as Record<string, unknown>
+
+  const backendErrorMessage = dataRecord['error']
+  if (
+    typeof backendErrorMessage === 'string' &&
+    backendErrorMessage.length > 0
+  ) {
+    return backendErrorMessage
+  }
+
+  const backendMessage = dataRecord['message']
+  if (typeof backendMessage === 'string' && backendMessage.length > 0) {
+    return backendMessage
+  }
+
+  const backendDetail = dataRecord['detail']
+  if (typeof backendDetail === 'string' && backendDetail.length > 0) {
+    return backendDetail
+  }
+
+  for (const value of Object.values(dataRecord)) {
+    if (
+      Array.isArray(value) &&
+      value.every((item) => typeof item === 'string')
+    ) {
+      const joined = value.join('\n').trim()
+      if (joined.length > 0) return joined
+    }
+  }
+
+  return null
+}
+
+function normalizePasswordErrorMessage(backendMessage: string | null): string {
+  if (!backendMessage) return '현재 비밀번호가 일치하지 않습니다'
+
+  const normalized = backendMessage.trim()
+
+  if (normalized.includes('소셜')) {
+    return '소셜 로그인 계정은 비밀번호를 사용하지 않습니다'
+  }
+
+  if (normalized.includes('동일') && normalized.includes('비밀번호')) {
+    return '현재 비밀번호와 동일합니다'
+  }
+
+  if (
+    normalized.includes('현재 비밀번호') ||
+    normalized.includes('기존 비밀번호') ||
+    normalized.includes('올바르지') ||
+    normalized.includes('틀')
+  ) {
+    return '현재 비밀번호가 일치하지 않습니다'
+  }
+
+  return normalized
+}
+
+function normalizeProfileImageUrlForApi(
+  profileImageUrl: string
+): string | null {
+  if (/^https?:\/\//.test(profileImageUrl)) return profileImageUrl
+
+  if (profileImageUrl.startsWith('/')) {
+    if (typeof window === 'undefined') return null
+    return `${window.location.origin}${profileImageUrl}`
+  }
+
+  return null
+}
+
+interface MyInformationFixFormProps {
+  userProfile: UserProfile
+  onOpenWithdraw: () => void
+}
+
+function MyInformationFixForm({
+  userProfile,
+  onOpenWithdraw,
+}: MyInformationFixFormProps) {
+  const router = useRouter()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const patchUser = useSessionStore((state) => state.patchUser)
+
+  const { mutateAsync: patchMyProfile, isPending: isPatchMyProfilePending } =
+    usePatchMyProfile()
+  const {
+    mutateAsync: patchProfileImage,
+    isPending: isPatchProfileImagePending,
+  } = usePatchProfileImage()
+  useDeleteProfileImage()
+  const { mutateAsync: changePassword, isPending: isChangePasswordPending } =
+    useChangePassword()
+  const { mutateAsync: checkNickname, isPending: isCheckNicknamePending } =
+    useCheckNickname()
+
+  const userRole = mapUserRoleToUiRole(userProfile.role)
+  const joinedAtValue = useMemo(
+    () => formatJoinedAt(userProfile.created_at),
+    [userProfile.created_at]
+  )
+
+  const [nickname, setNickname] = useState<string>(
+    () => userProfile.nickname ?? ''
+  )
+  const [marketingAgree, setMarketingAgree] = useState<boolean>(true)
+
+  const serverProfileImageUrl =
+    typeof userProfile.profile_image_url === 'string' &&
+    userProfile.profile_image_url.length > 0
+      ? userProfile.profile_image_url
+      : DEFAULT_PROFILE_IMAGE_URL
+
+  const [hasTouchedProfileImage, setHasTouchedProfileImage] =
+    useState<boolean>(false)
+  const [localSelectedProfileImageUrl, setLocalSelectedProfileImageUrl] =
+    useState<string>(serverProfileImageUrl)
+
+  const selectedProfileImageUrl = hasTouchedProfileImage
+    ? localSelectedProfileImageUrl
+    : serverProfileImageUrl
+
+  const [isDefaultImageSelectorOpen, setIsDefaultImageSelectorOpen] =
+    useState<boolean>(false)
+
+  const nicknameValidation = useMemo(
+    () => validateNickname(nickname),
+    [nickname]
+  )
+  const isNicknameRulesOk =
+    nicknameValidation.isLengthOk && nicknameValidation.isCharacterOk
+
+  const [isPasswordEditing, setIsPasswordEditing] = useState<boolean>(false)
+  const [currentPassword, setCurrentPassword] = useState<string>('')
+  const [newPassword, setNewPassword] = useState<string>('')
+  const [newPasswordConfirm, setNewPasswordConfirm] = useState<string>('')
+
+  const newPasswordValidation = useMemo(
+    () => validateNewPassword(newPassword),
+    [newPassword]
+  )
+  const hasTypedNewPassword = isPasswordEditing && newPassword.length > 0
 
   const passwordRuleTextColor = (ok: boolean) => {
-    if (!hasTypedNewPw) return 'text-brand-gray-300'
+    if (!hasTypedNewPassword) return 'text-brand-gray-300'
     return ok ? 'text-brand-green' : 'text-brand-main'
   }
 
-  const isPasswordMismatch =
+  const isNewPasswordMismatch =
     isPasswordEditing &&
     newPasswordConfirm.length > 0 &&
     newPassword !== newPasswordConfirm
@@ -96,37 +250,35 @@ export function MyInformationFix() {
     instructor: 'border-brand-blue',
   }[userRole]
 
+  const isSaving =
+    isPatchMyProfilePending ||
+    isPatchProfileImagePending ||
+    isChangePasswordPending
+
   const handleClickUpload = () => {
-    fileRef.current?.click()
+    toast.message('현재는 기본 이미지 선택만 지원합니다.')
+    fileInputRef.current?.click()
   }
 
-  const handleChangeFile: ChangeEventHandler<HTMLInputElement> = (e) => {
-    const file = e.target.files?.[0]
+  const handleChangeFile: ChangeEventHandler<HTMLInputElement> = (event) => {
+    const file = event.target.files?.[0]
     if (!file) return
 
     if (file.size > 5 * 1024 * 1024) {
       toast.error('최대 5MB까지 업로드 가능합니다.')
-      if (fileRef.current) fileRef.current.value = ''
+      if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
 
-    const reader = new FileReader()
-    reader.onload = () => {
-      const result = typeof reader.result === 'string' ? reader.result : null
-      setPreviewUrl(result)
-    }
-    reader.readAsDataURL(file)
-  }
-
-  const handleClickResetImage = () => {
-    setPreviewUrl(null)
-    if (fileRef.current) fileRef.current.value = ''
+    toast.message('현재는 기본 이미지 선택만 지원합니다.')
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   const togglePasswordEdit = () => {
     setIsPasswordEditing((prev) => {
       const next = !prev
       if (!next) {
+        setCurrentPassword('')
         setNewPassword('')
         setNewPasswordConfirm('')
       }
@@ -134,22 +286,194 @@ export function MyInformationFix() {
     })
   }
 
-  const handleSave = () => {
-    const payload: MyInfoDraft = {
-      nickname,
-      marketingAgree,
-      profileImage: previewUrl ?? null,
+  const nicknameRuleTextColor = (ok: boolean) => {
+    if (nickname.length === 0) return 'text-brand-gray-300'
+    return ok ? 'text-brand-green' : 'text-brand-main'
+  }
+
+  const handleSelectDefaultImage = (profileImageUrl: string) => {
+    setHasTouchedProfileImage(true)
+    setLocalSelectedProfileImageUrl(profileImageUrl)
+    setIsDefaultImageSelectorOpen(false)
+  }
+
+  const isNicknameChanged = nickname !== userProfile.nickname
+
+  const [nicknameCheckedValue, setNicknameCheckedValue] = useState<
+    string | null
+  >(null)
+  const [nicknameCheckToken, setNicknameCheckToken] = useState<string | null>(
+    null
+  )
+  const [isNicknameCheckValid, setIsNicknameCheckValid] =
+    useState<boolean>(false)
+
+  const nicknameExpireTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  )
+
+  const clearNicknameExpireTimer = () => {
+    if (nicknameExpireTimerRef.current) {
+      clearTimeout(nicknameExpireTimerRef.current)
+      nicknameExpireTimerRef.current = null
+    }
+  }
+
+  const resetNicknameCheckState = () => {
+    clearNicknameExpireTimer()
+    setNicknameCheckedValue(null)
+    setNicknameCheckToken(null)
+    setIsNicknameCheckValid(false)
+  }
+
+  const scheduleNicknameExpire = (expiresInSec: number) => {
+    clearNicknameExpireTimer()
+
+    if (expiresInSec <= 0) {
+      setIsNicknameCheckValid(false)
+      return
+    }
+
+    nicknameExpireTimerRef.current = setTimeout(() => {
+      setIsNicknameCheckValid(false)
+    }, expiresInSec * 1000)
+  }
+
+  const handleClickCheckNickname = async () => {
+    if (!isNicknameRulesOk) {
+      toast.error('닉네임 형식을 확인해 주세요.')
+      return
+    }
+
+    if (!isNicknameChanged) {
+      toast.success('현재 사용 중인 닉네임입니다.')
+      return
     }
 
     try {
-      localStorage.setItem(MYINFO_STORAGE_KEY, JSON.stringify(payload))
-    } catch {}
+      const result = await checkNickname({ nickname })
 
-    router.push('/mypage')
-    router.refresh()
+      setNicknameCheckedValue(nickname)
+      setNicknameCheckToken(result.check_token)
+      setIsNicknameCheckValid(true)
+      scheduleNicknameExpire(result.expires_in)
+
+      toast.success(result.message)
+    } catch (error) {
+      const backendMessage = getApiErrorMessageFromUnknownError(error)
+      const errorMessage =
+        backendMessage ??
+        (error instanceof Error ? error.message : '닉네임 확인에 실패했습니다.')
+      toast.error(errorMessage)
+      resetNicknameCheckState()
+    }
   }
 
-  const [isWithdrawOpen, setIsWithdrawOpen] = useState(false)
+  const handleSave = async () => {
+    if (!isNicknameRulesOk) {
+      toast.error('닉네임 형식을 확인해 주세요.')
+      return
+    }
+
+    if (isNicknameChanged) {
+      const isSameCheckedNickname = nicknameCheckedValue === nickname
+      if (
+        !isSameCheckedNickname ||
+        !isNicknameCheckValid ||
+        !nicknameCheckToken
+      ) {
+        toast.error('닉네임 중복 확인을 해주세요.')
+        return
+      }
+    }
+
+    if (isPasswordEditing) {
+      if (currentPassword.length === 0) {
+        toast.error('현재 비밀번호를 입력해 주세요.')
+        return
+      }
+
+      if (newPassword.length === 0 || newPasswordConfirm.length === 0) {
+        toast.error('새 비밀번호를 입력해 주세요.')
+        return
+      }
+
+      if (currentPassword === newPassword) {
+        toast.error('현재 비밀번호와 동일합니다')
+        return
+      }
+
+      if (
+        !newPasswordValidation.isMinimumLengthOk ||
+        !newPasswordValidation.isCombinationOk
+      ) {
+        toast.error('새 비밀번호 형식을 확인해 주세요.')
+        return
+      }
+
+      if (newPassword !== newPasswordConfirm) {
+        toast.error('새 비밀번호가 일치하지 않습니다')
+        return
+      }
+    }
+
+    try {
+      if (isNicknameChanged) {
+        await patchMyProfile({ nickname })
+        patchUser({ nickname })
+      }
+
+      if (selectedProfileImageUrl !== serverProfileImageUrl) {
+        if (!isDefaultProfileImageUrl(selectedProfileImageUrl)) {
+          toast.error('허용되지 않는 프로필 이미지입니다.')
+          return
+        }
+
+        const apiProfileImageUrl = normalizeProfileImageUrlForApi(
+          selectedProfileImageUrl
+        )
+        if (!apiProfileImageUrl) {
+          toast.error('프로필 이미지 URL 형식이 올바르지 않습니다.')
+          return
+        }
+
+        await patchProfileImage({ profile_image_url: apiProfileImageUrl })
+        patchUser({ profileImageUrl: apiProfileImageUrl })
+      }
+
+      if (isPasswordEditing) {
+        try {
+          await changePassword({
+            current_password: currentPassword,
+            new_password: newPassword,
+            new_password_confirm: newPasswordConfirm,
+          })
+          toast.success('비밀번호가 변경되었습니다')
+        } catch (error) {
+          const httpStatus = getHttpStatusFromUnknownError(error)
+          const backendMessage = getApiErrorMessageFromUnknownError(error)
+
+          if (httpStatus === 400 || httpStatus === 401) {
+            toast.error(normalizePasswordErrorMessage(backendMessage))
+            return
+          }
+
+          toast.error(normalizePasswordErrorMessage(backendMessage))
+          return
+        }
+      }
+
+      toast.success('내 정보가 저장되었습니다.')
+      router.push('/mypage')
+      router.refresh()
+    } catch (error) {
+      const backendMessage = getApiErrorMessageFromUnknownError(error)
+      const errorMessage =
+        backendMessage ??
+        (error instanceof Error ? error.message : '저장에 실패했습니다.')
+      toast.error(errorMessage)
+    }
+  }
 
   return (
     <main className="bg-brand-white w-full">
@@ -167,7 +491,7 @@ export function MyInformationFix() {
                 )}
               >
                 <Image
-                  src={previewUrl ?? '/images/profiles/default-1.webp'}
+                  src={normalizeImageSrcForNextImage(selectedProfileImageUrl)}
                   alt="프로필 이미지"
                   fill
                   sizes="144px"
@@ -178,17 +502,18 @@ export function MyInformationFix() {
             </div>
 
             <div className="text-brand-gray-300 pt-3 text-sm leading-7">
-              <p>• 최대 5 MB까지 업로드 가능합니다.</p>
+              <p>• 최대 5MB까지 업로드 가능합니다.</p>
               <p>• 확장자는 JPG, PNG 사용 가능합니다.</p>
 
               <div className="mt-4 flex items-center gap-3">
                 <input
-                  ref={fileRef}
+                  ref={fileInputRef}
                   type="file"
                   accept="image/png, image/jpeg"
                   className="hidden"
                   onChange={handleChangeFile}
                 />
+
                 <Button
                   type="button"
                   variant="secondary"
@@ -197,11 +522,12 @@ export function MyInformationFix() {
                 >
                   업로드
                 </Button>
+
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={handleClickResetImage}
+                  onClick={() => setIsDefaultImageSelectorOpen(true)}
                 >
                   기본 이미지
                 </Button>
@@ -213,7 +539,7 @@ export function MyInformationFix() {
             <div className="grid grid-cols-1 gap-6">
               <div>
                 <p className="text-brand-gray-400 mb-2 text-sm">이름</p>
-                <Input value={nameValue} disabled />
+                <Input value={userProfile.name} disabled />
               </div>
 
               <div>
@@ -230,7 +556,10 @@ export function MyInformationFix() {
               <p className="text-brand-gray-400 mb-2 text-sm">닉네임</p>
               <Input
                 value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
+                onChange={(event) => {
+                  setNickname(event.target.value)
+                  resetNicknameCheckState()
+                }}
                 placeholder="닉네임을 입력해 주세요"
               />
             </div>
@@ -240,44 +569,46 @@ export function MyInformationFix() {
               variant="secondary"
               size="md"
               className="min-w-32"
-              onClick={() => alert('중복 확인 (UI 더미)')}
+              onClick={handleClickCheckNickname}
+              disabled={isCheckNicknamePending}
             >
               중복 확인
             </Button>
           </div>
 
-          {(() => {
-            const hasTyped = nickname.length > 0
-            const isLengthOk = nickname.length >= 2 && nickname.length <= 12
-            const isCharOk = /^[A-Za-z0-9가-힣]+$/.test(nickname)
-            const isBannedOk = true // TODO: 금지어 체크 API 연결 전까지는 true
+          <div className="mt-3 text-xs leading-5">
+            <p className={nicknameRuleTextColor(nicknameValidation.isLengthOk)}>
+              ✓ 최소 2글자 최대 12글자
+            </p>
+            <p
+              className={nicknameRuleTextColor(
+                nicknameValidation.isCharacterOk
+              )}
+            >
+              ✓ 한글, 영문, 숫자만 사용 가능 (특수문자, 공백 불가)
+            </p>
+            <p className="text-brand-green">✓ 금지어 포함 불가</p>
 
-            const nicknameRuleTextColor = (ok: boolean) => {
-              if (!hasTyped) return 'text-brand-gray-300'
-              return ok ? 'text-brand-green' : 'text-brand-main'
-            }
-
-            return (
-              <div className="mt-3 text-xs leading-5">
-                <p className={nicknameRuleTextColor(isLengthOk)}>
-                  ✓ 최소 2글자 최대 12글자
-                </p>
-                <p className={nicknameRuleTextColor(isCharOk)}>
-                  ✓ 한글, 영문, 숫자만 사용 가능 (특수문자, 공백 불가)
-                </p>
-                <p className={nicknameRuleTextColor(isBannedOk)}>
-                  ✓ 금지어 포함 불가
-                </p>
-              </div>
-            )
-          })()}
+            {isNicknameChanged && (
+              <p
+                className={cn(
+                  'mt-2',
+                  isNicknameCheckValid ? 'text-brand-green' : 'text-brand-main'
+                )}
+              >
+                {isNicknameCheckValid
+                  ? '✓ 중복 확인 완료'
+                  : '✕ 중복 확인이 필요합니다'}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="mt-8">
           <div className="flex items-end gap-4">
             <div className="flex-1">
               <p className="text-brand-gray-400 mb-2 text-sm">이메일</p>
-              <Input value={emailValue} disabled />
+              <Input value={userProfile.email} disabled />
             </div>
             <Button
               type="button"
@@ -295,7 +626,10 @@ export function MyInformationFix() {
           <div className="flex items-end gap-4">
             <div className="flex-1">
               <p className="text-brand-gray-400 mb-2 text-sm">전화번호</p>
-              <Input value={phoneValue} disabled />
+              <Input value={userProfile.phone ?? ''} disabled />
+              <p className="text-brand-gray-300 mt-2 text-xs">
+                전화번호는 보안 정책상 수정할 수 없습니다.
+              </p>
             </div>
             <Button
               type="button"
@@ -312,8 +646,14 @@ export function MyInformationFix() {
         <div className="mt-8">
           <div className="flex items-end gap-4">
             <div className="flex-1">
-              <p className="text-brand-gray-400 mb-2 text-sm">기존 비밀번호</p>
-              <Input type="password" value={currentPassword} readOnly />
+              <p className="text-brand-gray-400 mb-2 text-sm">현재 비밀번호</p>
+              <Input
+                type="password"
+                value={currentPassword}
+                onChange={(event) => setCurrentPassword(event.target.value)}
+                placeholder="현재 비밀번호를 입력해 주세요."
+                disabled={!isPasswordEditing}
+              />
             </div>
 
             <Button
@@ -330,22 +670,32 @@ export function MyInformationFix() {
           {isPasswordEditing && (
             <div className="mt-6 grid grid-cols-1 gap-6">
               <div>
-                <p className="text-brand-gray-400 mb-2 text-sm">
-                  새로운 비밀번호
-                </p>
+                <p className="text-brand-gray-400 mb-2 text-sm">새 비밀번호</p>
 
                 <Input
                   type="password"
                   value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="새로운 비밀번호를 입력해주세요."
+                  onChange={(event) => setNewPassword(event.target.value)}
+                  placeholder="새 비밀번호를 입력해주세요."
                 />
 
                 <div className="mt-3 text-sm leading-6">
-                  <p className={cn(passwordRuleTextColor(isMin8))}>
+                  <p
+                    className={cn(
+                      passwordRuleTextColor(
+                        newPasswordValidation.isMinimumLengthOk
+                      )
+                    )}
+                  >
                     ✓ 최소 8글자
                   </p>
-                  <p className={cn(passwordRuleTextColor(isComboOk))}>
+                  <p
+                    className={cn(
+                      passwordRuleTextColor(
+                        newPasswordValidation.isCombinationOk
+                      )
+                    )}
+                  >
                     ✓ 영문, 숫자, 특수문자 조합
                   </p>
                 </div>
@@ -353,19 +703,21 @@ export function MyInformationFix() {
 
               <div>
                 <p className="text-brand-gray-400 mb-2 text-sm">
-                  새로운 비밀번호 확인
+                  새 비밀번호 확인
                 </p>
 
                 <Input
                   type="password"
                   value={newPasswordConfirm}
-                  onChange={(e) => setNewPasswordConfirm(e.target.value)}
-                  placeholder="비밀번호를 한 번 더 입력해주세요."
+                  onChange={(event) =>
+                    setNewPasswordConfirm(event.target.value)
+                  }
+                  placeholder="새 비밀번호를 한 번 더 입력해주세요."
                 />
 
-                {isPasswordMismatch && (
+                {isNewPasswordMismatch && (
                   <p className="text-brand-main mt-2 text-sm">
-                    비밀번호가 일치하지 않습니다.
+                    새 비밀번호가 일치하지 않습니다
                   </p>
                 )}
               </div>
@@ -386,7 +738,7 @@ export function MyInformationFix() {
               <input
                 type="checkbox"
                 checked={marketingAgree}
-                onChange={(e) => setMarketingAgree(e.target.checked)}
+                onChange={(event) => setMarketingAgree(event.target.checked)}
                 className={cn(
                   'border-brand-gray-300 mt-0.5 ml-2 h-4 w-4 rounded border',
                   'accent-brand-main'
@@ -413,7 +765,7 @@ export function MyInformationFix() {
           <button
             type="button"
             className="text-brand-gray-300 text-sm underline underline-offset-4"
-            onClick={() => setIsWithdrawOpen(true)}
+            onClick={onOpenWithdraw}
           >
             회원탈퇴
           </button>
@@ -424,16 +776,97 @@ export function MyInformationFix() {
             size="reg"
             className="min-w-44"
             onClick={handleSave}
+            disabled={isSaving}
           >
             내 정보 저장하기
           </Button>
         </div>
       </section>
 
+      {isDefaultImageSelectorOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6">
+          <div className="bg-brand-white w-full max-w-lg rounded-2xl p-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-brand-black text-lg font-bold">
+                기본 이미지 선택
+              </h2>
+              <button
+                type="button"
+                className="text-brand-gray-400 text-sm"
+                onClick={() => setIsDefaultImageSelectorOpen(false)}
+              >
+                닫기
+              </button>
+            </div>
+
+            <div className="mt-6 grid grid-cols-4 gap-4">
+              {DEFAULT_PROFILE_IMAGE_URL_LIST.map((profileImageUrl) => {
+                const isSelected = profileImageUrl === selectedProfileImageUrl
+                return (
+                  <button
+                    key={profileImageUrl}
+                    type="button"
+                    className={cn(
+                      'relative aspect-square overflow-hidden rounded-full border-4',
+                      isSelected ? 'border-brand-green' : 'border-transparent'
+                    )}
+                    onClick={() => handleSelectDefaultImage(profileImageUrl)}
+                  >
+                    <Image
+                      src={normalizeImageSrcForNextImage(profileImageUrl)}
+                      alt="기본 프로필 이미지"
+                      fill
+                      sizes="96px"
+                      className="object-cover"
+                    />
+                  </button>
+                )
+              })}
+            </div>
+
+            <div className="mt-6 flex justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsDefaultImageSelectorOpen(false)}
+              >
+                취소
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </main>
+  )
+}
+
+export function MyInformationFix() {
+  const { data: myProfileData, isLoading, isError } = useMyProfile()
+  const [isWithdrawOpen, setIsWithdrawOpen] = useState<boolean>(false)
+
+  const userProfile = myProfileData?.user
+
+  if (isLoading) {
+    return <div className="px-6 py-10">로딩 중입니다.</div>
+  }
+
+  if (isError || !userProfile) {
+    return <div className="px-6 py-10">프로필 정보를 불러올 수 없습니다.</div>
+  }
+
+  return (
+    <>
+      <MyInformationFixForm
+        key={userProfile.id}
+        userProfile={userProfile}
+        onOpenWithdraw={() => setIsWithdrawOpen(true)}
+      />
+
       <WithdrawFlowModal
         isOpen={isWithdrawOpen}
         onClose={() => setIsWithdrawOpen(false)}
       />
-    </main>
+    </>
   )
 }

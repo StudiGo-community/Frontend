@@ -10,7 +10,7 @@ const nextConfig = {
       },
     ]
   },
-
+  reactStrictMode: false,
   // 프록시 설정 (상대 경로로 요청시, 넥스트 서버를 거쳐서 백엔드에 절대 경로로 바꿔서 요청)
   async rewrites() {
     return [
@@ -26,6 +26,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 'localhost',
         hostname: '**',
       },
     ],
