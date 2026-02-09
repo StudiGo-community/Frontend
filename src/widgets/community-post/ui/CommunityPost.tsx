@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import getPost from '@/widgets/community-post/api/getPost'
+import getPost from '@/entities/post/api/getPost'
 import PostStats from '@/entities/post/ui/PostStats'
 import PostActionMenu from '@/features/community-post-manage/ui/PostActionMenu'
 import { MessageSquare } from 'lucide-react'
