@@ -58,7 +58,6 @@ export const BeforeQuizResponseSchema = z
 export type BeforeQuizResponse = z.infer<typeof BeforeQuizResponseSchema>
 
 // 문제 푼 이후
-// TODO: API 문제로 확인 불가
 export type AfterQuizResponse = QuizAnswerResponse
 
 // 참여 기록 조회
