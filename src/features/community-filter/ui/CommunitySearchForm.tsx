@@ -39,7 +39,7 @@ export default function CommunitySearchForm({
         size="sm"
         defaultValue={(currentSearchParams.q as string) || ''}
         placeholder="검색어를 입력하세요"
-        className="hover:border-brand-main text-brand-gray-300 hover:text-brand-main max-w-sm"
+        className="focus-within:ring-brand-gray-200 text-brand-gray-300 hover:text-brand-main max-w-sm focus-within:ring-1"
       />
       <Button
         type="submit"
